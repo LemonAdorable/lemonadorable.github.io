@@ -7,7 +7,7 @@ date: 2024-01-25T22:42:51+08:00
 tags: ["first"]
 author: "Ling"
 # author: ["Me", "You"] # multiple authors
-math: false
+math: true
 showToc: true
 TocOpen: false
 draft: false
