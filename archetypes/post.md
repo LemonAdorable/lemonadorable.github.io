@@ -1,24 +1,24 @@
 ---
-title: "My 1st post"
-date: 2020-09-15T11:30:03+00:00
+title: '{{ replace .File.ContentBaseName "-" " " | title }}'
+date: {{ .Date }}
 # weight: 1
 # aliases: ["/first"]
-# hugo new --kind post <name>
+# hugo new --kind post posts/hello-world.md
 tags: ["first"]
-author: "Me"
+author: "Ling"
 # author: ["Me", "You"] # multiple authors
+math: false
 showToc: true
 TocOpen: false
 draft: false
 hidemeta: false
 comments: false
 description: "Desc Text."
-canonicalURL: "https://canonical.url/to/page"
-disableHLJS: true # to disable highlightjs
+canonicalURL: "https://lemonadorable.github.io/to/page"
+disableHLJS: false # to disable highlightjs
 disableShare: false
-disableHLJS: false
 hideSummary: false
-searchHidden: true
+searchHidden: false
 ShowReadingTime: true
 ShowBreadCrumbs: true
 ShowPostNavLinks: true
@@ -30,9 +30,9 @@ cover:
     alt: "<alt text>" # alt text
     caption: "<text>" # display caption under cover
     relative: false # when using page bundles set this to true
-    hidden: true # only hide on current single page
+    hidden: false # only hide on current single page
 editPost:
-    URL: "https://github.com/<path_to_repo>/content"
+    URL: "https://github.com/LemonAdorable/lemonadorable.github.io/tree/master/content"
     Text: "Suggest Changes" # edit text
     appendFilePath: true # to append file path to Edit link
 ---
