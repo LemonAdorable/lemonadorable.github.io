@@ -2,7 +2,7 @@ baseURL: "https://lemonadorable.github.io/"
 title: 灵的梦境
 paginate: 5
 theme: PaperMod
-languageCode: zh-cn
+languageCode: zh-CN
 enableRobotsTXT: true
 buildDrafts: false
 buildFuture: false
@@ -77,7 +77,7 @@ params:
     imageUrl: "<img location>"
     imageWidth: 120
     imageHeight: 120
-    imageTitle: my image
+    imageTitle:
     buttons:
       - name: Posts
         url: posts
@@ -130,6 +130,14 @@ params:
     keys: ["title", "permalink", "summary", "content"]
 menu:
   main:
+    - identifier: search
+      name: 搜索
+      url: /search/
+      weight: 1
+    - identifier: archives
+      name: 时光机
+      url: /archives/
+      weight: 5
     - identifier: categories
       name: 分类
       url: /categories/
@@ -139,7 +147,7 @@ menu:
       url: /tags/
       weight: 20
     - identifier: continue
-      name: 未完待续
+      name: To be continue
       url: /
       weight: 30
 # Read: https://github.com/adityatelange/hugo-PaperMod/wiki/FAQs#using-hugos-syntax-highlighter-chroma
@@ -153,16 +161,20 @@ markup:
     # lineNos: true
     # style: monokai
 
-
+defaultContentLanguage: zh
+defaultContentLanguageInSubdir: true
 languages:
   zh:
+    #contentDir: content/de
     languageName: "Chinese"
-    weight: 1
-    taxonomies:
-      categories: 分类
-      tags: 标签
-      series: 系列
-      continue:  未完待续
+    disabled: false
+    languageCode: zh-CN
+    weight: 0
+#    taxonomies:
+#      categories: 分类
+#      tags: 标签
+#      series: 系列
+#      continue:  未完待续
 #    menu:
 #      main:
 #        - name: Archive
@@ -177,13 +189,15 @@ languages:
 #        - name: WiKi
 #          url: https://github.com/adityatelange/hugo-PaperMod/wiki/
   en:
+    disabled: false
+    languageCode: en-US
     languageName: "English"
-    weight: 2
-    taxonomies:
-      categories: categories
-      tags: tags
-      series: series
-      continue: To be continue
+    weight: 1
+#    taxonomies:
+#      categories: categories
+#      tags: tags
+#      series: series
+#      continue: To be continue
 #    menu:
 #      main:
 #        - name: Archive
