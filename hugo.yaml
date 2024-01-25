@@ -131,15 +131,15 @@ params:
 menu:
   main:
     - identifier: categories
-      name: categories
+      name: 分类
       url: /categories/
       weight: 10
     - identifier: tags
-      name: tags
+      name: 标签
       url: /tags/
       weight: 20
-    - identifier: To be continue
-      name: To be continue
+    - identifier: continue
+      name: 未完待续
       url: /
       weight: 30
 # Read: https://github.com/adityatelange/hugo-PaperMod/wiki/FAQs#using-hugos-syntax-highlighter-chroma
@@ -159,9 +159,10 @@ languages:
     languageName: "Chinese"
     weight: 1
     taxonomies:
-      category: 分类
-      tag: 标签
+      categories: 分类
+      tags: 标签
       series: 系列
+      continue:  未完待续
 #    menu:
 #      main:
 #        - name: Archive
@@ -179,9 +180,10 @@ languages:
     languageName: "English"
     weight: 2
     taxonomies:
-      category: categories
-      tag: tags
+      categories: categories
+      tags: tags
       series: series
+      continue: To be continue
 #    menu:
 #      main:
 #        - name: Archive
