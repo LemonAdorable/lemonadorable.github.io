@@ -14,39 +14,39 @@
         async>
 </script>
 <!--评论区主题切换-->
-<!--<script>-->
-<!--    if (localStorage.getItem("pref-theme") === "dark"){-->
-<!--        // 设置 giscus 的主题为 dark_tritanopia-->
-<!--        document.querySelector('script[src="https://giscus.app/client.js"]').setAttribute("data-theme", "dark_tritanopia");-->
-<!--    }-->
-<!--    else if (localStorage.getItem("pref-theme") === "light"){-->
-<!--        // 设置 giscus 的主题为 light_protanopia-->
-<!--        document.querySelector('script[src="https://giscus.app/client.js"]').setAttribute("data-theme", "light_protanopia");-->
-<!--    }-->
-<!--</script>-->
+<script>
+
+</script>
 
 <script>
+    if (localStorage.getItem("pref-theme") === "dark"){
+        // 设置 giscus 的主题为 dark_tritanopia
+        document.querySelector('script[src="https://giscus.app/client.js"]').setAttribute("data-theme", "dark_tritanopia");
+    }
+    else if (localStorage.getItem("pref-theme") === "light"){
+        // 设置 giscus 的主题为 light_protanopia
+        document.querySelector('script[src="https://giscus.app/client.js"]').setAttribute("data-theme", "light_protanopia");
+    }
     document.addEventListener('DOMContentLoaded', function () {
         // 初始化 giscus 主题
-        initializeGiscusTheme();
+        //initializeGiscusTheme();
 
         // 主题切换按钮的逻辑
         const themeToggle = document.getElementById("theme-toggle");
         if (themeToggle) {
             themeToggle.addEventListener("click", function() {
-                setTimeout(function() {
-                    const theme = document.body.classList.contains('dark') ? 'dark_tritanopia' : 'light_protanopia';
-                    updateGiscusTheme(theme);
-                }, 10); // 设置一个延时确保主题切换完成
+                const theme = document.body.classList.contains('dark') ? 'dark_tritanopia' : 'light_protanopia';
+                updateGiscusTheme(theme);
             });
         }
     });
 
-    function initializeGiscusTheme() {
-        const storedTheme = localStorage.getItem("pref-theme");
-        const theme = storedTheme === 'dark' ? 'dark_tritanopia' : 'light_protanopia';
-        updateGiscusTheme(theme);
-    }
+    // function initializeGiscusTheme() {
+    //     const storedTheme = localStorage.getItem("pref-theme");
+    //     // 如果 localStorage 中没有主题设置，则默认为白色主题
+    //     const theme = storedTheme === 'dark' ? 'dark_tritanopia' : 'light_protanopia';
+    //     updateGiscusTheme(theme);
+    // }
 
     function updateGiscusTheme(giscusTheme) {
         const giscusIframe = document.querySelector('iframe.giscus-frame');
