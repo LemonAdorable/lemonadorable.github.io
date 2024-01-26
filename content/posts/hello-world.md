@@ -4,7 +4,7 @@ date: 2024-01-25T22:42:51+08:00
 # weight: 1
 # aliases: ["/first"]
 # hugo new --kind post posts/hello-world.md
-tags: ["first"]
+tags: ["Test"]
 author: "Ling"
 # author: ["Me", "You"] # multiple authors
 math: true
@@ -12,7 +12,7 @@ showToc: true
 TocOpen: false
 draft: false
 hidemeta: false
-comments: false
+comments: true
 description: "Desc Text."
 canonicalURL: "https://lemonadorable.github.io/to/page"
 disableHLJS: false # to disable highlightjs
@@ -83,7 +83,7 @@ The [Emoji cheat sheet](http://www.emoji-cheat-sheet.com/) is a useful reference
 
 ## Twitter Shortcode
 
-{{< twitter adityatelange 1724414854348357922 >}}
+{###{< twitter adityatelange 1724414854348357922 >}###}
 
 ---
 

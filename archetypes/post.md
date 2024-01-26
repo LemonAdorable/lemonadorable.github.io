@@ -7,12 +7,12 @@ date: {{ .Date }}
 tags: ["first"]
 author: "Ling"
 # author: ["Me", "You"] # multiple authors
-math: false
+math: true
 showToc: true
 TocOpen: false
 draft: false
 hidemeta: false
-comments: false
+comments: true
 description: "Desc Text."
 canonicalURL: "https://lemonadorable.github.io/to/page"
 disableHLJS: false # to disable highlightjs
