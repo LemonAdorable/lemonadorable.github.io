@@ -10,7 +10,9 @@ buildFuture: false
 buildExpired: false
 math: true
 googleAnalytics: UA-123-45
-enableEmoji: true
+emojify:
+  enableEmoji: true
+
 #search对于多语言使用，例如。search.<lang>.mdsearch.es.md
 outputs:
   home:
