@@ -1,6 +1,6 @@
 ---
 title: 'Hello World'
-date: 2024-01-25T22:42:51+08:00
+date: 2024-12-10T07:20:51+08:00
 # weight: 1
 # aliases: ["/first"]
 # hugo new --kind post posts/hello-world.md
