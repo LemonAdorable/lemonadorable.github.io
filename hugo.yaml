@@ -104,7 +104,7 @@ params:
       url: "https://github.com/LemonAdorable"
     - name: bilibili
       url: "https://space.bilibili.com/2073317402"
-    - name: bilibili
+    - name: steam
       url: "https://steamcommunity.com/id/lemonadora/"
 
   analytics:
