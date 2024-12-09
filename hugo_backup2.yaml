@@ -31,8 +31,7 @@ taxonomies:
 
 params:
   env: production # to enable google analytics, opengraph, twitter-cards and schema.
-  #未看，见https://github.com/adityatelange/hugo-PaperMod/wiki/Features#enhanced-seo
-  title: "灵的梦境"
+  title: 灵的梦境
   description: "愿美梦成真"
   keywords: [Blog, Portfolio, lemonadorable ,ling]
   author: Ling
@@ -41,8 +40,8 @@ params:
   DateFormat: "January 2, 2006"
   defaultTheme: auto # dark, light
   disableThemeToggle: false
-  #ShareButtons: ["qq", "wechat", "bilibili", "zhihu", "x", "reddit", "facebook", "whatsapp", "telegram", "linkedin"] # To customize which share buttons to be enabled on page
-  ShareButtons: ["x", "reddit", "facebook", "whatsapp", "telegram", "linkedin"]
+  ShareButtons: ["qq", "wechat", "bilibili", "zhihu", "x", "reddit", "facebook", "whatsapp", "telegram", "linkedin"] # To customize which share buttons to be enabled on page
+
   ShowReadingTime: true
   ShowShareButtons: true
   ShowPostNavLinks: true
@@ -70,42 +69,38 @@ params:
 
   label:
     text: "灵的梦境"
-    icon: "/favicon_io/favicon.ico"
+    icon: /favicon_io/favicon.ico
     iconHeight: 35
 
   # profile-mode
   profileMode:
     enabled: true # needs to be explicitly set
-    title: "灵的梦境"
+    title: 灵的梦境
     subtitle: "愿美梦成真"
     imageUrl: "/favicon_io/android-chrome-512x512.png"
-    imageTitle: "Ling" # optional
     imageWidth: 120
     imageHeight: 120
+    imageTitle: img
     buttons:
       - name: 文章
-        url: "/posts"
+        url: posts
       - name: 标签
-        url: "/tags"
+        url: tags
       - name: 关于
-        url: "/about"
+        url: about
 
   # home-info mode
   homeInfoParams:
     Title: "Hi there \U0001F44B"
-    Content: "愿美梦成真"
+    Content: 愿美梦成真
 
   socialIcons:
-#    - name: x   https://github.com/adityatelange/hugo-PaperMod/wiki/Icons
-#      url: "https://x.com/"   email steam qq
+#    - name: x
+#      url: "https://x.com/"
 #    - name: stackoverflow
 #      url: "https://stackoverflow.com"
     - name: github
       url: "https://github.com/LemonAdorable"
-    - name: bilibili
-      url: "https://space.bilibili.com/2073317402"
-    - name: bilibili
-      url: "https://steamcommunity.com/id/lemonadora/"
 
   analytics:
     google:
@@ -119,8 +114,8 @@ params:
     hidden: true # hide everywhere but not in structured data
     hiddenInList: true # hide on list pages and home
     hiddenInSingle: true # hide on single page
-    responsiveImages: false #???
-    linkFullImages: true #???
+    responsiveImages: false
+    linkFullImages: true
 
   editPost:
     URL: "https://github.com/LemonAdorable/lemonadorable.github.io/tree/master/content"
@@ -185,26 +180,13 @@ markup:
 
 #defaultContentLanguage: zh
 #defaultContentLanguageInSubdir: true
-
-
-
-# languages:
-#   zh:
-#     #contentDir: content/de
-#     contentDir: content
-#     languageName: "Chinese"
-#     disabled: false
-#     languageCode: zh-CN
-#     languageDirection: ltr
-#     weight: 0
-#     title: 自由灵的梦境
-    
-#     params:
-#       subtitle: 愿美梦成真
-
-
-
-
+languages:
+  zh:
+    #contentDir: content/de
+    languageName: "Chinese"
+    disabled: false
+    languageCode: zh-CN
+    weight: 0
   #    taxonomies:
   #      categories: 分类
   #      tags: 标签
@@ -223,20 +205,11 @@ markup:
   #          weight: 10
   #        - name: WiKi
   #          url: https://github.com/adityatelange/hugo-PaperMod/wiki/
-  
-  
-  # en:
-  #   contentDir: content
-  #   languageName: "English"
-  #   disabled: false
-  #   languageCode: en-US
-  #   languageDirection: ltr
-  #   weight: 10
-  #   title: Ling's dream
-  #   params:
-  #     subtitle:May dreams come true
-
-
+  en:
+    disabled: false
+    languageCode: en-US
+    languageName: "English"
+    weight: 10
 #    taxonomies:
 #      categories: categories
 #      tags: tags
