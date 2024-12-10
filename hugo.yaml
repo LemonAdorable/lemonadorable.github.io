@@ -85,11 +85,11 @@ params:
     imageWidth: 120
     imageHeight: 120
     buttons:
-      - name: 文章
+      - name: Posts
         url: "/posts"
-      - name: 标签
+      - name: Tags
         url: "/tags"
-      - name: 关于
+      - name: About
         url: "/about"
 
   # home-info mode
@@ -190,18 +190,18 @@ markup:
 
 
 
-languages:
-  zh:
+#languages:
+  #zh:
     #contentDir: content/de
     #contentDir: content
     #languageName: "Chinese"
     #disabled: false
     #languageCode: zh-CN
     #languageDirection: ltr
-    weight: 0
-    title: "自由灵的梦境"
-    params:
-      subtitle: "愿美梦成真"
+    # weight: 0
+    # title: "自由灵的梦境"
+    # params:
+    #   subtitle: "愿美梦成真"
 
 
 
@@ -226,16 +226,16 @@ languages:
   #          url: https://github.com/adityatelange/hugo-PaperMod/wiki/
   
   
-  en:
+  #en:
   #   contentDir: content
   #   languageName: "English"
   #   disabled: false
   #   languageCode: en-US
   #   languageDirection: ltr
-    weight: 10
-    title: "Ling's dream"
-    params:
-      subtitle: "subtitle:May dreams come true"
+    # weight: 10
+    # title: "Ling's dream"
+    # params:
+    #   subtitle: "subtitle:May dreams come true"
 
 
 #    taxonomies:
