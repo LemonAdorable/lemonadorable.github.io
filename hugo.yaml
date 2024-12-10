@@ -39,7 +39,7 @@ params:
   keywords: [Blog, Portfolio, lemonadorable ,ling]
   author: Ling
   # author: ["Me", "You"] # multiple authors
-  images: ["/static/favicon_io/android-chrome-512x512.png"]
+  images: ["/static/favicon_io/android-chrome-512x512.gif"]
   DateFormat: "January 2, 2006"
   defaultTheme: auto # dark, light
   disableThemeToggle: false
@@ -64,15 +64,15 @@ params:
   assets:
     # disableHLJS: true # to disable highlight.js
     # disableFingerprinting: true
-    favicon: "/favicon_io/favicon.ico"
-    favicon16x16: "/favicon_io/favicon-16x16.png"
-    favicon32x32: "/favicon_io/favicon-32x32.png"
-    apple_touch_icon: "/favicon_io/apple_touch_icon.png"
-    safari_pinned_tab: "/favicon_io/android-chrome-512x512.png"
+    favicon: "/favicon_io/favicon.gif"
+    favicon16x16: "/favicon_io/favicon-16x16.gif"
+    favicon32x32: "/favicon_io/favicon-32x32.gif"
+    apple_touch_icon: "/favicon_io/apple_touch_icon.gif"
+    safari_pinned_tab: "/favicon_io/android-chrome-512x512.gif"
 
   label:
     text: "灵的梦境"
-    icon: "/favicon_io/favicon.ico"
+    icon: "/favicon_io/favicon.gif"
     iconHeight: 35
 
   # profile-mode
@@ -80,7 +80,7 @@ params:
     enabled: true # needs to be explicitly set
     title: "灵的梦境"
     subtitle: "愿美梦成真"
-    imageUrl: "/favicon_io/android-chrome-512x512.png"
+    imageUrl: "/favicon_io/android-chrome-512x512.gif"
     imageTitle: "Ling" # optional
     imageWidth: 120
     imageHeight: 120
