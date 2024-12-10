@@ -190,18 +190,18 @@ markup:
 
 
 
-#languages:
-  #zh:
-    #contentDir: content/de
-    #contentDir: content
-    #languageName: "Chinese"
-    #disabled: false
-    #languageCode: zh-CN
-    #languageDirection: ltr
-    # weight: 0
-    # title: "自由灵的梦境"
-    # params:
-    #   subtitle: "愿美梦成真"
+# languages:
+#   zh:
+#     #contentDir: content/de
+#     contentDir: content/
+#     languageName: "Chinese"
+#     disabled: false
+#     languageCode: zh-CN
+#     languageDirection: ltr
+#     weight: 0
+#     title: "自由灵的梦境"
+#     params:
+#       subtitle: "愿美梦成真"
 
 
 
@@ -226,16 +226,16 @@ markup:
   #          url: https://github.com/adityatelange/hugo-PaperMod/wiki/
   
   
-  #en:
-  #   contentDir: content
+  # en:
+  #   contentDir: content/
   #   languageName: "English"
   #   disabled: false
   #   languageCode: en-US
   #   languageDirection: ltr
-    # weight: 10
-    # title: "Ling's dream"
-    # params:
-    #   subtitle: "subtitle:May dreams come true"
+  #   weight: 10
+  #   title: "Ling's dream"
+  #   params:
+  #     subtitle: "subtitle:May dreams come true"
 
 
 #    taxonomies:
