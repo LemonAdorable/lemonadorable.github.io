@@ -199,10 +199,9 @@ languages:
     #languageCode: zh-CN
     #languageDirection: ltr
     weight: 0
-    title: 自由灵的梦境
-    
+    title: "自由灵的梦境"
     params:
-      subtitle: 愿美梦成真
+      subtitle: "愿美梦成真"
 
 
 
@@ -234,9 +233,9 @@ languages:
   #   languageCode: en-US
   #   languageDirection: ltr
     weight: 10
-    title: Ling's dream
+    title: "Ling's dream"
     params:
-      subtitle:May dreams come true
+      subtitle: "subtitle:May dreams come true"
 
 
 #    taxonomies:
