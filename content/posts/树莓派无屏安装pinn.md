@@ -1,6 +1,6 @@
 ---
 title: '{{ replace .File.ContentBaseName "-" " " | title }}'
-date: "{{ .Date }}"
+date: "{{ Date }}"
 tags:
   - 刷机
   - 引导
