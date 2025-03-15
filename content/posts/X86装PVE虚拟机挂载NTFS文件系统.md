@@ -1,9 +1,5 @@
 ---
-<<<<<<< HEAD
 title: X86装PVE虚拟机挂载NTFS文件系统
-=======
-title: '{{ replace .File.ContentBaseName "-" " " | title }}'
->>>>>>> origin/master
 date: 2025-03-15T22:29:34+08:00
 tags:
   - 刷机

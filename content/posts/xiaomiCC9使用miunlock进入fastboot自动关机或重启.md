@@ -1,9 +1,5 @@
 ---
-<<<<<<< HEAD
 title: xiaomiCC9使用miunlock进入fastboot自动关机或重启
-=======
-title: '{{ replace .File.ContentBaseName "-" " " | title }}'
->>>>>>> origin/master
 date: 2025-03-15T22:19:29+08:00
 tags:
   - 刷机
