@@ -88,5 +88,5 @@ MTP开启也无法导入
 更新系统后需要重刷magisk与nethunter
 从日志看kali在chroot容器中
 不知道这个用termux装chroot容器有没有区别
-改天试试whyred的魔趣能不能刷这个[RedmiNote5刷nethunter]({{< relref "{{< relref "RedmiNote5%E5%88%B7nethunter.md" >}}" >}})
+改天试试whyred的魔趣能不能刷这个[RedmiNote5刷nethunter]({{< relref "{{< relref "RedmiNote5刷nethunter.md" >}}" >}})
 后面再看看
