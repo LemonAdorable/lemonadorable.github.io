@@ -1,11 +1,16 @@
 ---
+<<<<<<< HEAD
+title: X86装PVE虚拟机挂载NTFS文件系统
+=======
 title: '{{ replace .File.ContentBaseName "-" " " | title }}'
-date: "{{ .Date }}"
+>>>>>>> origin/master
+date: 2025-03-15T22:29:34+08:00
 tags:
   - 刷机
   - 虚拟机
+categories: 
 keywords: 
-series: ""
+series: 
 author: Ling
 math: true
 showToc: true
@@ -13,7 +18,7 @@ TocOpen: false
 draft: false
 hidemeta: false
 comments: true
-description: 
+description: Desc Text.
 canonicalURL: https://lemonadorable.github.io/to/page
 disableHLJS: false
 disableShare: false

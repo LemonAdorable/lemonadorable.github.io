@@ -184,7 +184,10 @@ markup:
     # guessSyntax: true
     # lineNos: true
     # style: monokai
-
+  #解决hugo 里面必须要回车两下才可以换行
+  goldmark:
+    renderer:
+      hardWraps: true
 #defaultContentLanguage: zh
 #defaultContentLanguageInSubdir: true
 

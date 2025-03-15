@@ -1,6 +1,10 @@
 ---
+<<<<<<< HEAD
+title: xiaomiCC9使用miunlock进入fastboot自动关机或重启
+=======
 title: '{{ replace .File.ContentBaseName "-" " " | title }}'
-date: "{{date}}"
+>>>>>>> origin/master
+date: 2025-03-15T22:19:29+08:00
 tags:
   - 刷机
 keywords: 
@@ -88,5 +92,5 @@ MTP开启也无法导入
 更新系统后需要重刷magisk与nethunter
 从日志看kali在chroot容器中
 不知道这个用termux装chroot容器有没有区别
-改天试试whyred的魔趣能不能刷这个[RedmiNote5刷nethunter]({{< relref "RedmiNote5%E5%88%B7nethunter.md" >}})
+改天试试whyred的魔趣能不能刷这个[[RedmiNote5刷nethunter]]
 后面再看看

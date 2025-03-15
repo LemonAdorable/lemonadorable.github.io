@@ -1,6 +1,10 @@
 ---
+<<<<<<< HEAD
+title: PVE集群
+=======
 title: '{{ replace .File.ContentBaseName "-" " " | title }}'
-date: "{{date}}"
+>>>>>>> origin/master
+date: 2025-03-15T22:19:29+08:00
 tags:
   - 虚拟机
 categories: 

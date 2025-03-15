@@ -1,21 +1,17 @@
 ---
-title: 'Hello World'
+title: Hello World
 date: 2024-12-10T07:20:51+08:00
-# weight: 1
-# aliases: ["/first"]
-# hugo new --kind post posts/hello-world.md
-tags: ["Test"]
-author: "Ling"
-# author: ["Me", "You"] # multiple authors
+tags: []
+author: Ling
 math: true
 showToc: true
 TocOpen: false
 draft: false
 hidemeta: false
 comments: true
-description: "Desc Text."
-canonicalURL: "https://lemonadorable.github.io/to/page"
-disableHLJS: false # to disable highlightjs
+description:
+canonicalURL: https://lemonadorable.github.io/to/page
+disableHLJS: false
 disableShare: false
 hideSummary: false
 searchHidden: false
@@ -26,15 +22,15 @@ ShowWordCount: true
 ShowRssButtonInSectionTermList: true
 UseHugoToc: true
 cover:
-    image: "<image path/url>" # image path/url
-    alt: "<alt text>" # alt text
-    caption: "<text>" # display caption under cover
-    relative: false # when using page bundles set this to true
-    hidden: false # only hide on current single page
+  image: <image path/url>
+  alt: <alt text>
+  caption: <text>
+  relative: false
+  hidden: false
 editPost:
-    URL: "https://github.com/LemonAdorable/lemonadorable.github.io/tree/master/content"
-    Text: "Suggest Changes" # edit text
-    appendFilePath: true # to append file path to Edit link
+  URL: https://github.com/LemonAdorable/lemonadorable.github.io/tree/master/content
+  Text: Suggest Changes
+  appendFilePath: true
 ---
 ## Introduction
 
@@ -383,3 +379,4 @@ X<sup>n</sup> + Y<sup>n</sup> = Z<sup>n</sup>
 Press <kbd><kbd>CTRL</kbd>+<kbd>ALT</kbd>+<kbd>Delete</kbd></kbd> to end the session.
 
 Most <mark>salamanders</mark> are nocturnal, and hunt for insects, worms, and other small creatures.
+
