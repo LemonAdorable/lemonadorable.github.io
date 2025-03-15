@@ -1,6 +1,6 @@
 ---
 title: '{{ replace .File.ContentBaseName "-" " " | title }}'
-date: "{{ Date }}"
+date: "{{date}}"
 tags:
   - 虚拟机
 categories: 
