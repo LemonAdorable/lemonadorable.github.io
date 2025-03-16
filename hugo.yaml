@@ -20,7 +20,7 @@ outputs:
     - RSS
     - JSON # necessary for search
 
-copyright:	"**© 2024 [灵的梦境](https://lemonadorable.github.io)**"
+copyright:	"**© 2024 [灵的梦境](https://lemonadorable.github.io)** · 萌ICP备[20250550号](https://icp.gov.moe/?keyword=20250550)" #md格式
 
 minify:
   disableXML: true
@@ -39,7 +39,7 @@ params:
   keywords: [Blog, Portfolio, lemonadorable ,ling]
   author: Ling
   # author: ["Me", "You"] # multiple authors
-  images: ["/static/favicon_io/android-chrome-512x512.gif"]
+  images: ["/static/favicon_io/favicon.gif"]
   DateFormat: "January 2, 2006"
   defaultTheme: auto # dark, light
   disableThemeToggle: false
@@ -65,10 +65,10 @@ params:
     # disableHLJS: true # to disable highlight.js
     # disableFingerprinting: true
     favicon: "/favicon_io/favicon.gif"
-    favicon16x16: "/favicon_io/favicon-16x16.gif"
-    favicon32x32: "/favicon_io/favicon-32x32.gif"
-    apple_touch_icon: "/favicon_io/apple_touch_icon.gif"
-    safari_pinned_tab: "/favicon_io/android-chrome-512x512.gif"
+    favicon16x16: "/favicon_io/favicon.gif"
+    favicon32x32: "/favicon_io/favicon.gif"
+    apple_touch_icon: "/favicon_io/favicon.gif"
+    safari_pinned_tab: "/favicon_io/favicon.gif"
 
   label:
     text: "灵的梦境"
@@ -80,7 +80,7 @@ params:
     enabled: true # needs to be explicitly set
     title: "灵的梦境"
     subtitle: "愿美梦成真"
-    imageUrl: "/favicon_io/android-chrome-512x512.gif"
+    imageUrl: "/favicon_io/favicon.gif"
     imageTitle: "Ling" # optional
     imageWidth: 120
     imageHeight: 120
