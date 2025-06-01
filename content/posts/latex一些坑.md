@@ -1,6 +1,5 @@
 ---
-title:
-  "{ title }": 
+title: latex一些坑
 date: 2025-06-02T05:33:30+08:00
 slug: 
 tags:

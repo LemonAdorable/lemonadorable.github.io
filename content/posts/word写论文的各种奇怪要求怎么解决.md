@@ -1,6 +1,5 @@
 ---
-title:
-  "{ title }": 
+title: word写论文的各种奇怪要求怎么解决
 date: 2025-06-02T05:33:30+08:00
 slug: 
 tags:
