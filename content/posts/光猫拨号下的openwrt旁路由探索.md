@@ -2,7 +2,7 @@
 title: 光猫拨号下的openwrt旁路由探索
 date: 2025-03-15T22:19:29+08:00
 tags:
-  - 网络
+  - Net
 categories: 
 keywords: 
 series: 
