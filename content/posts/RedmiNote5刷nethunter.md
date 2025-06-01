@@ -2,7 +2,7 @@
 title: RedmiNote5刷nethunter
 date: 2025-03-15T22:19:29+08:00
 tags:
-  - 刷机
+  - Flash
 keywords: 
 series: ""
 author: Ling
@@ -110,6 +110,6 @@ fastboot reboot
 刷mini版本，成功
 包中安装的kali应用即使给所有权限也提示权限不足
 可能通用包有些地方不匹配
-后面再研究[[xiaomiCC9使用miunlock进入fastboot自动关机或重启]]
-[[RedmiNote5无法进入fastboot屏幕无输出救砖]]
+后面再研究[xiaomiCC9使用miunlock进入fastboot自动关机或重启]({{< relref "xiaomiCC9%E4%BD%BF%E7%94%A8miunlock%E8%BF%9B%E5%85%A5fastboot%E8%87%AA%E5%8A%A8%E5%85%B3%E6%9C%BA%E6%88%96%E9%87%8D%E5%90%AF.md" >}})
+[RedmiNote5无法进入fastboot屏幕无输出救砖]({{< relref "RedmiNote5%E6%97%A0%E6%B3%95%E8%BF%9B%E5%85%A5fastboot%E5%B1%8F%E5%B9%95%E6%97%A0%E8%BE%93%E5%87%BA%E6%95%91%E7%A0%96.md" >}})
 
