@@ -2,7 +2,7 @@
 title: PVE集群
 date: 2025-03-15T22:19:29+08:00
 tags:
-  - 虚拟机
+  - VM
 categories: 
 keywords: 
 series: 
