@@ -2,8 +2,8 @@
 title: X86装PVE虚拟机挂载NTFS文件系统
 date: 2025-03-15T22:29:34+08:00
 tags:
-  - 刷机
-  - 虚拟机
+  - Flash
+  - VM
 categories: 
 keywords: 
 series: 
