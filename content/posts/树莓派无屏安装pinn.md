@@ -2,8 +2,8 @@
 title: 树莓派无屏安装pinn
 date: 2025-03-15T22:19:29+08:00
 tags:
-  - 刷机
-  - 引导
+  - Flash
+  - Boot
 keywords: 
 series: ""
 author: Ling
