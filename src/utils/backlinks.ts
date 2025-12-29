@@ -1,8 +1,6 @@
 /**
  * Backlinks utility - collects and manages backlinks between blog posts
- * 反向链接工具 - 收集和管理博客文章之间的反向链接
  */
-import type { CollectionEntry } from 'astro:content'
 
 // Regex patterns for link detection
 const WIKILINK_REGEX = /\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g
@@ -24,6 +22,16 @@ export interface Backlink {
 
 export interface BacklinksMap {
   [targetId: string]: Backlink[]
+}
+
+/** Minimal post interface for backlinks processing */
+interface PostLike {
+  id: string
+  body?: string
+  data: {
+    title: string
+    publishDate?: Date
+  }
 }
 
 /**
@@ -80,8 +88,6 @@ function extractLinksFromContent(content: string): string[] {
  * Get a context snippet around a link
  */
 function getContextSnippet(content: string, targetSlug: string, maxLength: number = 100): string | undefined {
-  const normalizedTarget = normalizeId(targetSlug)
-  
   // Try to find wikilink first
   const wikilinkPattern = new RegExp(`\\[\\[${escapeRegex(targetSlug)}(?:\\|[^\\]]+)?\\]\\]`, 'i')
   let match = wikilinkPattern.exec(content)
@@ -123,7 +129,7 @@ function escapeRegex(str: string): string {
  * @returns A map of target post IDs to their backlinks
  */
 export async function buildBacklinksMap(
-  posts: CollectionEntry<'blog'>[],
+  posts: PostLike[],
   basePath: string = '/blog'
 ): Promise<BacklinksMap> {
   const backlinksMap: BacklinksMap = {}
@@ -188,8 +194,8 @@ export function getBacklinksForPost(
  * Get all posts that the current post links to (outgoing links)
  */
 export function getOutgoingLinks(
-  post: CollectionEntry<'blog'>,
-  posts: CollectionEntry<'blog'>[],
+  post: PostLike,
+  posts: PostLike[],
   basePath: string = '/blog'
 ): Backlink[] {
   const content = post.body || ''
@@ -216,4 +222,3 @@ export function getOutgoingLinks(
 
   return outgoing
 }
-
