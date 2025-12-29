@@ -4,6 +4,56 @@ English | [简体中文](./README-zh-CN.md)
 
 A simple, fast and powerful blog & document theme built by Astro.
 
+---
+
+## 🎨 自定义说明
+
+本项目基于 [astro-theme-pure](https://github.com/cworld1/astro-theme-pure) 进行了自定义修改。
+
+### 主要修改内容
+
+- 头像与友链的交互动画
+- giscus评论
+- 全屏主页以及动画效果
+- 颜色背景等细微修改
+
+### 仓库结构
+
+```
+原作者仓库 (cworld1/astro-theme-pure)
+  └── main 分支
+      ↓ (同步)
+模板仓库 (LemonAdorable/astro-theme-pure)
+  ├── main 分支 (跟踪原作者更新)
+  └── diy 分支 (自定义模板 = main + 自定义修改)
+      ↓ (推送)
+部署仓库 (LemonAdorable/lemonadorable.github.io)
+  └── master 分支 (用于 GitHub Pages 部署)
+```
+
+### 推送脚本使用
+
+推送 `diy` 分支到两个远程仓库（模板仓库和部署仓库）：
+
+**Windows (PowerShell):**
+```powershell
+.\scripts\push-diy.ps1
+```
+
+**Linux/Mac:**
+```bash
+# 需要先安装 PowerShell Core，或使用以下命令
+git push astro-theme-pure diy && git push origin diy:master
+```
+
+脚本会自动执行：
+1. 推送到 `astro-theme-pure/diy` (模板仓库)
+2. 推送到 `origin/master` (部署仓库)
+
+---
+
+## 📖 原项目说明
+
 [![GitHub deployments](https://img.shields.io/github/deployments/cworld1/astro-theme-pure/production?style=flat&logo=vercel&label=vercel)](https://astro-pure.js.org/)
 [![NPM Version](https://img.shields.io/npm/v/astro-pure?logo=npm&style=flat)](https://www.npmjs.com/package/astro-pure)
 [![GitHub Release](https://img.shields.io/github/v/release/cworld1/astro-theme-pure?include_prereleases&style=flat&label=template)](https://github.com/cworld1/astro-theme-pure/releases)
