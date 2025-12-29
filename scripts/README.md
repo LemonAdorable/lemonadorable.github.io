@@ -2,21 +2,32 @@
 
 ## push-diy.ps1
 
-用于将 `diy` 分支同时推送到两个远程仓库：
-- `astro-theme-pure/diy` - 魔改版模板仓库（供他人使用）
-- `origin/master` - 博客部署仓库（lemonadorable.github.io）
+只需推送到 `astro-theme-pure` 仓库，GitHub Actions 会自动同步到博客仓库并部署。
+
+### 工作流程
+
+```
+推送 diy 分支
+     ↓
+astro-theme-pure 仓库
+     ↓ (GitHub Actions 自动同步)
+lemonadorable.github.io 仓库
+     ↓ (GitHub Actions 自动部署)
+博客上线
+```
 
 ### 仓库配置
 
 ```
-origin          → LemonAdorable/lemonadorable.github.io  (博客部署)
+upstream         → cworld1/astro-theme-pure              (上游主题)
 astro-theme-pure → LemonAdorable/astro-theme-pure        (魔改版模板)
-upstream        → cworld1/astro-theme-pure              (上游主题)
+                   ↓ (自动同步)
+                   LemonAdorable/lemonadorable.github.io (博客部署)
 ```
 
 ### 使用方法
 
-**日常推送（只推送，不同步上游）：**
+**日常推送：**
 ```powershell
 .\scripts\push-diy.ps1
 ```
@@ -26,20 +37,18 @@ upstream        → cworld1/astro-theme-pure              (上游主题)
 .\scripts\push-diy.ps1 -sync
 ```
 
-**手动命令：**
-```bash
-# 同步上游
-git fetch upstream
-git merge upstream/main
+### 首次配置
 
-# 推送到两个仓库
-git push astro-theme-pure diy      # 更新魔改版
-git push origin diy:master         # 部署博客
-```
+需要在 `astro-theme-pure` 仓库设置 Secret：
 
-### 工作流程
+1. 创建 Personal Access Token (PAT)：
+   - 访问 https://github.com/settings/tokens
+   - 点击 "Generate new token (classic)"
+   - 勾选 `repo` 权限
+   - 生成并复制 token
 
-1. 日常在 `diy` 分支开发和修改
-2. 提交更改：`git add . && git commit -m "描述"`
-3. 运行推送脚本：`.\scripts\push-diy.ps1`
-4. 如需同步上游更新：`.\scripts\push-diy.ps1 -sync`
+2. 添加 Secret：
+   - 访问 https://github.com/LemonAdorable/astro-theme-pure/settings/secrets/actions
+   - 点击 "New repository secret"
+   - Name: `BLOG_DEPLOY_TOKEN`
+   - Value: 粘贴刚才的 token
