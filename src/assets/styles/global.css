@@ -290,6 +290,41 @@ span.katex-display {
   }
 }
 
+/* [Wikilinks] */
+a.wikilink {
+  text-decoration: none;
+  color: hsl(var(--primary));
+  background-color: hsl(var(--primary) / 0.08);
+  padding: 0.1em 0.35em;
+  border-radius: 0.25rem;
+  transition: all 0.2s ease;
+  border-bottom: 1px dashed hsl(var(--primary) / 0.4);
+}
+a.wikilink:hover {
+  background-color: hsl(var(--primary) / 0.15);
+  border-bottom-style: solid;
+}
+a.wikilink-broken {
+  color: hsl(var(--destructive));
+  background-color: hsl(var(--destructive) / 0.08);
+  border-bottom-color: hsl(var(--destructive) / 0.4);
+}
+a.wikilink-broken:hover {
+  background-color: hsl(var(--destructive) / 0.15);
+}
+a.wikilink-highlight {
+  animation: wikilink-pulse 0.6s ease-in-out 3;
+  box-shadow: 0 0 0 3px hsl(var(--primary) / 0.3);
+}
+@keyframes wikilink-pulse {
+  0%, 100% {
+    background-color: hsl(var(--primary) / 0.08);
+  }
+  50% {
+    background-color: hsl(var(--primary) / 0.3);
+  }
+}
+
 /* Scroll bar */
 :root {
   --scrollbar-thumb: hsl(var(--muted-foreground) / var(--un-bg-opacity, 0.3));
