@@ -19,10 +19,17 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Push to lemonadorable.github.io
+   
+      - name: Force push to destination
         env:
-          DEPLOYTOLEMON: ${{ secrets.DEPLOYTOLEMON }}
+          # 确认这里引用的名字和网页后台一模一样
+          DEPLOYTOLEMON: ${{ secrets.DEPLOYTOLEMON }} 
         run: |
-          git remote add blog https://x-access-token:${DEPLOYTOLEMON}@github.com/LemonAdorable/lemonadorable.github.io.git
-          git push blog diy:master --force
+            # 1. 打印一行日志确认变量不是空的（注意：GitHub 会自动隐藏 Token 内容，不用担心泄露）
+              if [ -z "$DEPLOYTOLEMON" ]; then
+                echo "错误：DEPLOYTOLEMON 这个 Secret 在本仓库中找不到！"
+              exit 1
+            fi
+  
+            # 2. 直接执行推送，不通过 remote 代理
+            git push "https://x-access-token:${DEPLOYTOLEMON}@github.com/LemonAdorable/lemonadorable.github.io.git" diy:master --force
