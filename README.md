@@ -16,6 +16,9 @@ A simple, fast and powerful blog & document theme built by Astro.
 - giscus评论
 - 全屏主页以及动画效果
 - 颜色背景等细微修改
+- 反向链接与反向定位引用
+- 双向链接与参考文献
+
 
 ### 仓库结构
 
