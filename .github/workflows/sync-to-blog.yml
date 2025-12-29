@@ -22,7 +22,7 @@ jobs:
 
       - name: Push to lemonadorable.github.io
         env:
-          GITHUB_TOKEN: ${{ secrets.DeployToLemon }}
+          DEPLOYTOLEMON: ${{ secrets.DEPLOYTOLEMON }}
         run: |
-          git remote add blog https://x-access-token:${GITHUB_TOKEN}@github.com/LemonAdorable/lemonadorable.github.io.git
+          git remote add blog https://x-access-token:${DEPLOYTOLEMON}@github.com/LemonAdorable/lemonadorable.github.io.git
           git push blog diy:master --force
