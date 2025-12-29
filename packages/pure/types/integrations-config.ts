@@ -56,7 +56,23 @@ export const IntegrationConfigSchema = () =>
       emoji: z.array(z.string()).optional(),
       /** Additional configurations for the Waline comment system. */
       additionalConfigs: z.record(z.string(), z.any()).default({})
-    })
+    }),
+
+    /** The Giscus comment system */
+    giscus: z
+      .object({
+        /** Enable the Giscus comment system. */
+        enable: z.boolean().default(false),
+        /** The GitHub repository for Giscus. */
+        repo: z.string(),
+        /** The repository ID for Giscus. */
+        repoId: z.string(),
+        /** The category for Giscus. */
+        category: z.string(),
+        /** The category ID for Giscus. */
+        categoryId: z.string()
+      })
+      .optional()
   })
 
 export type IntegrationConfig = z.infer<ReturnType<typeof IntegrationConfigSchema>>

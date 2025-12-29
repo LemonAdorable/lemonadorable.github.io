@@ -3,21 +3,21 @@ import type { CardListData, Config, IntegrationUserConfig, ThemeUserConfig } fro
 export const theme: ThemeUserConfig = {
   // [Basic]
   /** Title for your website. Will be used in metadata and as browser tab title. */
-  title: 'Astro Theme Pure',
+  title: '灵的梦境',
   /** Will be used in index page & copyright declaration */
-  author: 'Pure Lab',
+  author: 'Ling',
   /** Description metadata for your website. Can be used in page metadata. */
-  description: 'Stay hungry, stay foolish',
+  description: '愿美梦成真',
   /** The default favicon for your site which should be a path to an image in the `public/` directory. */
-  favicon: '/favicon/favicon.ico',
+  favicon: '/favicon/favicon.gif',
   /** The default social card image for your site which should be a path to an image in the `public/` directory. */
   socialCard: '/images/social-card.png',
   /** Specify the default language for this site. */
   locale: {
-    lang: 'en-US',
-    attrs: 'en_US',
+    lang: 'zh-CN',
+    attrs: 'zh_CN',
     // Date locale
-    dateLocale: 'en-US',
+    dateLocale: 'zh-CN',
     dateOptions: {
       day: 'numeric',
       month: 'short',
@@ -48,11 +48,13 @@ export const theme: ThemeUserConfig = {
   /** Configure the header of your site. */
   header: {
     menu: [
-      { title: 'Blog', link: '/blog' },
-      { title: 'Docs', link: '/docs' },
-      { title: 'Projects', link: '/projects' },
-      { title: 'Links', link: '/links' },
-      { title: 'About', link: '/about' }
+      { title: '文章', link: '/blog' },
+      { title: '标签', link: '/tags' },
+      { title: '时光机', link: '/archives' },
+      { title: '项目', link: '/projects' },
+      { title: '文档', link: '/docs' },
+      { title: '链接', link: '/links' },
+      { title: '关于', link: '/about' }
     ]
   },
 
@@ -64,8 +66,8 @@ export const theme: ThemeUserConfig = {
     links: [
       // Registration link
       {
-        title: 'Moe ICP 114514',
-        link: 'https://icp.gov.moe/?keyword=114514',
+        title: '萌ICP备20250550号',
+        link: 'https://icp.gov.moe/?keyword=20250550',
         style: 'text-sm' // Uno/TW CSS class
       },
       {
@@ -80,10 +82,14 @@ export const theme: ThemeUserConfig = {
         pos: 2 // position set to 2 will be appended to copyright line
       }
     ],
-    /** Enable displaying a “Astro & Pure theme powered” link in your site’s footer. */
+    /** Enable displaying a "Astro & Pure theme powered" link in your site's footer. */
     credits: true,
     /** Optional details about the social media accounts for this site. */
-    social: { github: 'https://github.com/cworld1/astro-theme-pure' }
+    social: { 
+      github: 'https://github.com/LemonAdorable',
+      bilibili: 'https://space.bilibili.com/2073317402',
+      steam: 'https://steamcommunity.com/id/lemonadora/'
+    }
   },
 
   // [Content]
@@ -119,8 +125,8 @@ export const integ: IntegrationUserConfig = {
     applyTip: [
       { name: 'Name', val: theme.title },
       { name: 'Desc', val: theme.description || 'Null' },
-      { name: 'Link', val: 'https://astro-pure.js.org/' },
-      { name: 'Avatar', val: 'https://astro-pure.js.org/favicon/favicon.ico' }
+      { name: 'Link', val: 'https://lemonadorable.github.io/' },
+      { name: 'Avatar', val: 'https://lemonadorable.github.io/favicon_io/favicon.gif' }
     ],
     // Cache avatars in `public/avatars/` to improve user experience.
     cacheAvatar: false
@@ -162,24 +168,31 @@ export const integ: IntegrationUserConfig = {
       className: 'zoomable'
     }
   },
-  // Comment system
+  // Comment system - Using Giscus instead of Waline
   waline: {
-    enable: true,
+    enable: false, // Disabled, using Giscus instead
     // Server service link
-    server: 'https://astro-theme-pure-waline.arthals.ink/',
+    //server: 'https://astro-theme-pure-waline.arthals.ink/',
     // Refer https://waline.js.org/en/guide/features/emoji.html
-    emoji: ['bmoji', 'weibo'],
+    //emoji: ['bmoji', 'weibo'],
     // Refer https://waline.js.org/en/reference/client/props.html
-    additionalConfigs: {
+    //additionalConfigs: {
       // search: false,
-      pageview: true,
-      comment: true,
-      locale: {
-        reaction0: 'Like',
-        placeholder: 'Welcome to comment. (Email to receive replies. Login is unnecessary)'
-      },
-      imageUploader: false
-    }
+      //pageview: true,
+      //comment: true,
+      //locale: {
+        //reaction0: 'Like',
+        //placeholder: 'Welcome to comment. (Email to receive replies. Login is unnecessary)'
+      //},
+      //imageUploader: false
+  },
+  // Giscus comment system configuration
+  giscus: {
+    enable: true,
+    repo: 'LemonAdorable/lemonadorable.github.io',
+    repoId: 'R_kgDOLJXF6A',
+    category: 'Announcements',
+    categoryId: 'DIC_kwDOLJXF6M4Ccs4x'
   }
 }
 
