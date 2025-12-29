@@ -15,11 +15,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Push to lemonadorable.github.io
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.BLOG_DEPLOY_TOKEN }}
-          repository: LemonAdorable/lemonadorable.github.io
-          branch: master
-          force: true
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
+      - name: Push to lemonadorable.github.io
+        env:
+          GITHUB_TOKEN: ${{ secrets.BLOG_DEPLOY_TOKEN }}
+        run: |
+          git remote add blog https://x-access-token:${GITHUB_TOKEN}@github.com/LemonAdorable/lemonadorable.github.io.git
+          git push blog diy:master --force
