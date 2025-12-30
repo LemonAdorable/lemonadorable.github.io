@@ -31,4 +31,4 @@ jobs:
           fi
 
           # 使用自定义 Token 推送
-          git push "https://x-access-token:${MY_TOKEN}@github.com/LemonAdorable/lemonadorable.github.io.git" diy:master --force
+          git push "https://x-access-token:${MY_TOKEN}@github.com/LemonAdorable/lemonadorable.github.io.git" main:master --force
