@@ -2,8 +2,6 @@
 
 English | [简体中文](./README-zh-CN.md)
 
-A simple, fast and powerful blog & document theme built by Astro.
-
 ---
 
 ## 🎨 自定义说明
@@ -19,43 +17,33 @@ A simple, fast and powerful blog & document theme built by Astro.
 - 反向链接与反向定位引用
 - 双向链接与参考文献
 
+### todolist
+
+ - 其他页的淡紫色
+ - 类似quartz的搜索以及其他功能的移植，以及starlightobsidian的一些功能移植
+ - 英文支持，首页简历，项目页更改，gpg签名
+
 
 ### 仓库结构
 
+推送到 `astro-theme-pure` 仓库，GitHub Actions 会自动同步到博客仓库并部署。
 ```
 原作者仓库 (cworld1/astro-theme-pure)
   └── main 分支
       ↓ (同步)
 模板仓库 (LemonAdorable/astro-theme-pure)
   ├── main 分支 (跟踪原作者更新)
-  └── diy 分支 (自定义模板 = main + 自定义修改)
-      ↓ (推送)
+  └── diy 分支 (默认分支，自定义模板 = main + 自定义修改)
+      ↓ (GitHub Actions 自动同步)
 部署仓库 (LemonAdorable/lemonadorable.github.io)
   └── master 分支 (用于 GitHub Pages 部署)
 ```
 
-### 推送脚本使用
-
-推送 `diy` 分支到两个远程仓库（模板仓库和部署仓库）：
-
-**Windows (PowerShell):**
-```powershell
-.\scripts\push-diy.ps1
-```
-
-**Linux/Mac:**
-```bash
-# 需要先安装 PowerShell Core，或使用以下命令
-git push astro-theme-pure diy && git push origin diy:master
-```
-
-脚本会自动执行：
-1. 推送到 `astro-theme-pure/diy` (模板仓库)
-2. 推送到 `origin/master` (部署仓库)
-
 ---
 
 ## 📖 原项目说明
+
+A simple, fast and powerful blog & document theme built by Astro.
 
 [![GitHub deployments](https://img.shields.io/github/deployments/cworld1/astro-theme-pure/production?style=flat&logo=vercel&label=vercel)](https://astro-pure.js.org/)
 [![NPM Version](https://img.shields.io/npm/v/astro-pure?logo=npm&style=flat)](https://www.npmjs.com/package/astro-pure)
