@@ -73,7 +73,7 @@ export const theme: ThemeUserConfig = {
       // Privacy Policy link
       {
         title: 'Site Policy',
-        link: '/terms',
+        link: '/terms/list',
         pos: 2 // position set to 2 will be appended to copyright line
       }
     ],
@@ -168,6 +168,8 @@ export const integ: IntegrationUserConfig = {
     enable: false, // Disabled, using Giscus instead
     // Server service link
     //server: 'https://astro-theme-pure-waline.arthals.ink/',
+    // Show meta info for comments
+    //showMeta: false,
     // Refer https://waline.js.org/en/guide/features/emoji.html
     //emoji: ['bmoji', 'weibo'],
     // Refer https://waline.js.org/en/reference/client/props.html

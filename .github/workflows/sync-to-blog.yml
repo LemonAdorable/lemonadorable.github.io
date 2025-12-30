@@ -3,7 +3,7 @@ name: Sync to Blog Repository
 on:
   push:
     branches:
-      - diy
+      - main
   workflow_dispatch:
 
 jobs:
