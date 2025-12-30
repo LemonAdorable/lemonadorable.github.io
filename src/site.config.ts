@@ -70,15 +70,10 @@ export const theme: ThemeUserConfig = {
         link: 'https://icp.gov.moe/?keyword=20250550',
         style: 'text-sm' // Uno/TW CSS class
       },
-      {
-        title: 'Travelling',
-        link: 'https://www.travellings.cn/go.html',
-        style: 'text-sm'
-      },
       // Privacy Policy link
       {
         title: 'Site Policy',
-        link: '/terms/list',
+        link: '/terms',
         pos: 2 // position set to 2 will be appended to copyright line
       }
     ],
