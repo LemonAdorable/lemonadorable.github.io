@@ -44,8 +44,7 @@ async function fetchCount(item: SubstatsItem) {
       item.count = data.count
     }
   } catch (error) {
-    // 静默处理错误，不显示在控制台，避免污染日志
-    // console.error(`Error in Substats fetching for ${item.platform}: ${error}`)
+    console.error(`Error in Substats fetching for ${item.platform}: ${error}`)
   }
 }
 

@@ -1,6 +1,7 @@
 import { rehypeHeadingIds } from '@astrojs/markdown-remark'
 import AstroPureIntegration from 'astro-pure'
 import { defineConfig, fontProviders } from 'astro/config'
+//import vercel from '@astrojs/vercel'
 import rehypeKatex from 'rehype-katex'
 import remarkMath from 'remark-math'
 
