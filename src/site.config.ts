@@ -31,7 +31,7 @@ export const theme: ThemeUserConfig = {
   },
 
   titleDelimiter: '•',
-  prerender: true, // pagefind search is not supported with prerendering disabled
+  prerender: true,
   npmCDN: 'https://cdn.jsdelivr.net/npm',
 
   // Still in test
@@ -127,7 +127,7 @@ export const integ: IntegrationUserConfig = {
     cacheAvatar: false
   },
   // [Search]
-  pagefind: true,
+  // Using flexsearch instead of pagefind
   // Add a random quote to the footer (default on homepage footer)
   // See: https://astro-pure.js.org/docs/integrations/advanced#web-content-render
   // [Quote]

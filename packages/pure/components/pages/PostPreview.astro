@@ -26,7 +26,7 @@ const postDate = data.updatedDate ?? data.publishDate
 >
   <a
     class={cn(
-      'block w-full relative group rounded-2xl border bg-background transition-colors ease-in-out px-5 py-2.5 hover:bg-muted hover:text-primary',
+      'block w-full relative group rounded-2xl border transition-colors ease-in-out px-5 py-2.5 hover:text-primary',
       detailed && 'max-sm:px-4 sm:py-5',
       detailed && data.heroImage && 'max-md:pt-24'
     )}
@@ -125,10 +125,28 @@ const postDate = data.updatedDate ?? data.publishDate
       --preview-highlight-final: var( --preview-highlight, hsl(var(--primary) / var(--un-text-opacity, 1))
       );
     }
+    .post-preview > a {
+      background: linear-gradient(
+        135deg,
+        hsl(var(--primary) / 0.05) 0%,
+        hsl(var(--primary) / 0.03) 30%,
+        hsl(var(--primary) / 0.02) 60%,
+        hsl(var(--primary) / 0.01) 85%,
+        hsl(var(--background) / 1) 100%
+      ) !important;
+      background-color: hsl(var(--background) / 1);
+    }
     .post-preview:hover {
       & > a,
       & .tag-list a {
-        background-color: var( --preview-highlight-bg, hsl(var(--muted) / var(--un-bg-opacity, 1))) !important;
+        background: linear-gradient(
+          135deg,
+          var(--preview-highlight-bg, hsl(var(--primary) / 0.08)) 0%,
+          var(--preview-highlight-bg, hsl(var(--primary) / 0.05)) 30%,
+          var(--preview-highlight-bg, hsl(var(--primary) / 0.03)) 60%,
+          var(--preview-highlight-bg, hsl(var(--primary) / 0.02)) 85%,
+          hsl(var(--muted) / var(--un-bg-opacity, 1)) 100%
+        ) !important;
       }
       & > a,
       & .tag-list a:hover {

@@ -15,6 +15,9 @@ interface Props {
 }
 
 const { title, headings, view, comment: enableComment, ...props } = Astro.props
+
+// Get current page slug from URL (reserved for future use)
+// const currentSlug = Astro.url.pathname.replace(/^\//, '').replace(/\/$/, '') || undefined
 ---
 
 <PageLayout meta={{ title }} {...props}>

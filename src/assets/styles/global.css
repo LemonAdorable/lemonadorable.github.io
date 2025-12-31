@@ -329,6 +329,88 @@ a.wikilink-highlight {
   }
 }
 
+/* Wikilink Preview Popover */
+/* Tippy.js theme for wikilink previews */
+.tippy-box[data-theme~='wikilink-preview'] {
+  background: hsl(var(--background) / 0.95);
+  backdrop-filter: blur(8px);
+  border: 1px solid hsl(var(--border) / var(--un-border-opacity, 1));
+  border-radius: 8px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  font-family: inherit;
+}
+
+.tippy-box[data-theme~='wikilink-preview'] .tippy-content {
+  padding: 0;
+  font-family: inherit;
+}
+
+.wikilink-preview {
+  font-family: inherit;
+}
+
+.wikilink-preview-content {
+  /* Use same styles as search preview */
+}
+
+.wikilink-preview-content.preview-inner {
+  margin: 0 auto;
+  width: min(100%, 100%);
+}
+
+.wikilink-preview-content :global(h1),
+.wikilink-preview-content :global(h2),
+.wikilink-preview-content :global(h3),
+.wikilink-preview-content :global(h4),
+.wikilink-preview-content :global(h5),
+.wikilink-preview-content :global(h6) {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  font-weight: 600;
+}
+
+.wikilink-preview-content :global(p) {
+  margin: 0.5em 0;
+}
+
+.wikilink-preview-content :global(code) {
+  background: hsl(var(--muted) / var(--un-bg-opacity, 1));
+  padding: 0.125em 0.25em;
+  border-radius: 0.25rem;
+  font-size: 0.9em;
+}
+
+.wikilink-preview-content :global(pre) {
+  background: hsl(var(--muted) / var(--un-bg-opacity, 1));
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin: 0.5em 0;
+}
+
+.wikilink-preview-content :global(ul),
+.wikilink-preview-content :global(ol) {
+  margin: 0.5em 0;
+  padding-left: 1.5em;
+}
+
+.wikilink-preview-content :global(li) {
+  margin: 0.25em 0;
+}
+
+.wikilink-preview-content :global(blockquote) {
+  border-left: 3px solid hsl(var(--border) / var(--un-border-opacity, 1));
+  padding-left: 1em;
+  margin: 0.5em 0;
+  color: hsl(var(--muted-foreground) / var(--un-text-opacity, 1));
+}
+
+.wikilink-preview-content :global(img) {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+}
+
 /* Scroll bar */
 :root {
   --scrollbar-thumb: hsl(var(--muted-foreground) / var(--un-bg-opacity, 0.3));

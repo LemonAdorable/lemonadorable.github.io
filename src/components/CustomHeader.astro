@@ -4,6 +4,7 @@ import { Image } from 'astro:assets'
 import config from 'virtual:config'
 
 import { Icon } from 'astro-pure/user'
+import Search from './Search.astro'
 
 const imagePath = config.logo.src
 const images = import.meta.glob<{ default: ImageMetadata }>(
@@ -55,10 +56,7 @@ const logoImage = logoImageModule ? await logoImageModule() : null
           ))
         }
         <div class='flex w-full grow flex-row justify-end gap-x-3 sm:w-fit sm:gap-x-5'>
-          <a class='px-1 py-2 transition-none sm:px-2' href='/search' title='Search'>
-            <span class='sr-only'>Search</span>
-            <Icon name='search' class='size-5' />
-          </a>
+          <Search />
         </div>
       </div>
     </div>
@@ -96,10 +94,6 @@ const logoImage = logoImageModule ? await logoImageModule() : null
   import { setTheme, showToast } from 'astro-pure/utils'
 
   class HeaderComponent extends HTMLElement {
-    constructor() {
-      super()
-    }
-
     connectedCallback() {
       // Header
       let preScrollY = window.scrollY
