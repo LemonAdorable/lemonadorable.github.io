@@ -79,16 +79,17 @@ export default defineConfig({
       transformers: [
         // Two copies of @shikijs/types (one under node_modules
         // and another nested under @astrojs/markdown-remark → shiki).
+        // Use type assertion to work around version mismatch
         // Official transformers
-        transformerNotationDiff(),
-        transformerNotationHighlight(),
-        transformerRemoveNotationEscape(),
+        transformerNotationDiff() as any,
+        transformerNotationHighlight() as any,
+        transformerRemoveNotationEscape() as any,
         // Custom transformers
-        updateStyle(),
-        addTitle(),
-        addLanguage(),
-        addCopyButton(2000), // timeout in ms
-        addCollapse(15) // max lines that needs to collapse
+        updateStyle() as any,
+        addTitle() as any,
+        addLanguage() as any,
+        addCopyButton(2000) as any, // timeout in ms
+        addCollapse(15) as any // max lines that needs to collapse
       ]
     }
   },
