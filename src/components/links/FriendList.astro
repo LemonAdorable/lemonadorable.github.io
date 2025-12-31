@@ -28,11 +28,10 @@ function shuffle(arr: friend[]) {
   })
 }
 
-interface Props {
+const { title, list: friendList, ...props } = Astro.props as {
   title?: string
   list: friend_list
-}
-const { title, list: friendList, ...props } = Astro.props
+} & Record<string, any>
 
 const getAvatarSrc = (friend: friend) =>
   (config.integ?.links?.cacheAvatar ?? false)

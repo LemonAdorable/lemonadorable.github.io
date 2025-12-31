@@ -6,7 +6,7 @@ import type { CollectionEntry } from 'astro:content'
 import 'katex/dist/katex.min.css'
 
 import { MediumZoom } from 'astro-pure/advanced'
-import { ArticleBottom, Copyright, Hero, TOC } from 'astro-pure/components/pages'
+import { ArticleBottom, Copyright, GraphView, Hero, TOC } from 'astro-pure/components/pages'
 import config from 'virtual:config'
 import PageLayout from '@/layouts/ContentLayout.astro'
 import { Giscus } from '@/components/giscus'
@@ -83,10 +83,16 @@ const primaryColor = data.heroImage?.color ?? '#B19CD9'
     {!isDraft && enableComment && config.integ.giscus?.enable && <Giscus class='mt-3 sm:mt-6' />}
   </Fragment>
 
-  <slot name='bottom-sidebar' slot='bottom-sidebar' />
+  <GraphView currentSlug={`blog/${id}`} slot='bottom-sidebar' id='blog-graph-view' class='blog-graph-view' />
 </PageLayout>
 
 {config.integ.mediumZoom.enable && <MediumZoom />}
+
+<script>
+  import('@/components/scripts/wikilink-preview.ts').catch(err => {
+    console.error('Failed to load wikilink preview:', err)
+  })
+</script>
 
 <script>
   // Helper function to locate and highlight a wikilink
@@ -195,7 +201,100 @@ const primaryColor = data.heroImage?.color ?? '#B19CD9'
       row.insertBefore(badge, row.firstChild)
     })
   }
+
+  // Align GraphView canvas with corresponding content
+  function alignGraphView() {
+    const graphView = document.getElementById('blog-graph-view')
+    if (!graphView) return
+
+    const graphHeader = graphView.querySelector('.graph-view-header') as HTMLElement
+    if (!graphHeader) return
+
+    // Check for outgoing links (相关链接)
+    const outgoingLinks = document.querySelector('.outgoing-links-section') as HTMLElement
+    // Check for backlinks (反向链接) - look for section with links-header but not outgoing-links-section
+    const backlinks = Array.from(document.querySelectorAll('section')).find(
+      (section) => 
+        section.querySelector('.links-header') && 
+        !section.classList.contains('outgoing-links-section')
+    ) as HTMLElement
+    
+    // Find target element to align with
+    let targetElement: HTMLElement | null = null
+    
+    if (outgoingLinks) {
+      // Align with outgoing links (相关链接)
+      targetElement = outgoingLinks
+    } else if (backlinks) {
+      // Align with backlinks (反向链接)
+      targetElement = backlinks
+    } else {
+      // Align with Copyright
+      const copyrightSection = document.querySelector('.bottom > div:first-child > div.relative') as HTMLElement
+      if (copyrightSection) {
+        targetElement = copyrightSection
+      }
+    }
+
+    if (!targetElement) {
+      graphView.style.marginTop = '0px'
+      return
+    }
+
+    // Get the bottom container for reference
+    const bottomContainer = document.querySelector('.bottom') as HTMLElement
+    if (!bottomContainer) return
+
+    // Get positions relative to viewport
+    const targetRect = targetElement.getBoundingClientRect()
+    const graphViewRect = graphView.getBoundingClientRect()
+    const bottomContainerRect = bottomContainer.getBoundingClientRect()
+
+    // Calculate positions relative to bottom container
+    const targetTopRelative = targetRect.top - bottomContainerRect.top
+    const graphViewTopRelative = graphViewRect.top - bottomContainerRect.top
+    
+    // Calculate graph header height including margin
+    const headerHeight = graphHeader.offsetHeight
+    const headerMarginBottom = parseFloat(getComputedStyle(graphHeader).marginBottom) || 0
+    const totalHeaderHeight = headerHeight + headerMarginBottom
+
+    // Calculate where graph-canvas will be positioned
+    // graph-canvas top = graphView top (relative to bottom) + header height + margin-top
+    // We want: graph-canvas top = target top (relative to bottom)
+    // So: margin-top = target top - graphView top - header height
+    const requiredMarginTop = targetTopRelative - graphViewTopRelative - totalHeaderHeight
+
+    // Apply margin-top (ensure it's not negative)
+    graphView.style.marginTop = `${Math.max(0, requiredMarginTop)}px`
+  }
+
+  // Run alignment after DOM is ready
+  function runAlignment() {
+    // Use setTimeout to ensure all content is rendered
+    setTimeout(alignGraphView, 100)
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', runAlignment)
+  } else {
+    runAlignment()
+  }
+
+  // Re-align on window resize
+  let resizeTimeout: ReturnType<typeof setTimeout>
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout)
+    resizeTimeout = setTimeout(alignGraphView, 150)
+  })
 </script>
+
+<style>
+  /* GraphView alignment will be handled by JavaScript */
+  .blog-graph-view {
+    margin-top: 0;
+  }
+</style>
 
 <style is:global>
   .wikilink-locate-btn {

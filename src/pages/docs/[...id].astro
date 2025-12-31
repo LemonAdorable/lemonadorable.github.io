@@ -2,7 +2,7 @@
 import { type CollectionEntry, render } from 'astro:content'
 
 import { MediumZoom } from 'astro-pure/advanced'
-import { TOC } from 'astro-pure/components/pages'
+import { GraphView, TOC } from 'astro-pure/components/pages'
 import { getBlogCollection, sortMDByDate } from 'astro-pure/server'
 import { Button } from 'astro-pure/user'
 import PageLayout from '@/layouts/ContentLayout.astro'
@@ -32,6 +32,7 @@ const editPath = `https://github.com/cworld1/astro-theme-pure/edit/main/${post.f
 
 <PageLayout meta={{ description, title }} back='/docs'>
   <Fragment slot='sidebar'>
+    <GraphView currentSlug={`docs/${post.id}`} />
     {!!headings.length && <TOC {headings} />}
     <DocsContents class='docs-toc block mt-3' />
   </Fragment>
