@@ -1,7 +1,7 @@
 import { rehypeHeadingIds } from '@astrojs/markdown-remark'
+//import vercel from '@astrojs/vercel'
 import AstroPureIntegration from 'astro-pure'
 import { defineConfig, fontProviders } from 'astro/config'
-//import vercel from '@astrojs/vercel'
 import rehypeKatex from 'rehype-katex'
 import remarkMath from 'remark-math'
 
@@ -81,15 +81,23 @@ export default defineConfig({
         // and another nested under @astrojs/markdown-remark → shiki).
         // Use type assertion to work around version mismatch
         // Official transformers
-        transformerNotationDiff() as any,
-        transformerNotationHighlight() as any,
-        transformerRemoveNotationEscape() as any,
+        // @ts-ignore this happens due to multiple versions of shiki types
+        transformerNotationDiff(),
+        // @ts-ignore this happens due to multiple versions of shiki types
+        transformerNotationHighlight(),
+        // @ts-ignore this happens due to multiple versions of shiki types
+        transformerRemoveNotationEscape(),
         // Custom transformers
-        updateStyle() as any,
-        addTitle() as any,
-        addLanguage() as any,
-        addCopyButton(2000) as any, // timeout in ms
-        addCollapse(15) as any // max lines that needs to collapse
+        // @ts-ignore this happens due to multiple versions of shiki types
+        updateStyle(),
+        // @ts-ignore this happens due to multiple versions of shiki types
+        addTitle(),
+        // @ts-ignore this happens due to multiple versions of shiki types
+        addLanguage(),
+        // @ts-ignore this happens due to multiple versions of shiki types
+        addCopyButton(2000), // timeout in ms
+        // @ts-ignore this happens due to multiple versions of shiki types
+        addCollapse(15) // max lines that needs to collapse
       ]
     }
   },
