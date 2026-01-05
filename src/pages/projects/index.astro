@@ -1,7 +1,7 @@
 ---
 import { Image } from 'astro:assets'
 
-import { Button, Collapse, Icon } from 'astro-pure/user'
+import { Button, Icon } from 'astro-pure/user'
 import PageLayout from '@/layouts/CommonPage.astro'
 import ProjectSection from '@/components/projects/ProjectSection.astro'
 import Sponsors from '@/components/projects/Sponsors.astro'
@@ -20,14 +20,14 @@ const headings = [
 ---
 
 <PageLayout title='Projects' {headings} view>
-  {/* About astro-pure */}
+  {/* About astro-iris */}
   <div class='not-prose flex justify-center'>
     <a
       href='/docs/advanced/about' target='_blank'
       class='flex items-center gap-x-3 rounded-full border bg-background px-4 py-2 text-sm shadow-sm transition-shadow hover:shadow-md'
     >
       <span class='size-2 rounded-full bg-green-400'></span>
-      <p class='font-medium text-muted-foreground'>About Astro-Theme-Pure Project</p>
+      <p class='font-medium text-muted-foreground'>About Astro-Theme-Iris Project</p>
     </a>
   </div>
   <p>Github Activities:</p>
@@ -51,71 +51,36 @@ const headings = [
   <ProjectSection
     projects={[
       {
-        name: '🎨 Astro Theme Pure',
-        description: 'A simple, fast and powerful blog & document theme built by Astro',
-        links: [
-          { type: 'github', href: 'https://github.com/cworld1/astro-theme-pure' },
-          { type: 'site', href: 'https://astro-pure.js.org/' },
-          { type: 'doc', href: 'https://astro-pure.js.org/docs/list' },
-          { type: 'release', href: 'https://www.npmjs.com/package/astro-pure' }
-        ]
+        name: 'Astro Theme Iris',
+        description: 'Pinned project on GitHub',
+        links: [{ type: 'github', href: 'https://github.com/LemonAdorable/astro-theme-iris' }]
       },
       {
-        name: '💄 PKU Art',
-        description: 'A script to beautify pku course website',
-        links: [
-          { type: 'github', href: 'https://github.com/zhuozhiyongde/pku-art' },
-          { type: 'site', href: 'https://github.com/zhuozhiyongde/pku-art' },
-          { type: 'doc', href: 'https://docs.arthals.ink/docs/pku-art' }
-        ]
+        name: 'Bullbear Dashboard',
+        description: 'Pinned project on GitHub',
+        links: [{ type: 'github', href: 'https://github.com/CrytoPlanet/bullbear-dashboard' }]
+      },
+      {
+        name: 'Guadao',
+        description: 'Pinned project on GitHub',
+        links: [{ type: 'github', href: 'https://github.com/CrytoPlanet/guadao' }]
       }
     ]}
   />
-  <Collapse title='Some old projects'>
-    <ProjectSection
-      projects={[
-        {
-          name: '🧩 rehype-autolink-headings-simple',
-          description: 'A simple version of rehype-autolink-headings',
-          links: [
-            { type: 'github', href: 'https://github.com/cworld1/rehype-autolink-headings-simple' },
-            {
-              type: 'release',
-              href: 'https://www.npmjs.com/package/rehype-autolink-headings-simple'
-            }
-          ]
-        },
-        {
-          name: 'Gaussian NB',
-          description:
-            'Simulating the Parsimonious Bayesian Algorithm with Python and Finding the Probability Prediction of Breast Cancer ',
-          links: [{ type: 'github', href: 'https://github.com/cworld1/gaussian-nb' }]
-        }
-      ]}
-    />
-  </Collapse>
 
   <h2 id='learnings'>Learnings</h2>
   <ProjectSection
     class='my-2'
     projects={[
       {
-        name: 'R Learning',
-        description: 'Some notes and code about learning R language',
-        links: [
-          { type: 'github', href: 'https://github.com/cworld1/r-learning' },
-          { type: 'site', href: 'https://cworld1.github.io/r-learning' }
-        ]
+        name: 'Solidity',
+        description: 'Learning notes and code for Solidity',
+        links: [{ type: 'github', href: 'https://github.com/argotorg/solidity' }]
       },
       {
-        name: 'CS 213 Learning',
-        description: 'Notes, code and experiences for Introduction to Computer Systems course',
-        links: [
-          {
-            type: 'github',
-            href: 'https://github.com/zhuozhiyongde/Introduction-To-Computer-System-2023Fall-PKU'
-          }
-        ]
+        name: 'Qlib',
+        description: 'Learning notes and code for Qlib',
+        links: [{ type: 'github', href: 'https://github.com/microsoft/qlib' }]
       }
     ]}
   />
@@ -129,9 +94,9 @@ const headings = [
         links: [{ type: 'github', href: 'https://github.com/cworld1' }]
       },
       {
-        name: 'Arthals',
-        description: 'Arthals Github',
-        links: [{ type: 'github', href: 'https://github.com/zhuozhiyongde' }]
+        name: 'LemonAdorable',
+        description: 'My Github',
+        links: [{ type: 'github', href: 'https://github.com/LemonAdorable' }]
       }
     ]}
   />
@@ -155,27 +120,14 @@ const headings = [
   <p>Please leave a message or contact me proactively after sponsorship. My email is:
     <code style='cursor: pointer'
       onclick='const m=atob(this.textContent);alert(m);window.open(`mailto:${m}`,"_blank")'
-    >Y3dvcmxkMEBxcS5jb20=</code>
+    >bGVtb25hZG9yYWJsZUBnbWFpbC5jb20=</code>
     (click code to transform base64).
   </p>
   <p>Thanks to the following sponsors:</p>
   <Sponsors
     progressMax={50}
     sponsors={[
-      { name: 'hoochanlon', platform: 'Wechat', amount: 5, date: '2025-11-09' },
-      { name: 'Arthals', platform: 'Wechat', amount: 50, date: '2025-11-06' },
-      { name: '边缘星2020 (byx2020.com)', platform: 'Alipay', amount: 50, date: '2025-11-01' },
-      { name: '小哲', platform: 'Wechat', amount: 50, date: '2025-08-19' },
-      { name: 'Open1V', platform: 'Wechat', amount: 2, date: '2025-08-14' },
-      { name: 'Luis Xu (不赌不毒不烟不酒)', platform: 'Alipay', amount: 30, date: '2025-08-03' },
-      { name: '顾**', platform: 'Wechat', amount: 28, date: '2025-06-23' },
-      { name: 'Hans J.Han', platform: 'Wechat', amount: 10, date: '2025-04-04' },
-      { name: '**青', platform: 'Alipay', amount: 12, date: '2024-05-21' },
-      { name: 'Anonymous', platform: 'Wechat', amount: 20, date: '2022-04-06' },
-      { name: '华雄', platform: 'QQ', amount: 5, date: '2019-12-30' },
-      { name: '◌', platform: 'QQ', amount: 3, date: '2019-12-30' },
-      // 酷安@暴走の蜗牛
-      { name: 'C*a', amount: 2, date: '2019-07-02' }
+      { name: 'Anonymous', platform: 'Wechat', amount: 20, date: '2022-04-06' }
     ]}
   />
 </PageLayout>
