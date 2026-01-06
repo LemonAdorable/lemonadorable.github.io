@@ -1,0 +1,78 @@
+---
+title: Guadao：可验证的自治闭环
+publishDate: 2026-01-07 00:00:00
+description: '「吃瓜群众自治社」 DAO 系统，实现从空投、投票到自动奖励发放的完整闭环。'
+tags:
+  - Solidity
+  - DAO
+  - Base
+  - Web3
+language: '中文'
+draft: false
+comment: true
+---
+
+import { Aside } from 'astro-pure/user'
+
+## 概述
+
+**GUA Token System** 是「吃瓜群众自治社」的核心实验项目。目标是构建一个**可运行、可验证、可持续**的 DAO 闭环系统。
+
+在这个系统中，代币（GUA）是社区治理和激励的载体。我们通过智能合约实现了从空投领取、提案投票，到最终奖励自动发放的全流程自动化。
+
+<Aside type="note">
+本项目运行在 **Base** 链上，旨在降低交互成本。
+</Aside>
+
+## MVP系统闭环：四大核心环节
+
+整个 GUA 系统围绕着一个完整的生命周期运转：
+
+### 1. Airdrop (Merkle Claim) - 发放
+采用 **Merkle Tree** 技术进行空投。
+- 管理员离线生成包含领取名单的 Merkle Root 并上链。
+- 用户携带 Proof 自行调用 `claim` 函数领取代币。
+- **优势**: 极大降低了项目方的分发成本。
+
+### 2. Voting (Stake-to-Bounty) - 使用
+持有 GUA 的成员可以参与每期视频选题的投票。
+- **机制**: 锁仓即投票（Stake-to-Vote）。
+- **结果**: 锁仓最多的 Topic 成为 Winner，Token将奖励给该 Topic 的创作者。
+
+### 3. Escrow Payout - 兑现
+- **10% 订金**: 确认 Winner 后，合约立即支付 10% 给创作者作为启动代币。
+- **90% 尾款**: 创作者在规定时间（14天）内提交交付证明。
+- **质疑期**: 提交后进入 72 小时质疑期。如果没有人发起有效质疑，剩余90%自动解锁支付。
+
+### 4. Incentives - 持续（暂未实现）
+空投并不是一次性的。系统设计了持续的激励机制：
+- 贡献者（如代码贡献、社区活跃）将获得下一期的领取额度。
+- 同样通过 Merkle Root 更新的方式，实现持续、低成本的激励分发。
+
+## 技术亮点
+
+### 交付证明 (Proof of Delivery)
+为了将链下的视频发布与链上的合约状态绑定，我们设计了一种简单的验证机制：
+- 创作者在视频的**置顶评论**中粘贴特定格式的文本：`GUA-DELIVER:<proposalId>:<topicId>:<ownerWallet>:<nonce>`。
+- 虽然 v0.1 版本主要依赖社区监督（质疑期），但这为未来的全自动化验证打下了基础。
+
+### 反诈骗设计
+- **Merkle 验证**: 只有在名单内的地址才能领取，杜绝了冒领。
+- **质疑机制**: 任何持有 GUA 的用户都可以质押代币发起质疑，若质疑成功，将获得额外奖励。
+
+## 开发与贡献
+
+项目采用 **Foundry** 作为开发框架，所有合约代码开源且经过测试。
+
+如果你对 Solidity 开发、dApp 前端或 DAO 治理感兴趣，欢迎参与：
+
+- **Contracts**: `contracts/` 目录包含核心业务逻辑。
+- **Scripts**: `script/` 目录包含部署和 Merkle Root 生成脚本。
+- **Tests**: 详尽的测试用例位于 `test/` 目录。
+
+我们相信，通过代码强制执行的规则（Code is Law），能比单纯的人工治理带来更公平、透明的社区环境。
+
+---
+
+**相关链接**:
+- [GitHub 仓库](https://github.com/LemonAdorable/guadao)
