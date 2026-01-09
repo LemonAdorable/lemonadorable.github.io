@@ -61,6 +61,8 @@ This project is customized based on [astro-theme-pure](https://github.com/cworld
 #### 💬 Comment System
 - **Giscus Integration**: Comment system based on GitHub Discussions
 
+#### 📊 Mermaid Integration
+- **Mermaid Integration**: Mermaid integration for diagramming
 
 ### 🚀 Quick Start
 
