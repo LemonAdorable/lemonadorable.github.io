@@ -8,6 +8,7 @@ import FriendList from '@/components/links/FriendList.astro'
 
 const headings = [
   { depth: 2, slug: 'common-links', text: '常用链接' },
+  { depth: 2, slug: 'project-links', text: '项目链接' },
   { depth: 2, slug: 'special-links', text: '特殊链接' },
   { depth: 2, slug: 'apply-links', text: '申请友链' }
 ]
@@ -15,6 +16,25 @@ const headings = [
 const { friends } = links
 const linksConf = config.integ.links
 const linkEditPage = 'https://github.com/cworld1/astro-theme-pure/blob/main/public/links.json'
+
+const projectLinks = {
+  id_name: 'project-links',
+  desc: 'My Projects',
+  link_list: [
+    {
+      name: '',
+      intro: '',
+      link: 'https://.vercel.app/',
+      avatar: 'https://.vercel.app/icon.svg'
+    },
+    {
+      name: '',
+      intro: '',
+      link: 'https://lemonadorable.github.io//',
+      avatar: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22></text></svg>'
+    }
+  ]
+}
 ---
 
 <PageLayout title='链接' {headings} comment>
@@ -27,6 +47,10 @@ const linkEditPage = 'https://github.com/cworld1/astro-theme-pure/blob/main/publ
   <Collapse title='链接历史记录'>
     <Timeline events={linksConf.logbook} />
   </Collapse>
+
+  <h2 id='project-links'>项目链接</h2>
+  <FriendList list={projectLinks} />
+
   <h2 id='special-links'>特殊链接</h2>
   <FriendList list={friends[2]} />
 
