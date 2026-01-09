@@ -61,6 +61,8 @@
 #### 💬 评论系统
 - **Giscus 集成**：基于 GitHub Discussions 的评论系统
 
+#### 📊 Mermaid Integration
+- **Mermaid Integration**: Mermaid integration for diagramming
 
 ### 🚀 快速开始
 
