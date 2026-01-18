@@ -161,6 +161,7 @@ const { meta, highlightColor, back = '/', ...props } = Astro.props
     aside.show {
       display: block !important;
       opacity: 1;
+      pointer-events: auto;
     }
 
     @keyframes fade-in-side {
@@ -183,6 +184,7 @@ const { meta, highlightColor, back = '/', ...props } = Astro.props
     }
     aside {
       display: none;
+      pointer-events: none;
       animation: 300ms fade-in-side !important;
       animation-fill-mode: forwards;
       right: 0;
@@ -194,6 +196,14 @@ const { meta, highlightColor, back = '/', ...props } = Astro.props
       border-bottom-right-radius: 0 !important;
       padding-top: 1.5rem !important;
       padding-bottom: 1.5rem !important;
+    }
+    :global(#action-buttons) {
+      right: 1rem !important;
+      left: auto !important;
+      transform: translateY(0) !important;
+    }
+    :global(#action-buttons button) {
+      pointer-events: auto !important;
     }
     #sidebar-shade {
       animation: 300ms fade-in;
