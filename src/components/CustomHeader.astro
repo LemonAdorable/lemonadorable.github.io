@@ -4,6 +4,7 @@ import { Image } from 'astro:assets'
 import config from 'virtual:config'
 
 import { Icon } from 'astro-pure/user'
+
 import Search from './Search.astro'
 
 const imagePath = config.logo.src
@@ -23,17 +24,19 @@ const logoImage = logoImageModule ? await logoImageModule() : null
     href='/'
     aria-label='Brand'
   >
-    {logoImage && (
-      <Image
-        id='header-avatar'
-        src={logoImage.default}
-        alt={config.logo.alt || 'Logo'}
-        class='h-8 w-8 rounded-full border border-foreground/20 transition-transform duration-600'
-        style='object-fit: cover;'
-        loading='eager'
-        fetchpriority='high'
-      />
-    )}
+    {
+      logoImage && (
+        <Image
+          id='header-avatar'
+          src={logoImage.default}
+          alt={config.logo.alt || 'Logo'}
+          class='h-8 w-8 rounded-full border border-foreground/20 transition-transform duration-600'
+          style='object-fit: cover;'
+          loading='eager'
+          fetchpriority='high'
+        />
+      )
+    }
     <span>{config.title}</span>
   </a>
 
@@ -55,14 +58,12 @@ const logoImage = logoImageModule ? await logoImageModule() : null
             </a>
           ))
         }
-        <div class='flex w-full grow flex-row justify-end gap-x-3 sm:w-fit sm:gap-x-5'>
-          <Search />
-        </div>
       </div>
     </div>
 
     {/* buttons */}
     <div class='z-30 flex gap-x-4 group-[.not-top]:gap-x-2' style='transition:gap 0.3s'>
+      <Search />
       <button
         id='toggleDarkMode'
         class='group/dark box-content size-5 rounded-md border p-1.5 transition-colors hover:bg-border sm:group-[.not-top]:rounded-xl'
@@ -120,21 +121,21 @@ const logoImage = logoImageModule ? await logoImageModule() : null
   }
 
   customElements.define('header-component', HeaderComponent)
-  
+
   // Avatar rotation only on homepage link hover in header
   document.addEventListener('DOMContentLoaded', () => {
     const headerAvatar = document.getElementById('header-avatar')
     if (!headerAvatar) return
-    
+
     // Only listen to the homepage link (brand link)
     const homeLink = document.querySelector('header-component a[href="/"]')
     if (!homeLink) return
-    
+
     homeLink.addEventListener('mouseenter', () => {
       headerAvatar.style.transform = 'rotate(360deg)'
       headerAvatar.style.transition = 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)'
     })
-    
+
     homeLink.addEventListener('mouseleave', () => {
       headerAvatar.style.transform = 'rotate(0deg)'
     })
@@ -240,4 +241,3 @@ const logoImage = logoImageModule ? await logoImageModule() : null
     }
   }
 </style>
-
