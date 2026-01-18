@@ -162,6 +162,8 @@ const { meta, highlightColor, back = '/', ...props } = Astro.props
       display: block !important;
       opacity: 1;
       pointer-events: auto;
+      animation: 300ms fade-in-side !important;
+      animation-fill-mode: forwards;
     }
 
     @keyframes fade-in-side {
@@ -183,10 +185,12 @@ const { meta, highlightColor, back = '/', ...props } = Astro.props
       }
     }
     aside {
-      display: none;
+      display: none !important;
       pointer-events: none;
-      animation: 300ms fade-in-side !important;
-      animation-fill-mode: forwards;
+      .animate {
+        animation: none !important;
+      } /* Ensure nested or same-element animation is killed */
+      animation: none !important; /* Override global .animate */
       right: 0;
       top: 0 !important;
       height: 100vh !important;
