@@ -64,6 +64,9 @@ This project is customized based on [astro-theme-pure](https://github.com/cworld
 #### 📊 Mermaid Integration
 - **Mermaid Integration**: Mermaid integration for diagramming
 
+#### 🖋️ Typst Integration
+- **Typst Support**: Typst integration for high-quality mathematical equations and diagrams rendering in MDX
+
 ### 🚀 Quick Start
 
 #### Requirements

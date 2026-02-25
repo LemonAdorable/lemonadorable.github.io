@@ -10,6 +10,9 @@ language: '中文'
 draft: false
 comment: true
 ---
+
+import { Typst } from 'astro-typst/src/components'
+
 # 🌌 最终测试：超弦虚空接口
 
 ## 1. 基础排版与装饰 (Native Basics)
@@ -158,3 +161,30 @@ def calculate_entropy(data):
     1. 包含列表。
     2. 包含[链接](https://example.com)。
     3. 甚至是代码：`void_check()`。
+
+---
+
+## 10. Typst 排版系统 (Typst Support)
+
+这里我们使用 `astro-typst` 提供的组件，直接渲染 Typst 代码内容为完美的矢量图形或 HTML 结构：
+
+<Typst code={`
+#set page(width: auto, height: auto, margin: 1em)
+#set text(font: "Linux Libertine", fill: rgb("#30bdc1"))
+
+= Typst: Compose paper faster
+
+$ cases(
+  dot(x) = A x + B u,
+  y = C x
+) $
+
+#table(
+  columns: 4,
+  [*English*], [*German*], [*Chinese*], [*Japanese*],
+  [Cat], [Katze], [猫], [猫],
+  [Fish], [Fisch], [鱼], [魚]
+)
+`} />
+
+**Typst 测试完成**。
