@@ -64,6 +64,9 @@
 #### 📊 Mermaid Integration
 - **Mermaid Integration**: Mermaid integration for diagramming
 
+#### 🖋️ Typst 排版系统
+- **Typst 支持**：支持在 MDX 中原生渲染高质量的数学公式、矢量图表与学术排版
+
 ### 🚀 快速开始
 
 #### 环境要求

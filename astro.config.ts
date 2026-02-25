@@ -5,7 +5,7 @@ import { defineConfig, fontProviders } from 'astro/config'
 import rehypeKatex from 'rehype-katex'
 import remarkMath from 'remark-math'
 import mermaid from 'astro-mermaid'
-
+import { typst } from 'astro-typst'
 // Local integrations
 import rehypeAutolinkHeadings from './src/plugins/rehype-auto-link-headings.ts'
 import remarkWikilinks from './src/plugins/remark-wikilinks.ts'
@@ -109,6 +109,7 @@ export default defineConfig({
     // sitemap(),
     // mdx(),
     mermaid(),
+    typst(),
     AstroPureIntegration(config)
   ],
 
@@ -137,5 +138,10 @@ export default defineConfig({
         subsets: ['latin']
       }
     ]
+  },
+  vite: {
+    ssr: {
+      external: ['@myriaddreamin/typst-ts-node-compiler']
+    }
   }
 })
