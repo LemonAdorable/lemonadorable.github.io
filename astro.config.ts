@@ -144,6 +144,7 @@ export default defineConfig({
   },
   vite: {
     build: {
+      minify: 'esbuild',
       cssMinify: 'lightningcss',
       rollupOptions: {
         output: {

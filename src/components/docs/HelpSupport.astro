@@ -35,7 +35,7 @@ const {
         </svg>
       </div>
       <h3 class='help-card-heading'>这篇文档有帮助吗？</h3>
-      <p class='help-card-desc'>请给我们反馈以改进文档质量</p>
+      <p class='help-card-desc'>请给我们反馈以改进文档质量 <br />（点击按钮后会打开邮箱）</p>
       <div class='help-feedback-buttons'>
         <button class='help-feedback-btn' data-feedback='yes' aria-label='有帮助'>
           <svg
@@ -212,6 +212,14 @@ const {
       const thanks = card.querySelector('.help-feedback-thanks') as HTMLElement
       if (buttons) buttons.style.display = 'none'
       if (thanks) thanks.style.display = 'block'
+
+      // Trigger mailto email draft
+      const isHelpful = target.dataset.feedback === 'yes'
+      const subject = encodeURIComponent(`[Docs Feedback] ${document.title}`)
+      const body = encodeURIComponent(
+        `Page URL: ${window.location.href}\n\nWas this page helpful? ${isHelpful ? 'Yes' : 'No'}\n\nAdditional feedback:\n`
+      )
+      window.location.href = `mailto:lemonadorable@gmail.com?subject=${subject}&body=${body}`
     })
   })
 </script>
