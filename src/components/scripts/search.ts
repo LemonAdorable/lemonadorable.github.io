@@ -124,7 +124,7 @@ function registerEscapeHandler(outsideContainer: HTMLElement | null, cb: () => v
 
   outsideContainer?.addEventListener('click', click)
   document.addEventListener('keydown', esc)
-  
+
   // Cleanup function
   return () => {
     outsideContainer?.removeEventListener('click', click)
@@ -184,9 +184,8 @@ function highlight(searchTerm: string, text: string, trim?: boolean) {
     })
     .join(' ')
 
-  return `${startIndex === 0 ? '' : '...'}${slice}${
-    endIndex === tokenizedText.length - 1 ? '' : '...'
-  }`
+  return `${startIndex === 0 ? '' : '...'}${slice}${endIndex === tokenizedText.length - 1 ? '' : '...'
+    }`
 }
 
 function highlightHTML(searchTerm: string, el: HTMLElement) {
@@ -269,10 +268,9 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
   if (!container) return
 
   // Ensure container is completely hidden on initial load
-  container.style.display = 'none'
   container.style.visibility = 'hidden'
   container.style.opacity = '0'
-  
+
   // Move container to body to make it independent from header
   // This prevents it from being affected by header transformations
   let containerMovedToBody = false
@@ -379,11 +377,11 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
         if (checkbox.checked) {
           allCheckbox.checked = false
         }
-        
+
         // Update selected tags
         const selectedTags = Array.from(tagsDropdown.querySelectorAll<HTMLInputElement>('input[type="checkbox"]:not(#tags-all):checked')).map(cb => cb.value)
         currentFilters.tags = selectedTags
-        
+
         // Update button text
         if (selectedTags.length === 0) {
           allCheckbox.checked = true
@@ -393,7 +391,7 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
         } else {
           tagsText.textContent = `已选择 ${selectedTags.length} 项`
         }
-        
+
         triggerSearch()
       })
     })
@@ -444,11 +442,11 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
         if (checkbox.checked) {
           typeAllCheckbox.checked = false
         }
-        
+
         // Update selected types
         const selectedTypes = Array.from(typeDropdown.querySelectorAll<HTMLInputElement>('input[type="checkbox"]:not(#type-all):checked')).map(cb => cb.value)
         currentFilters.types = selectedTypes
-        
+
         // Update button text
         if (selectedTypes.length === 0) {
           typeAllCheckbox.checked = true
@@ -458,7 +456,7 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
         } else {
           typeText.textContent = `已选择 ${selectedTypes.length} 项`
         }
-        
+
         triggerSearch()
       })
     })
@@ -502,12 +500,12 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
     preview = document.createElement('div')
     preview.className = 'preview-container'
     appendLayout(preview)
-    
+
     // Create markers container as separate column
     markersContainer = document.createElement('div')
     markersContainer.className = 'markers-container'
     appendLayout(markersContainer)
-    
+
     // Save scroll position when user scrolls
     preview.addEventListener('scroll', () => {
       if (currentPreviewSlug && preview) {
@@ -525,14 +523,10 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
     if (typeMultiselect) {
       typeMultiselect.classList.remove('open')
     }
-    // Use requestAnimationFrame to ensure smooth transition
     requestAnimationFrame(() => {
       container.style.visibility = 'hidden'
       container.style.opacity = '0'
-      // Hide container after transition
-      setTimeout(() => {
-        container.style.display = 'none'
-      }, 200)
+      container.style.pointerEvents = 'none'
     })
     searchBar.value = ''
     removeAllChildren(results)
@@ -547,6 +541,7 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
       scrollbarMarkersContainer.remove()
       scrollbarMarkersContainer = null
     }
+    viewportIndicatorEl = null
     if (scrollHandler && preview) {
       preview.removeEventListener('scroll', scrollHandler)
       scrollHandler = null
@@ -575,13 +570,13 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
       document.body.appendChild(container)
       containerMovedToBody = true
     }
-    
-    container.style.display = 'inline-block'
-    // Use requestAnimationFrame to ensure display is set before showing
+
+    // Use requestAnimationFrame to ensure visibility applies smoothly
     requestAnimationFrame(() => {
       container.classList.add('active')
       container.style.visibility = 'visible'
       container.style.opacity = '1'
+      container.style.pointerEvents = 'auto'
     })
     // Start in centered state - find searchSpace from container (which may be in body)
     const searchSpace = container.querySelector('.search-space') as HTMLElement
@@ -725,13 +720,13 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
       }
     }
   }
-  
+
   // Update highlight for the active preview
   function updateActiveHighlight(activeElement: HTMLElement | null) {
     // Remove focus from all result cards
     const allCards = results.querySelectorAll('.result-card')
     allCards.forEach((card) => card.classList.remove('focus'))
-    
+
     // Add focus to the active element
     if (activeElement && activeElement.classList.contains('result-card')) {
       activeElement.classList.add('focus')
@@ -775,7 +770,7 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
       // Tags filter
       if (currentFilters.tags.length > 0) {
         const itemTags = item.tags || []
-        const hasMatchingTag = currentFilters.tags.some(selectedTag => 
+        const hasMatchingTag = currentFilters.tags.some(selectedTag =>
           itemTags.some(tag => tag.toLowerCase() === selectedTag.toLowerCase())
         )
         if (!hasMatchingTag) return false
@@ -814,13 +809,13 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
         normalizeRelativeURLs(html, targetUrl)
         // Get main content area - adjust selector based on your HTML structure
         const mainContent = html.querySelector('#content, article .prose, article, main article, main') || html.body
-        
+
         // Remove TOC and sidebar elements
         const elementsToRemove = mainContent.querySelectorAll(
           'aside, #sidebar, toc-heading, .toc, [class*="toc"], [id*="toc"], [class*="sidebar"], [id*="sidebar"], nav[class*="toc"]'
         )
         elementsToRemove.forEach((el) => el.remove())
-        
+
         // Filter out TOC-related elements from children
         const contentElements: Element[] = []
         for (const child of Array.from(mainContent.children)) {
@@ -836,7 +831,7 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
           }
           contentElements.push(child)
         }
-        
+
         return contentElements
       })
 
@@ -924,7 +919,7 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
 
     // Find all highlight elements
     highlightElements = Array.from(preview.querySelectorAll('.highlight')) as HTMLElement[]
-    
+
     if (highlightElements.length === 0) {
       // Clear markers container if no highlights
       removeAllChildren(markersContainer)
@@ -943,24 +938,30 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
       marker.className = 'scrollbar-marker'
       marker.dataset.index = String(index)
       marker.title = `匹配项 ${index + 1}`
-      
+
       // Calculate position
       const position = calculateMarkerPosition(highlight)
       marker.style.top = `${position}%`
-      
+
       // Click handler to scroll to highlight
       marker.addEventListener('click', () => {
         highlight.scrollIntoView({ block: 'center', behavior: 'smooth' })
       })
-      
+
       scrollbarMarkersContainer!.appendChild(marker)
       return marker
     })
 
+    // Create viewport indicator (custom scrollbar thumb replacement)
+    createViewportIndicator()
+
     // Update markers on scroll
-    scrollHandler = updateScrollbarMarkers
+    scrollHandler = () => {
+      updateScrollbarMarkers()
+      updateViewportIndicator()
+    }
     preview.addEventListener('scroll', scrollHandler, { passive: true })
-    
+
     // Update marker positions on resize
     resizeObserver = new ResizeObserver(() => {
       // Recalculate all marker positions when content or viewport changes
@@ -972,8 +973,9 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
         }
       })
       updateScrollbarMarkers()
+      updateViewportIndicator()
     })
-    
+
     // Observe both preview container (for viewport size) and previewInner (for content size)
     if (preview) {
       resizeObserver.observe(preview)
@@ -981,9 +983,10 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
     if (previewInner) {
       resizeObserver.observe(previewInner)
     }
-    
+
     // Initial update
     updateScrollbarMarkers()
+    updateViewportIndicator()
   }
 
   function calculateMarkerPosition(element: HTMLElement): number {
@@ -992,21 +995,21 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
     // Get element's position relative to previewInner in document coordinates
     let offsetTop = 0
     let currentElement: HTMLElement | null = element
-    
+
     // Calculate offset from previewInner
     while (currentElement && currentElement !== previewInner && currentElement !== preview) {
       offsetTop += currentElement.offsetTop
       currentElement = currentElement.offsetParent as HTMLElement | null
     }
-    
+
     // Calculate position as percentage of total scrollable height
     const scrollHeight = preview.scrollHeight
-    
+
     // Map document position to markers container position
     // Markers container height equals viewport height (clientHeight)
     // So we map: document position -> markers container position
     const position = scrollHeight > 0 ? (offsetTop / scrollHeight) * 100 : 0
-    
+
     return Math.max(0, Math.min(100, position))
   }
 
@@ -1028,7 +1031,7 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
 
       // Check if highlight is visible in viewport
       const isVisible = highlightBottom >= viewportTop && highlightTop <= viewportBottom
-      
+
       if (isVisible) {
         marker.classList.add('active')
       } else {
@@ -1037,39 +1040,145 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
     })
   }
 
+  let viewportIndicatorEl: HTMLElement | null = null
+
+  function createViewportIndicator() {
+    if (!preview || !scrollbarMarkersContainer) return
+
+    // Remove existing indicator
+    if (viewportIndicatorEl) {
+      viewportIndicatorEl.remove()
+      viewportIndicatorEl = null
+    }
+
+    // Create viewport indicator element
+    viewportIndicatorEl = document.createElement('div')
+    viewportIndicatorEl.className = 'viewport-indicator'
+
+    // Create red center line
+    const line = document.createElement('div')
+    line.className = 'viewport-indicator-line'
+    viewportIndicatorEl.appendChild(line)
+
+    scrollbarMarkersContainer.appendChild(viewportIndicatorEl)
+
+    // Make it draggable
+    let isDragging = false
+    let dragStartY = 0
+    let dragStartScrollTop = 0
+
+    viewportIndicatorEl.addEventListener('mousedown', (e: MouseEvent) => {
+      e.preventDefault()
+      isDragging = true
+      dragStartY = e.clientY
+      dragStartScrollTop = preview!.scrollTop
+      viewportIndicatorEl!.classList.add('dragging')
+
+      const onMouseMove = (e: MouseEvent) => {
+        if (!isDragging || !preview || !scrollbarMarkersContainer) return
+        const containerHeight = scrollbarMarkersContainer.clientHeight
+        const scrollHeight = preview.scrollHeight
+        const clientHeight = preview.clientHeight
+        const maxScrollTop = scrollHeight - clientHeight
+
+        // How many pixels of scroll per pixel of drag
+        const scrollRatio = maxScrollTop / (containerHeight - (containerHeight * (clientHeight / scrollHeight)))
+        const deltaY = e.clientY - dragStartY
+        const newScrollTop = Math.max(0, Math.min(maxScrollTop, dragStartScrollTop + deltaY * scrollRatio))
+
+        preview.scrollTop = newScrollTop
+      }
+
+      const onMouseUp = () => {
+        isDragging = false
+        viewportIndicatorEl?.classList.remove('dragging')
+        document.removeEventListener('mousemove', onMouseMove)
+        document.removeEventListener('mouseup', onMouseUp)
+      }
+
+      document.addEventListener('mousemove', onMouseMove)
+      document.addEventListener('mouseup', onMouseUp)
+    })
+
+    // Also support clicking on the markers container track to jump
+    scrollbarMarkersContainer.addEventListener('mousedown', (e: MouseEvent) => {
+      if (e.target !== scrollbarMarkersContainer) return
+      if (!preview) return
+      const rect = scrollbarMarkersContainer!.getBoundingClientRect()
+      const clickY = e.clientY - rect.top
+      const clickRatio = clickY / rect.height
+      const scrollHeight = preview.scrollHeight
+      const clientHeight = preview.clientHeight
+      const maxScrollTop = scrollHeight - clientHeight
+      preview.scrollTo({
+        top: maxScrollTop * clickRatio,
+        behavior: 'smooth'
+      })
+    })
+
+    // Enable pointer events on the container for track clicking
+    scrollbarMarkersContainer.style.pointerEvents = 'auto'
+  }
+
+  function updateViewportIndicator() {
+    if (!preview || !viewportIndicatorEl || !scrollbarMarkersContainer) return
+
+    const scrollHeight = preview.scrollHeight
+    const clientHeight = preview.clientHeight
+    const scrollTop = preview.scrollTop
+    const containerHeight = scrollbarMarkersContainer.clientHeight
+
+    if (scrollHeight <= clientHeight) {
+      // Content fits, indicator covers everything
+      viewportIndicatorEl.style.top = '0px'
+      viewportIndicatorEl.style.height = '100%'
+      return
+    }
+
+    // Calculate indicator size and position
+    const viewportRatio = clientHeight / scrollHeight
+    const indicatorHeight = Math.max(20, containerHeight * viewportRatio)
+    const maxIndicatorTop = containerHeight - indicatorHeight
+    const scrollRatio = scrollTop / (scrollHeight - clientHeight)
+    const indicatorTop = maxIndicatorTop * scrollRatio
+
+    viewportIndicatorEl.style.top = `${indicatorTop}px`
+    viewportIndicatorEl.style.height = `${indicatorHeight}px`
+  }
+
   async function displayPreview(el: HTMLElement | null) {
     if (!searchLayout || !enablePreview || !el || !preview) return
     const slug = el.id
     if (!slug) return
-    
+
     // Save current scroll position before switching
     if (currentPreviewSlug && currentPreviewSlug !== slug) {
       scrollPositions.set(currentPreviewSlug, preview.scrollTop)
     }
-    
+
     // Update highlight before fetching content
     updateActiveHighlight(el)
-    
+
     // Check if we have a saved scroll position for this article
     const savedScrollPosition = scrollPositions.get(slug)
     const isReturningToArticle = savedScrollPosition !== undefined
-    
+
     try {
       const innerDiv = await fetchContent(slug).then((contents) =>
         contents.flatMap((el) => [...highlightHTML(currentSearchTerm, el as HTMLElement).children])
       )
       previewInner = document.createElement('div')
       previewInner.classList.add('preview-inner')
-      
+
       // Add breadcrumb for docs
       const breadcrumb = generateBreadcrumb(slug, data[slug]?.title || '')
       if (breadcrumb) {
         previewInner.appendChild(breadcrumb)
       }
-      
+
       previewInner.append(...innerDiv)
       preview.replaceChildren(previewInner)
-      
+
       // Update current preview slug
       currentPreviewSlug = slug
 
@@ -1078,7 +1187,7 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
         // Wait for layout to settle
         setTimeout(() => {
           createScrollbarMarkers()
-          
+
           // Restore scroll position if returning to this article, otherwise scroll to highlight
           if (isReturningToArticle && savedScrollPosition !== undefined) {
             if (preview) {
@@ -1114,10 +1223,10 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
     if (!searchLayout || !index) return
     currentSearchTerm = (e.target as HTMLInputElement).value
     const hasSearchTerm = currentSearchTerm.trim() !== ''
-    const hasActiveFilters = currentFilters.date !== 'all' || 
-                            currentFilters.tags.length > 0 || 
-                            currentFilters.types.length > 0
-    
+    const hasActiveFilters = currentFilters.date !== 'all' ||
+      currentFilters.tags.length > 0 ||
+      currentFilters.types.length > 0
+
     // Animate search space when user starts typing - find searchSpace from container (which may be in body)
     const searchSpace = container.querySelector('.search-space') as HTMLElement
     if (searchSpace && (hasSearchTerm || hasActiveFilters)) {
@@ -1125,7 +1234,7 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
     } else if (searchSpace && !hasSearchTerm && !hasActiveFilters) {
       searchSpace.classList.add('centered')
     }
-    
+
     searchLayout.classList.toggle('display-results', hasSearchTerm || hasActiveFilters)
     searchType = currentSearchTerm.startsWith('#') ? 'tags' : 'basic'
 
@@ -1182,7 +1291,7 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
       // If no search term, show all items (will be filtered by filters)
       allIds = Array.from({ length: idDataMap.length }, (_, i) => i)
     }
-    
+
     // Apply filters
     const filteredIds = applyFilters(allIds)
     const finalResults = filteredIds.map((id) => formatForDisplay(currentSearchTerm || '', id))
@@ -1221,17 +1330,17 @@ async function fillDocument(data: ContentIndex) {
 // Initialize search when DOM is ready
 async function initSearch() {
   const currentSlug = getCurrentSlug()
-  
+
   // Fetch content index
   const response = await fetch('/contentIndex.json')
   if (!response.ok) {
     console.error('Failed to fetch contentIndex.json')
     return
   }
-  
+
   const data: ContentIndex = await response.json()
   const searchElements = document.getElementsByClassName('search')
-  
+
   for (const element of searchElements) {
     await setupSearch(element, currentSlug, data)
   }
