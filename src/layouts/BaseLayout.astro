@@ -23,7 +23,7 @@ const {
 } = Astro.props
 ---
 
-<html lang={config.locale.lang}>
+<html lang={config.locale.lang} class='overflow-y-scroll'>
   <head>
     <BaseHead {articleDate} {description} {ogImage} {title} />
     <ThemeProvider />
@@ -34,7 +34,8 @@ const {
       id='highlight-gradient'
       class='pointer-events-none absolute start-0 top-0 z-0 h-screen w-full opacity-25'
       style={`background-image:linear-gradient(${highlightColor},transparent)`}
-    />
+    >
+    </div>
     <div
       id='main-container'
       class='w-full max-w-[70rem] min-h-[100dvh] flex flex-col justify-between'

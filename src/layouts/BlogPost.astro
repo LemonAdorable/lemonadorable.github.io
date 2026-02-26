@@ -5,14 +5,15 @@ import type { CollectionEntry } from 'astro:content'
 // Plugin styles
 import 'katex/dist/katex.min.css'
 
+import config from 'virtual:config'
+
 import { MediumZoom } from 'astro-pure/advanced'
 import { ArticleBottom, Copyright, GraphView, Hero, TOC } from 'astro-pure/components/pages'
-import config from 'virtual:config'
 import PageLayout from '@/layouts/ContentLayout.astro'
-import { Giscus } from '@/components/giscus'
-import { PageInfo } from '@/components/waline'
 import Backlinks from '@/components/blog/Backlinks.astro'
 import OutgoingLinks from '@/components/blog/OutgoingLinks.astro'
+import { Giscus } from '@/components/giscus'
+import { PageInfo } from '@/components/waline'
 import type { Backlink } from '@/utils/backlinks'
 
 interface Props {
@@ -69,12 +70,14 @@ const primaryColor = data.heroImage?.color ?? '#B19CD9'
 
   <Fragment slot='bottom'>
     {/* Wikilinks: Outgoing & Backlinks */}
-    {(outgoingLinks.length > 0 || backlinks.length > 0) && (
-      <div id='wikilinks-section' class='wikilinks-container mt-3 sm:mt-6 flex flex-col gap-3'>
-        {outgoingLinks.length > 0 && <OutgoingLinks links={outgoingLinks} />}
-        {backlinks.length > 0 && <Backlinks backlinks={backlinks} currentPostId={id} />}
-      </div>
-    )}
+    {
+      (outgoingLinks.length > 0 || backlinks.length > 0) && (
+        <div id='wikilinks-section' class='wikilinks-container mt-3 sm:mt-6 flex flex-col gap-3'>
+          {outgoingLinks.length > 0 && <OutgoingLinks links={outgoingLinks} />}
+          {backlinks.length > 0 && <Backlinks backlinks={backlinks} currentPostId={id} />}
+        </div>
+      )
+    }
     {/* Copyright */}
     <Copyright {data} class='mt-3 sm:mt-6' />
     {/* Article recommend */}
@@ -83,13 +86,18 @@ const primaryColor = data.heroImage?.color ?? '#B19CD9'
     {!isDraft && enableComment && config.integ.giscus?.enable && <Giscus class='mt-3 sm:mt-6' />}
   </Fragment>
 
-  <GraphView currentSlug={`blog/${id}`} slot='bottom-sidebar' id='blog-graph-view' class='blog-graph-view' />
+  <GraphView
+    currentSlug={`blog/${id}`}
+    slot='bottom-sidebar'
+    id='blog-graph-view'
+    class='blog-graph-view'
+  />
 </PageLayout>
 
 {config.integ.mediumZoom.enable && <MediumZoom />}
 
 <script>
-  import('@/components/scripts/wikilink-preview.ts').catch(err => {
+  import('@/components/scripts/wikilink-preview.ts').catch((err) => {
     console.error('Failed to load wikilink preview:', err)
   })
 </script>
@@ -124,12 +132,12 @@ const primaryColor = data.heroImage?.color ?? '#B19CD9'
   const wikilinks = document.querySelectorAll('a.wikilink')
   const indexMap = new Map<string, number>()
   let currentIndex = 1
-  
+
   wikilinks.forEach((link) => {
     const href = link.getAttribute('href') || ''
     const match = href.match(/\/blog\/([^/]+)/)
     if (!match) return
-    
+
     const targetId = match[1]
     if (!indexMap.has(targetId)) {
       indexMap.set(targetId, currentIndex++)
@@ -141,11 +149,11 @@ const primaryColor = data.heroImage?.color ?? '#B19CD9'
     const href = link.getAttribute('href') || ''
     const match = href.match(/\/blog\/([^/]+)/)
     if (!match) return
-    
+
     const targetId = match[1]
     const index = indexMap.get(targetId)
     if (!index) return
-    
+
     // Create numbered locate button with hover animation
     const btn = document.createElement('button')
     btn.className = 'wikilink-locate-btn'
@@ -155,11 +163,11 @@ const primaryColor = data.heroImage?.color ?? '#B19CD9'
     btn.addEventListener('click', (e) => {
       e.preventDefault()
       e.stopPropagation()
-      
+
       const section = document.getElementById('wikilinks-section')
       if (section) {
         section.scrollIntoView({ behavior: 'smooth', block: 'start' })
-        
+
         // Find and highlight the corresponding link by index
         setTimeout(() => {
           const row = section.querySelector(`.links-row[data-index="${index}"]`)
@@ -170,7 +178,7 @@ const primaryColor = data.heroImage?.color ?? '#B19CD9'
         }, 500)
       }
     })
-    
+
     // Insert button after the link
     link.parentNode?.insertBefore(btn, link.nextSibling)
   })
@@ -182,18 +190,18 @@ const primaryColor = data.heroImage?.color ?? '#B19CD9'
     rows.forEach((row) => {
       const link = row.querySelector('a.links-link')
       if (!link) return
-      
+
       const href = link.getAttribute('href') || ''
       const match = href.match(/\/blog\/([^/]+)/)
       if (!match) return
-      
+
       const targetId = match[1]
       const index = indexMap.get(targetId)
       if (!index) return
-      
+
       // Add data-index attribute
       row.setAttribute('data-index', String(index))
-      
+
       // Add index badge
       const badge = document.createElement('span')
       badge.className = 'links-index'
@@ -214,14 +222,14 @@ const primaryColor = data.heroImage?.color ?? '#B19CD9'
     const outgoingLinks = document.querySelector('.outgoing-links-section') as HTMLElement
     // Check for backlinks (反向链接) - look for section with links-header but not outgoing-links-section
     const backlinks = Array.from(document.querySelectorAll('section')).find(
-      (section) => 
-        section.querySelector('.links-header') && 
+      (section) =>
+        section.querySelector('.links-header') &&
         !section.classList.contains('outgoing-links-section')
     ) as HTMLElement
-    
+
     // Find target element to align with
     let targetElement: HTMLElement | null = null
-    
+
     if (outgoingLinks) {
       // Align with outgoing links (相关链接)
       targetElement = outgoingLinks
@@ -230,7 +238,9 @@ const primaryColor = data.heroImage?.color ?? '#B19CD9'
       targetElement = backlinks
     } else {
       // Align with Copyright
-      const copyrightSection = document.querySelector('.bottom > div:first-child > div.relative') as HTMLElement
+      const copyrightSection = document.querySelector(
+        '.bottom > div:first-child > div.relative'
+      ) as HTMLElement
       if (copyrightSection) {
         targetElement = copyrightSection
       }
@@ -253,7 +263,7 @@ const primaryColor = data.heroImage?.color ?? '#B19CD9'
     // Calculate positions relative to bottom container
     const targetTopRelative = targetRect.top - bottomContainerRect.top
     const graphViewTopRelative = graphViewRect.top - bottomContainerRect.top
-    
+
     // Calculate graph header height including margin
     const headerHeight = graphHeader.offsetHeight
     const headerMarginBottom = parseFloat(getComputedStyle(graphHeader).marginBottom) || 0
@@ -371,7 +381,8 @@ const primaryColor = data.heroImage?.color ?? '#B19CD9'
     animation: index-pulse 0.5s ease-in-out 3;
   }
   @keyframes row-pulse {
-    0%, 100% {
+    0%,
+    100% {
       background-color: transparent;
     }
     50% {
@@ -379,7 +390,8 @@ const primaryColor = data.heroImage?.color ?? '#B19CD9'
     }
   }
   @keyframes index-pulse {
-    0%, 100% {
+    0%,
+    100% {
       background: hsl(var(--primary) / 0.12);
       color: hsl(var(--primary));
     }

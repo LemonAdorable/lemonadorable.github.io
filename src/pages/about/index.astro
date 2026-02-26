@@ -1,19 +1,18 @@
 ---
 import { Collapse, Timeline } from 'astro-pure/user'
 import PageLayout from '@/layouts/CommonPage.astro'
+import HobbySection from '@/components/about/HobbySection.astro'
 import Substats from '@/components/about/Substats.astro'
 import ToolSection from '@/components/about/ToolSection.astro'
-import HobbySection from '@/components/about/HobbySection.astro'
-
-// Social icons
-import fireflyIcon from '@/assets/social/firefly.png'
-import farcasterIcon from '@/assets/social/farcaster.png'
-import paragraphIcon from '@/assets/social/paragraph.png'
-import lensIcon from '@/assets/social/lens.png'
 import blueskyIcon from '@/assets/social/bluesky.png'
 import facebookIcon from '@/assets/social/facebook.png'
-import luaIcon from '@/assets/tools/lua.gif'
+import farcasterIcon from '@/assets/social/farcaster.png'
+// Social icons
+import fireflyIcon from '@/assets/social/firefly.png'
+import lensIcon from '@/assets/social/lens.png'
+import paragraphIcon from '@/assets/social/paragraph.png'
 import kvmIcon from '@/assets/tools/kvm.png'
+import luaIcon from '@/assets/tools/lua.gif'
 
 const headings = [
   { depth: 2, slug: 'hobbies', text: '爱好' },
@@ -24,515 +23,671 @@ const headings = [
 ]
 ---
 
-<PageLayout title='关于' {headings} view comment>
-  <p>既有缘相识，祝你心想事成</p>
-  <p>Now that you have met by fate, I wish you all the best of luck</p>
+<PageLayout title='关于' {headings} view comment hideBack hideTitle>
+  {/* Left-aligned hero, consistent with navbar */}
+  <div class='mt-6 mb-16 flex flex-col items-start'>
+    <div
+      class='inline-block rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary mb-4'
+    >
+      Here is Ling
+    </div>
+    <h1 class='text-4xl font-bold tracking-tight text-foreground sm:text-6xl mb-4'>
+      关于我 / About Me
+    </h1>
+    <p class='text-xl text-muted-foreground font-medium'>既有缘相识，祝你心想事成</p>
+    <p class='text-base text-muted-foreground/80 mt-1'>
+      Now that you have met by fate, I wish you all the best of luck
+    </p>
+  </div>
 
-  {/* general-talk */}
-  <h2 id='hobbies'>爱好</h2>
-  
-  <HobbySection
-    class='mb-5'
-    title='IT'
-    items={['Web3', 'SSG（静态站点生成器）']}
-  />
+  <div
+    class='flex flex-col relative overflow-hidden rounded-3xl border bg-background/50 shadow-sm p-6 sm:p-8 hover:border-primary/50 transition-colors duration-300 mb-10'
+  >
+    <div
+      class='absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary/10 via-primary/40 to-primary/10'
+    >
+    </div>
+    <h2 id='hobbies' class='mt-0 mb-6 flex items-center gap-2'>
+      <span class='text-2xl'>爱好</span>
+    </h2>
+    <HobbySection class='mb-5' title='IT' items={['Web3', 'SSG（静态站点生成器）']} />
 
-  <div class='mb-5 not-prose flex flex-col rounded-xl border py-3 px-3 gap-y-3 sm:gap-y-4'>
-    <div class='m-0 px-2 text-lg font-medium'>游戏</div>
-    <div class='flex flex-col gap-3'>
-      <div>
-        <h4 class='mb-2 text-sm font-medium text-muted-foreground'>竞技</h4>
-        <div class='flex flex-wrap gap-2'>
-          <span class='rounded-md border bg-muted px-3 py-1 text-sm'>League of Legends (LOL)</span>
-          <span class='rounded-md border bg-muted px-3 py-1 text-sm'>Overwatch (OW)</span>
-          <span class='rounded-md border bg-muted px-3 py-1 text-sm'>王者荣耀</span>
-        </div>
+    <div class='mb-4 flex flex-col gap-y-3 sm:gap-y-4 rounded-xl border p-5 bg-muted/10 not-prose'>
+      <div class='m-0 text-lg font-medium text-foreground flex items-center gap-2'>
+        <span class='text-primary'>🎮</span> 游戏
       </div>
-
-      <div>
-        <h4 class='mb-2 text-sm font-medium text-muted-foreground'>剧情</h4>
-        <div class='flex flex-wrap gap-2'>
-          <span class='rounded-md border bg-muted px-3 py-1 text-sm'>明日方舟</span>
-          <span class='rounded-md border bg-muted px-3 py-1 text-sm'>Detroit: Become Human</span>
-          <span class='rounded-md border bg-muted px-3 py-1 text-sm'>星穹铁道</span>
-          <span class='rounded-md border bg-muted px-3 py-1 text-sm'>黑神话：悟空</span>
+      <div class='flex flex-col gap-4'>
+        <div>
+          <h4 class='mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground'>
+            竞技
+          </h4>
+          <div class='flex flex-wrap gap-2'>
+            <span
+              class='rounded-lg border bg-background/50 px-3 py-1.5 text-sm backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-muted shadow-sm'
+              >League of Legends (LOL)</span
+            >
+            <span
+              class='rounded-lg border bg-background/50 px-3 py-1.5 text-sm backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-muted shadow-sm'
+              >Overwatch (OW)</span
+            >
+            <span
+              class='rounded-lg border bg-background/50 px-3 py-1.5 text-sm backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-muted shadow-sm'
+              >王者荣耀</span
+            >
+          </div>
         </div>
-      </div>
 
-      <div>
-        <h4 class='mb-2 text-sm font-medium text-muted-foreground'>单机</h4>
-        <div class='flex flex-wrap gap-2'>
-          <span class='rounded-md border bg-muted px-3 py-1 text-sm'>Ghostrunner</span>
-          <span class='rounded-md border bg-muted px-3 py-1 text-sm'>GTA</span>
-          <span class='rounded-md border bg-muted px-3 py-1 text-sm'>荒野大镖客</span>
-          <span class='rounded-md border bg-muted px-3 py-1 text-sm'>泰坦陨落2</span>
+        <div>
+          <h4 class='mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground'>
+            剧情
+          </h4>
+          <div class='flex flex-wrap gap-2'>
+            <span
+              class='rounded-lg border bg-background/50 px-3 py-1.5 text-sm backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-muted shadow-sm'
+              >明日方舟</span
+            >
+            <span
+              class='rounded-lg border bg-background/50 px-3 py-1.5 text-sm backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-muted shadow-sm'
+              >Detroit: Become Human</span
+            >
+            <span
+              class='rounded-lg border bg-background/50 px-3 py-1.5 text-sm backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-muted shadow-sm'
+              >星穹铁道</span
+            >
+            <span
+              class='rounded-lg border bg-background/50 px-3 py-1.5 text-sm backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-muted shadow-sm'
+              >黑神话：悟空</span
+            >
+          </div>
         </div>
-      </div>
 
-      <div>
-        <h4 class='mb-2 text-sm font-medium text-muted-foreground'>音游</h4>
-        <div class='flex flex-wrap gap-2'>
-          <span class='rounded-md border bg-muted px-3 py-1 text-sm'>Phigros</span>
-          <span class='rounded-md border bg-muted px-3 py-1 text-sm'>Cytus II</span>
-          <span class='rounded-md border bg-muted px-3 py-1 text-sm'>Lanota</span>
-          <span class='rounded-md border bg-muted px-3 py-1 text-sm'>Arcaea</span>
-          <span class='rounded-md border bg-muted px-3 py-1 text-sm'>冰与火之舞</span>
-          <span class='rounded-md border bg-muted px-3 py-1 text-sm'>节奏医生</span>
-          <span class='rounded-md border bg-muted px-3 py-1 text-sm'>Bits & Bops</span>
+        <div>
+          <h4 class='mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground'>
+            单机
+          </h4>
+          <div class='flex flex-wrap gap-2'>
+            <span
+              class='rounded-lg border bg-background/50 px-3 py-1.5 text-sm backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-muted shadow-sm'
+              >Ghostrunner</span
+            >
+            <span
+              class='rounded-lg border bg-background/50 px-3 py-1.5 text-sm backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-muted shadow-sm'
+              >GTA</span
+            >
+            <span
+              class='rounded-lg border bg-background/50 px-3 py-1.5 text-sm backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-muted shadow-sm'
+              >荒野大镖客</span
+            >
+            <span
+              class='rounded-lg border bg-background/50 px-3 py-1.5 text-sm backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-muted shadow-sm'
+              >泰坦陨落2</span
+            >
+          </div>
         </div>
-      </div>
 
-      <div>
-        <h4 class='mb-2 text-sm font-medium text-muted-foreground'>休闲</h4>
-        <div class='flex flex-wrap gap-2'>
-          <span class='rounded-md border bg-muted px-3 py-1 text-sm'>炉石传说</span>
-          <span class='rounded-md border bg-muted px-3 py-1 text-sm'>影之诗</span>
-          <span class='rounded-md border bg-muted px-3 py-1 text-sm'>文明</span>
+        <div>
+          <h4 class='mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground'>
+            音游
+          </h4>
+          <div class='flex flex-wrap gap-2'>
+            <span
+              class='rounded-lg border bg-background/50 px-3 py-1.5 text-sm backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-muted shadow-sm'
+              >Phigros</span
+            >
+            <span
+              class='rounded-lg border bg-background/50 px-3 py-1.5 text-sm backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-muted shadow-sm'
+              >Cytus II</span
+            >
+            <span
+              class='rounded-lg border bg-background/50 px-3 py-1.5 text-sm backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-muted shadow-sm'
+              >Lanota</span
+            >
+            <span
+              class='rounded-lg border bg-background/50 px-3 py-1.5 text-sm backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-muted shadow-sm'
+              >Arcaea</span
+            >
+            <span
+              class='rounded-lg border bg-background/50 px-3 py-1.5 text-sm backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-muted shadow-sm'
+              >冰与火之舞</span
+            >
+            <span
+              class='rounded-lg border bg-background/50 px-3 py-1.5 text-sm backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-muted shadow-sm'
+              >节奏医生</span
+            >
+            <span
+              class='rounded-lg border bg-background/50 px-3 py-1.5 text-sm backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-muted shadow-sm'
+              >Bits & Bops</span
+            >
+          </div>
+        </div>
+
+        <div>
+          <h4 class='mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground'>
+            休闲
+          </h4>
+          <div class='flex flex-wrap gap-2'>
+            <span
+              class='rounded-lg border bg-background/50 px-3 py-1.5 text-sm backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-muted shadow-sm'
+              >炉石传说</span
+            >
+            <span
+              class='rounded-lg border bg-background/50 px-3 py-1.5 text-sm backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-muted shadow-sm'
+              >影之诗</span
+            >
+            <span
+              class='rounded-lg border bg-background/50 px-3 py-1.5 text-sm backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-muted shadow-sm'
+              >文明</span
+            >
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  {/* tools */}
-  <h2 id='tools'>工具</h2>
-  <p>当前使用的工具如下：</p>
-  <ToolSection
-    class='mb-5'
-    title='设计'
-    tools={[
-      {
-        name: 'Photoshop',
-        description: '图片编辑',
-        href: 'https://www.adobe.com/products/photoshop',
-        icon: import('@/assets/tools/photoshop.svg?raw')
-      },
-      {
-        name: 'Illustrator',
-        description: '矢量绘图',
-        href: 'https://www.adobe.com/products/illustrator',
-        icon: import('@/assets/tools/illustrator.svg?raw')
-      },
-      {
-        name: 'After Effects',
-        description: '动态图形',
-        href: 'https://www.adobe.com/products/aftereffects',
-        icon: import('@/assets/tools/aftereffects.svg?raw')
-      },
-      {
-        name: 'Premiere Pro',
-        description: '视频编辑',
-        href: 'https://www.adobe.com/products/premiere',
-        icon: import('@/assets/tools/premiere.svg?raw')
-      },
-      {
-        name: 'Unity',
-        description: '游戏引擎',
-        href: 'https://unity.com/',
-        icon: import('@/assets/tools/unity.svg?raw')
-      },
-      {
-        name: 'Blender',
-        description: '3D建模',
-        href: 'https://www.blender.org/',
-        icon: import('@/assets/tools/blender.svg?raw')
-      }
-    ]}
-  />
-  <ToolSection
-    class='mb-5'
-    title='生产力'
-    tools={[
-      {
-        name: 'Chrome',
-        description: '浏览器',
-        href: 'https://www.google.com/chrome/',
-        icon: import('@/assets/tools/chrome.svg?raw')
-      },
-      {
-        name: 'Edge',
-        description: '浏览器',
-        href: 'https://www.microsoft.com/edge',
-        icon: import('@/assets/tools/edge.svg?raw')
-      },
-      {
-        name: 'Zen',
-        description: '浏览器',
-        href: 'https://zen-browser.com/',
-        icon: import('@/assets/tools/zen.svg?raw')
-      },
-      {
-        name: 'Obsidian',
-        description: '笔记软件',
-        href: 'https://obsidian.md/',
-        icon: import('@/assets/tools/obsidian.svg?raw')
-      },
-      {
-        name: 'Zotero',
-        description: '文献管理',
-        href: 'https://www.zotero.org/',
-        icon: import('@/assets/tools/zotero.svg?raw')
-      }
-    ]}
-  />
-  <ToolSection
-    class='mb-5'
-    title='开发'
-    tools={[
-      {
-        name: 'VS Code',
-        description: 'IDE',
-        href: 'https://code.visualstudio.com/',
-        icon: import('@/assets/tools/vscode.svg?raw')
-      },
-      {
-        name: 'Neovim',
-        description: 'IDE',
-        href: 'https://neovim.io/',
-        icon: import('@/assets/tools/neovim.svg?raw')
-      },
-      {
-        name: 'Git',
-        description: '版本控制',
-        href: 'https://git-scm.com/',
-        icon: import('@/assets/tools/git.svg?raw')
-      }
-    ]}
-  />
-  <ToolSection
-    class='mb-5'
-    title='编程语言'
-    tools={[
-      {
-        name: 'Python',
-        description: '编程语言',
-        href: 'https://www.python.org/',
-        icon: import('@/assets/tools/python.svg?raw')
-      },
-      {
-        name: 'TypeScript',
-        description: '编程语言',
-        href: 'https://www.typescriptlang.org/',
-        icon: import('@/assets/tools/typescript.svg?raw')
-      },
-      {
-        name: 'JavaScript',
-        description: '编程语言',
-        href: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript',
-        icon: import('@/assets/tools/javascript.svg?raw')
-      },
-      {
-        name: 'HTML5',
-        description: '标记语言',
-        href: 'https://developer.mozilla.org/en-US/docs/Web/HTML',
-        icon: import('@/assets/tools/html5.svg?raw')
-      },
-      {
-        name: 'CSS3',
-        description: '样式语言',
-        href: 'https://developer.mozilla.org/en-US/docs/Web/CSS',
-        icon: import('@/assets/tools/css3.svg?raw')
-      },
-      {
-        name: 'C++',
-        description: '编程语言',
-        href: 'https://isocpp.org/',
-        icon: import('@/assets/tools/cpp.svg?raw')
-      },
-      {
-        name: 'C',
-        description: '编程语言',
-        href: 'https://www.iso.org/standard/74528.html',
-        icon: import('@/assets/tools/c.svg?raw')
-      },
-      {
-        name: 'C#',
-        description: '编程语言',
-        href: 'https://dotnet.microsoft.com/languages/csharp',
-        icon: import('@/assets/tools/csharp.svg?raw')
-      },
-      {
-        name: 'Rust',
-        description: '编程语言',
-        href: 'https://www.rust-lang.org/',
-        icon: import('@/assets/tools/rust.svg?raw')
-      },
-      {
-        name: 'Lua',
-        description: '编程语言',
-        href: 'https://www.lua.org/',
-        icon: luaIcon
-      },
-      {
-        name: 'Solidity',
-        description: '编程语言',
-        href: 'https://soliditylang.org/',
-        icon: import('@/assets/tools/solidity.svg?raw')
-      },
-      {
-        name: 'MATLAB',
-        description: '编程语言',
-        href: 'https://www.mathworks.com/products/matlab.html',
-        icon: import('@/assets/tools/matlab.svg?raw')
-      }
-    ]}
-  />
-  <ToolSection
-    class='mb-5'
-    title='框架与数据库'
-    tools={[
-      {
-        name: 'React',
-        description: '前端框架',
-        href: 'https://react.dev/',
-        icon: import('@/assets/tools/react.svg?raw')
-      },
-      {
-        name: '.NET',
-        description: '开发框架',
-        href: 'https://dotnet.microsoft.com/',
-        icon: import('@/assets/tools/dotnet.svg?raw')
-      },
-      {
-        name: 'Qt',
-        description: '开发框架',
-        href: 'https://www.qt.io/',
-        icon: import('@/assets/tools/qt.svg?raw')
-      },
-      {
-        name: 'PostgreSQL',
-        description: '关系型数据库',
-        href: 'https://www.postgresql.org/',
-        icon: import('@/assets/tools/postgresql.svg?raw')
-      }
-    ]}
-  />
-  <ToolSection
-    class='mb-5'
-    title='环境'
-    tools={[
-      {
-        name: 'Arch Linux',
-        description: 'Linux发行版',
-        href: 'https://archlinux.org/',
-        icon: import('@/assets/tools/archlinux.svg?raw')
-      },
-      {
-        name: 'Debian',
-        description: 'Linux发行版',
-        href: 'https://www.debian.org/',
-        icon: import('@/assets/tools/debian.svg?raw')
-      },
-      {
-        name: 'iPadOS',
-        description: 'iPad操作系统',
-        href: 'https://www.apple.com/ipados/',
-        icon: import('@/assets/tools/apple.svg?raw')
-      },
-      {
-        name: 'Windows 11',
-        description: '操作系统',
-        href: 'https://news.microsoft.com/windows11-general-availability/',
-        icon: import('@/assets/tools/windows11.svg?raw')
-      },
-      {
-        name: 'Kali Linux',
-        description: 'Linux发行版',
-        href: 'https://www.kali.org/',
-        icon: import('@/assets/tools/kali.svg?raw')
-      },
-      {
-        name: 'OpenWrt',
-        description: '路由器系统',
-        href: 'https://openwrt.org/',
-        icon: import('@/assets/tools/openwrt.svg?raw')
-      },
-      {
-        name: 'Docker',
-        description: '容器平台',
-        href: 'https://www.docker.com/',
-        icon: import('@/assets/tools/docker.svg?raw')
-      },
-      {
-        name: 'Proxmox VE',
-        description: '虚拟化平台',
-        href: 'https://www.proxmox.com/',
-        icon: import('@/assets/tools/pve.svg?raw')
-      },
-      {
-        name: 'KVM',
-        description: '虚拟化',
-        href: 'https://www.linux-kvm.org/',
-        icon: kvmIcon
-      }
-    ]}
-  />
+  <div
+    class='flex flex-col relative overflow-hidden rounded-3xl border bg-background/50 shadow-sm p-6 sm:p-8 hover:border-primary/50 transition-colors duration-300 mb-10'
+  >
+    <div
+      class='absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary/10 via-primary/40 to-primary/10'
+    >
+    </div>
+    <h2 id='tools' class='mt-0 mb-4 flex items-center gap-2'>
+      <span class='text-2xl'>工具</span>
+    </h2>
+    <p class='text-muted-foreground mt-0 mb-6'>当前使用的工具如下：</p>
+    <ToolSection
+      class='mb-6'
+      title='设计'
+      tools={[
+        {
+          name: 'Photoshop',
+          description: '图片编辑',
+          href: 'https://www.adobe.com/products/photoshop',
+          icon: import('@/assets/tools/photoshop.svg?raw')
+        },
+        {
+          name: 'Illustrator',
+          description: '矢量绘图',
+          href: 'https://www.adobe.com/products/illustrator',
+          icon: import('@/assets/tools/illustrator.svg?raw')
+        },
+        {
+          name: 'After Effects',
+          description: '动态图形',
+          href: 'https://www.adobe.com/products/aftereffects',
+          icon: import('@/assets/tools/aftereffects.svg?raw')
+        },
+        {
+          name: 'Premiere Pro',
+          description: '视频编辑',
+          href: 'https://www.adobe.com/products/premiere',
+          icon: import('@/assets/tools/premiere.svg?raw')
+        },
+        {
+          name: 'Unity',
+          description: '游戏引擎',
+          href: 'https://unity.com/',
+          icon: import('@/assets/tools/unity.svg?raw')
+        },
+        {
+          name: 'Blender',
+          description: '3D建模',
+          href: 'https://www.blender.org/',
+          icon: import('@/assets/tools/blender.svg?raw')
+        }
+      ]}
+    />
+    <ToolSection
+      class='mb-6'
+      title='生产力'
+      tools={[
+        {
+          name: 'Chrome',
+          description: '浏览器',
+          href: 'https://www.google.com/chrome/',
+          icon: import('@/assets/tools/chrome.svg?raw')
+        },
+        {
+          name: 'Edge',
+          description: '浏览器',
+          href: 'https://www.microsoft.com/edge',
+          icon: import('@/assets/tools/edge.svg?raw')
+        },
+        {
+          name: 'Zen',
+          description: '浏览器',
+          href: 'https://zen-browser.com/',
+          icon: import('@/assets/tools/zen.svg?raw')
+        },
+        {
+          name: 'Obsidian',
+          description: '笔记软件',
+          href: 'https://obsidian.md/',
+          icon: import('@/assets/tools/obsidian.svg?raw')
+        },
+        {
+          name: 'Zotero',
+          description: '文献管理',
+          href: 'https://www.zotero.org/',
+          icon: import('@/assets/tools/zotero.svg?raw')
+        }
+      ]}
+    />
+    <ToolSection
+      class='mb-6'
+      title='开发'
+      tools={[
+        {
+          name: 'VS Code',
+          description: 'IDE',
+          href: 'https://code.visualstudio.com/',
+          icon: import('@/assets/tools/vscode.svg?raw')
+        },
+        {
+          name: 'Neovim',
+          description: 'IDE',
+          href: 'https://neovim.io/',
+          icon: import('@/assets/tools/neovim.svg?raw')
+        },
+        {
+          name: 'Git',
+          description: '版本控制',
+          href: 'https://git-scm.com/',
+          icon: import('@/assets/tools/git.svg?raw')
+        }
+      ]}
+    />
+    <ToolSection
+      class='mb-6'
+      title='编程语言'
+      tools={[
+        {
+          name: 'Python',
+          description: '编程语言',
+          href: 'https://www.python.org/',
+          icon: import('@/assets/tools/python.svg?raw')
+        },
+        {
+          name: 'TypeScript',
+          description: '编程语言',
+          href: 'https://www.typescriptlang.org/',
+          icon: import('@/assets/tools/typescript.svg?raw')
+        },
+        {
+          name: 'JavaScript',
+          description: '编程语言',
+          href: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript',
+          icon: import('@/assets/tools/javascript.svg?raw')
+        },
+        {
+          name: 'HTML5',
+          description: '标记语言',
+          href: 'https://developer.mozilla.org/en-US/docs/Web/HTML',
+          icon: import('@/assets/tools/html5.svg?raw')
+        },
+        {
+          name: 'CSS3',
+          description: '样式语言',
+          href: 'https://developer.mozilla.org/en-US/docs/Web/CSS',
+          icon: import('@/assets/tools/css3.svg?raw')
+        },
+        {
+          name: 'C++',
+          description: '编程语言',
+          href: 'https://isocpp.org/',
+          icon: import('@/assets/tools/cpp.svg?raw')
+        },
+        {
+          name: 'C',
+          description: '编程语言',
+          href: 'https://www.iso.org/standard/74528.html',
+          icon: import('@/assets/tools/c.svg?raw')
+        },
+        {
+          name: 'C#',
+          description: '编程语言',
+          href: 'https://dotnet.microsoft.com/languages/csharp',
+          icon: import('@/assets/tools/csharp.svg?raw')
+        },
+        {
+          name: 'Rust',
+          description: '编程语言',
+          href: 'https://www.rust-lang.org/',
+          icon: import('@/assets/tools/rust.svg?raw')
+        },
+        {
+          name: 'Lua',
+          description: '编程语言',
+          href: 'https://www.lua.org/',
+          icon: luaIcon
+        },
+        {
+          name: 'Solidity',
+          description: '编程语言',
+          href: 'https://soliditylang.org/',
+          icon: import('@/assets/tools/solidity.svg?raw')
+        },
+        {
+          name: 'MATLAB',
+          description: '编程语言',
+          href: 'https://www.mathworks.com/products/matlab.html',
+          icon: import('@/assets/tools/matlab.svg?raw')
+        }
+      ]}
+    />
+    <ToolSection
+      class='mb-6'
+      title='框架与数据库'
+      tools={[
+        {
+          name: 'React',
+          description: '前端框架',
+          href: 'https://react.dev/',
+          icon: import('@/assets/tools/react.svg?raw')
+        },
+        {
+          name: '.NET',
+          description: '开发框架',
+          href: 'https://dotnet.microsoft.com/',
+          icon: import('@/assets/tools/dotnet.svg?raw')
+        },
+        {
+          name: 'Qt',
+          description: '开发框架',
+          href: 'https://www.qt.io/',
+          icon: import('@/assets/tools/qt.svg?raw')
+        },
+        {
+          name: 'PostgreSQL',
+          description: '关系型数据库',
+          href: 'https://www.postgresql.org/',
+          icon: import('@/assets/tools/postgresql.svg?raw')
+        }
+      ]}
+    />
+    <ToolSection
+      class='mb-4'
+      title='环境'
+      tools={[
+        {
+          name: 'Arch Linux',
+          description: 'Linux发行版',
+          href: 'https://archlinux.org/',
+          icon: import('@/assets/tools/archlinux.svg?raw')
+        },
+        {
+          name: 'Debian',
+          description: 'Linux发行版',
+          href: 'https://www.debian.org/',
+          icon: import('@/assets/tools/debian.svg?raw')
+        },
+        {
+          name: 'iPadOS',
+          description: 'iPad操作系统',
+          href: 'https://www.apple.com/ipados/',
+          icon: import('@/assets/tools/apple.svg?raw')
+        },
+        {
+          name: 'Windows 11',
+          description: '操作系统',
+          href: 'https://news.microsoft.com/windows11-general-availability/',
+          icon: import('@/assets/tools/windows11.svg?raw')
+        },
+        {
+          name: 'Kali Linux',
+          description: 'Linux发行版',
+          href: 'https://www.kali.org/',
+          icon: import('@/assets/tools/kali.svg?raw')
+        },
+        {
+          name: 'OpenWrt',
+          description: '路由器系统',
+          href: 'https://openwrt.org/',
+          icon: import('@/assets/tools/openwrt.svg?raw')
+        },
+        {
+          name: 'Docker',
+          description: '容器平台',
+          href: 'https://www.docker.com/',
+          icon: import('@/assets/tools/docker.svg?raw')
+        },
+        {
+          name: 'Proxmox VE',
+          description: '虚拟化平台',
+          href: 'https://www.proxmox.com/',
+          icon: import('@/assets/tools/pve.svg?raw')
+        },
+        {
+          name: 'KVM',
+          description: '虚拟化',
+          href: 'https://www.linux-kvm.org/',
+          icon: kvmIcon
+        }
+      ]}
+    />
+  </div>
 
-  {/* social-networks */}
-  <h2 id='social-networks'>社交网络</h2>
-  <p>欢迎通过以下平台联系我：</p>
-  <Substats
-    stats={[
-      {
-        platform: 'GitHub',
-        icon: 'github',
-        color: '#24292e',
-        link: 'https://github.com/LemonAdorable',
-        text: 'followers',
-        api: 'github/LemonAdorable'
-      },
-      {
-        platform: 'Discord',
-        icon: 'discord',
-        color: '#5865F2',
-        link: '',
-        text: 'members',
-        api: ''
-      },
-      {
-        platform: 'Telegram',
-        icon: 'telegram',
-        color: '#2ca5e0',
-        link: '',
-        text: 'subscribers',
-        api: ''
-      },
-      {
-        platform: 'Bilibili',
-        icon: 'bilibili',
-        color: '#FB7299',
-        link: 'https://space.bilibili.com/2073317402',
-        text: 'followers',
-        api: 'bilibili/2073317402'
-      },
-      {
-        platform: '酷安',
-        icon: 'coolapk',
-        color: '#11A984',
-        link: '',
-        text: 'followers',
-        api: ''
-      },
-      {
-        platform: 'Steam',
-        icon: 'steam',
-        color: '#171a21',
-        link: 'https://steamcommunity.com/id/lemonadora/',
-        text: 'friends',
-        api: ''
-      },
-      {
-        platform: '知乎',
-        icon: 'zhihu',
-        color: '#0084FF',
-        link: '',
-        text: 'followers',
-        api: ''
-      },
-      {
-        platform: 'X',
-        icon: 'x',
-        color: '#000000',
-        link: '',
-        text: 'followers',
-        api: ''
-      },
-      {
-        platform: 'Firefly',
-        iconUrl: fireflyIcon.src,
-        color: '#FF6B6B',
-        link: '',
-        text: 'followers',
-        api: ''
-      },
-      {
-        platform: 'Farcaster',
-        iconUrl: farcasterIcon.src,
-        color: '#8B5CF6',
-        link: '',
-        text: 'followers',
-        api: ''
-      },
-      {
-        platform: 'Paragraph',
-        iconUrl: paragraphIcon.src,
-        color: '#6366F1',
-        link: '',
-        text: 'followers',
-        api: ''
-      },
-      {
-        platform: 'Lens',
-        iconUrl: lensIcon.src,
-        color: '#ABFE2C',
-        link: '',
-        text: 'followers',
-        api: ''
-      },
-      {
-        platform: 'Bluesky',
-        iconUrl: blueskyIcon.src,
-        color: '#00A8FF',
-        link: '',
-        text: 'followers',
-        api: ''
-      },
-      {
-        platform: 'Facebook',
-        iconUrl: facebookIcon.src,
-        color: '#1877F2',
-        link: '',
-        text: 'followers',
-        api: ''
-      }
-    ]}
-  />
+  <div
+    class='flex flex-col relative overflow-hidden rounded-3xl border bg-background/50 shadow-sm p-6 sm:p-8 hover:border-primary/50 transition-colors duration-300 mb-10'
+  >
+    <div
+      class='absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary/10 via-primary/40 to-primary/10'
+    >
+    </div>
+    <h2 id='social-networks' class='mt-0 mb-4'>社交网络</h2>
+    <p class='text-muted-foreground mt-0 mb-6'>欢迎通过以下平台联系我：</p>
+    <Substats
+      stats={[
+        {
+          platform: 'GitHub',
+          icon: 'github',
+          color: '#24292e',
+          link: 'https://github.com/LemonAdorable',
+          text: 'followers',
+          api: 'github/LemonAdorable'
+        },
+        {
+          platform: 'Discord',
+          icon: 'discord',
+          color: '#5865F2',
+          link: '',
+          text: 'members',
+          api: ''
+        },
+        {
+          platform: 'Telegram',
+          icon: 'telegram',
+          color: '#2ca5e0',
+          link: '',
+          text: 'subscribers',
+          api: ''
+        },
+        {
+          platform: 'Bilibili',
+          icon: 'bilibili',
+          color: '#FB7299',
+          link: 'https://space.bilibili.com/2073317402',
+          text: 'followers',
+          api: 'bilibili/2073317402'
+        },
+        {
+          platform: '酷安',
+          icon: 'coolapk',
+          color: '#11A984',
+          link: '',
+          text: 'followers',
+          api: ''
+        },
+        {
+          platform: 'Steam',
+          icon: 'steam',
+          color: '#171a21',
+          link: 'https://steamcommunity.com/id/lemonadora/',
+          text: 'friends',
+          api: ''
+        },
+        {
+          platform: '知乎',
+          icon: 'zhihu',
+          color: '#0084FF',
+          link: '',
+          text: 'followers',
+          api: ''
+        },
+        {
+          platform: 'X',
+          icon: 'x',
+          color: '#000000',
+          link: '',
+          text: 'followers',
+          api: ''
+        },
+        {
+          platform: 'Firefly',
+          iconUrl: fireflyIcon.src,
+          color: '#FF6B6B',
+          link: '',
+          text: 'followers',
+          api: ''
+        },
+        {
+          platform: 'Farcaster',
+          iconUrl: farcasterIcon.src,
+          color: '#8B5CF6',
+          link: '',
+          text: 'followers',
+          api: ''
+        },
+        {
+          platform: 'Paragraph',
+          iconUrl: paragraphIcon.src,
+          color: '#6366F1',
+          link: '',
+          text: 'followers',
+          api: ''
+        },
+        {
+          platform: 'Lens',
+          iconUrl: lensIcon.src,
+          color: '#ABFE2C',
+          link: '',
+          text: 'followers',
+          api: ''
+        },
+        {
+          platform: 'Bluesky',
+          iconUrl: blueskyIcon.src,
+          color: '#00A8FF',
+          link: '',
+          text: 'followers',
+          api: ''
+        },
+        {
+          platform: 'Facebook',
+          iconUrl: facebookIcon.src,
+          color: '#1877F2',
+          link: '',
+          text: 'followers',
+          api: ''
+        }
+      ]}
+    />
+  </div>
 
-  {/* gossips */}
-  <h2 id='gossips'>闲话</h2>
-  <Collapse title='待补充'>
-    这里可以写一些个人的想法、感悟或者其他内容。
-  </Collapse>
+  <div
+    class='flex flex-col relative overflow-hidden rounded-3xl border bg-background/50 shadow-sm p-6 sm:p-8 hover:border-primary/50 transition-colors duration-300 mb-10'
+  >
+    <div
+      class='absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary/10 via-primary/40 to-primary/10'
+    >
+    </div>
+    <h2 id='gossips' class='mt-0 mb-6'>闲话</h2>
+    <div class='mb-2'>
+      <Collapse title='待补充'> 这里可以写一些个人的想法、感悟或者其他内容。 </Collapse>
+    </div>
+  </div>
 
-  {/* about-blog */}
-  <h2 id='about-blog'>关于博客</h2>
-  <p>网站历史：</p>
-  <Timeline
-    events={[
-      {
-        date: '2024-12-10',
-        content:
-          '使用 <a href="https://github.com/adityatelange/hugo-PaperMod" target="_blank">Hugo PaperMod</a> 主题魔改建站'
-      },
-      {
-        date: '2025-12-29',
-        content:
-          '迁移至魔改的 <a href="https://github.com/cworld1/astro-theme-pure" target="_blank">Astro Theme Pure</a> 主题'
-      }
-    ]}
-  />
-  <p>
-    The smooth operation and personalized customization of website also rely on the resources and
-    technical support provided by the following excellent projects/service providers:
-  </p>
-  <ul>
-    <li>Domain: <a href='https://pages.github.com/' target='_blank'>GitHub Pages</a></li>
-    <li>
-      Framework & Theme: <a href='https://astro.build/' target='_blank'>Astro</a> + <a
-        href='https://github.com/LemonAdorable/astro-theme-iris'
-        target='_blank'>Astro Theme Iris</a
-      >
-    </li>
-    <li>
-      Site hosting: <a href='https://pages.github.com/' target='_blank'>GitHub Pages</a>
-    </li>
-    <li>
-      CI/CD: <a href='https://github.com/features/actions' target='_blank'>GitHub Actions</a>
-    </li>
-    <li>Comment system: <a href='https://giscus.app' target='_blank'>Giscus</a></li>
-  </ul>
+  <div
+    class='flex flex-col relative overflow-hidden rounded-3xl border bg-background/50 shadow-sm p-6 sm:p-8 hover:border-primary/50 transition-colors duration-300'
+  >
+    <div
+      class='absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary/10 via-primary/40 to-primary/10'
+    >
+    </div>
+    <h2 id='about-blog' class='mt-0 mb-4'>关于博客</h2>
+    <p class='text-muted-foreground mt-0 mb-6'>网站历史：</p>
+    <Timeline
+      events={[
+        {
+          date: '2024-12-10',
+          content:
+            '使用 <a href="https://github.com/adityatelange/hugo-PaperMod" target="_blank" class="text-primary hover:underline">Hugo PaperMod</a> 主题魔改建站'
+        },
+        {
+          date: '2025-12-29',
+          content:
+            '迁移至魔改的 <a href="https://github.com/cworld1/astro-theme-pure" target="_blank" class="text-primary hover:underline">Astro Theme Pure</a> 主题'
+        }
+      ]}
+    />
+    <div class='mt-8 rounded-2xl border border-dashed border-primary/20 bg-primary/5 p-5'>
+      <p class='mb-3 text-sm text-foreground/80'>
+        本站的平稳运行与个性化定制，离不开以下优秀项目与开源社区提供的资源和技术支持：
+      </p>
+      <ul class='list-disc pl-5 space-y-1 text-sm text-muted-foreground'>
+        <li>
+          Site hosting: <a
+            href='https://pages.github.com/'
+            target='_blank'
+            class='text-primary hover:underline'>GitHub Pages</a
+          >
+        </li>
+        <li>
+          Framework & Theme: <a
+            href='https://astro.build/'
+            target='_blank'
+            class='text-primary hover:underline'>Astro</a
+          > + <a
+            href='https://github.com/LemonAdorable/astro-theme-iris'
+            target='_blank'
+            class='text-primary hover:underline'>Astro Theme Iris</a
+          >
+        </li>
+        <li>
+          CI/CD: <a
+            href='https://github.com/features/actions'
+            target='_blank'
+            class='text-primary hover:underline'>GitHub Actions</a
+          >
+        </li>
+        <li>
+          Comment system: <a
+            href='https://giscus.app'
+            target='_blank'
+            class='text-primary hover:underline'>Giscus</a
+          >
+        </li>
+      </ul>
+    </div>
+  </div>
 
-  <div style="text-align: center; margin-top: 3rem;">
-    <p>暂未完工</p>
-    <p>To be continue</p>
+  <div
+    style='text-align: center; margin-top: 4rem;'
+    class='text-muted-foreground/60 flex flex-col items-center justify-center gap-2'
+  >
+    <div class='w-16 h-1 rounded-full bg-border'></div>
+    <span class='text-sm mt-4 tracking-widest uppercase'>To be continued</span>
   </div>
 </PageLayout>
+
+<style>
+  /* 
+   * Force About Page article div to utilize the full width without breaking global properties.
+   */
+  article {
+    width: 100%;
+  }
+  article > #content {
+    max-width: none !important;
+  }
+</style>

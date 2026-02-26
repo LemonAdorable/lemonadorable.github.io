@@ -1,8 +1,8 @@
 ---
 import links from 'public/links.json'
+import config from 'virtual:config'
 
 import { Collapse, Timeline } from 'astro-pure/user'
-import config from 'virtual:config'
 import PageLayout from '@/layouts/CommonPage.astro'
 import FriendList from '@/components/links/FriendList.astro'
 
@@ -31,13 +31,14 @@ const projectLinks = {
       name: 'BullBear Dashboard',
       intro: '加密市场牛熊状态机',
       link: 'https://lemonadorable.github.io/bullbear-dashboard/',
-      avatar: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍉</text></svg>'
+      avatar:
+        'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍉</text></svg>'
     }
   ]
 }
 ---
 
-<PageLayout title='链接' {headings} comment>
+<PageLayout title='链接' {headings} comment hideBack>
   <p>链接随机排序。</p>
   <h2 id='common-links'>常用链接</h2>
   <FriendList list={friends[0]} />
