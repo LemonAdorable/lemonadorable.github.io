@@ -84,7 +84,7 @@ const toc = generateToc(headings)
           'article h1, article h2, article h3, article h4, article h5, article h6'
         )
       )
-      this.tocLinks = Array.from(this.querySelectorAll('a[href^="#"]')).map((link) => ({
+      this.tocLinks = Array.from(this.querySelectorAll('a.toc-item')).map((link) => ({
         element: link as HTMLAnchorElement,
         progressBar: link.previousElementSibling as HTMLElement,
         slug: (link.getAttribute('href') || '').substring(1)
@@ -110,8 +110,8 @@ const toc = generateToc(headings)
       })
 
       this.tocLinks.forEach(({ element: el, progressBar: bar, slug }, i) => {
-        const { inView, progress } = this.headingProgress[slug]
         if (this.headingProgress[slug]) {
+          const { inView, progress } = this.headingProgress[slug]
           el.classList.toggle('highlight', inView)
           el.classList.toggle('highlight-bg-translucent', inView)
           el.classList.toggle(
@@ -134,22 +134,23 @@ const toc = generateToc(headings)
     connectedCallback() {
       // Get graph link element once
       const graphLink = this.querySelector('.toc-graph-link') as HTMLElement
-      
+
       // Check if graph view exists and show/hide the link button
       if (graphLink) {
         const checkGraphView = () => {
           // Check for graph-view or blog-graph-view
-          const graphView = document.getElementById('graph-view') || document.getElementById('blog-graph-view')
+          const graphView =
+            document.getElementById('graph-view') || document.getElementById('blog-graph-view')
           if (graphView) {
             graphLink.style.display = 'flex'
           } else {
             graphLink.style.display = 'none'
           }
         }
-        
+
         // Check immediately
         checkGraphView()
-        
+
         // Also check after a delay to catch dynamically loaded graph views
         setTimeout(checkGraphView, 500)
       }
@@ -178,21 +179,23 @@ const toc = generateToc(headings)
       if (graphLink) {
         graphLink.addEventListener('click', (e) => {
           e.preventDefault()
-          
+
           // Find the target element that GraphView is aligned with
           // Check for outgoing links (相关链接) first
           const outgoingLinks = document.querySelector('.outgoing-links-section')
           // Check for backlinks (反向链接)
           const backlinks = Array.from(document.querySelectorAll('section')).find(
-            (section) => 
-              section.querySelector('.links-header') && 
+            (section) =>
+              section.querySelector('.links-header') &&
               !section.classList.contains('outgoing-links-section')
           ) as HTMLElement
           // Check for Copyright
-          const copyrightSection = document.querySelector('.bottom > div:first-child > div.relative') as HTMLElement
-          
+          const copyrightSection = document.querySelector(
+            '.bottom > div:first-child > div.relative'
+          ) as HTMLElement
+
           let targetElement: HTMLElement | null = null
-          
+
           if (outgoingLinks) {
             // Align with outgoing links (相关链接)
             targetElement = outgoingLinks as HTMLElement
@@ -203,17 +206,18 @@ const toc = generateToc(headings)
             // Align with Copyright
             targetElement = copyrightSection
           }
-          
+
           // Check for graph-view or blog-graph-view
-          const graphView = document.getElementById('graph-view') || document.getElementById('blog-graph-view')
-          
+          const graphView =
+            document.getElementById('graph-view') || document.getElementById('blog-graph-view')
+
           if (targetElement) {
             // Scroll to the target element that GraphView is aligned with, with some offset above
             history.pushState(null, 'Graph View', '#graph-view')
             const targetRect = targetElement.getBoundingClientRect()
             const offset = 80 // Offset in pixels above the target element
             const targetPosition = window.scrollY + targetRect.top - offset
-            
+
             window.scrollTo({
               top: Math.max(0, targetPosition),
               behavior: 'smooth'
@@ -224,7 +228,7 @@ const toc = generateToc(headings)
             const graphRect = graphView.getBoundingClientRect()
             const offset = 80
             const targetPosition = window.scrollY + graphRect.top - offset
-            
+
             window.scrollTo({
               top: Math.max(0, targetPosition),
               behavior: 'smooth'

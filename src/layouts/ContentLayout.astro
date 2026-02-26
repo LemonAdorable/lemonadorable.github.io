@@ -10,20 +10,44 @@ interface Props {
   meta: SiteMeta
   highlightColor?: string
   back?: string
+  hideBack?: boolean
+  mainClass?: string
+  sidebarClass?: string
 }
 
-const { meta, highlightColor, back = '/', ...props } = Astro.props
+const {
+  meta,
+  highlightColor,
+  back = '/',
+  hideBack = false,
+  mainClass,
+  sidebarClass,
+  ...props
+} = Astro.props
 ---
 
 <PageLayout {meta} {highlightColor} {...props}>
   <div class='reading-progress' aria-hidden='true'>
     <div id='reading-progress-bar' class='reading-progress-bar'></div>
   </div>
-  <Button title='Back' href={back} variant='back' />
-  <main class='mt-6 items-start gap-x-10 md:flex'>
+  {
+    !hideBack && (
+      <Button
+        title='Back'
+        href='#'
+        onclick='history.back(); return false;'
+        data-astro-prefetch='false'
+        variant='back'
+      />
+    )
+  }
+  <main class={cn('mt-6 items-start gap-x-10 md:flex', mainClass)}>
     {/* Sidebar */}
     <aside
-      class='animate top-20 min-w-48 basis-60 overflow-y-auto max-md:hidden z-40 fixed md:sticky md:order-2 lg:shrink-0 max-md:border max-md:px-4 max-md:py-3 max-md:bg-muted max-md:rounded-xl'
+      class={cn(
+        'animate top-20 min-w-48 basis-60 overflow-y-scroll max-md:hidden z-40 fixed md:sticky md:order-2 lg:shrink-0 max-md:border max-md:px-4 max-md:py-3 max-md:bg-muted max-md:rounded-xl',
+        sidebarClass
+      )}
       style='height:calc(100vh - 7rem); display: flex; flex-direction: column;'
       id='sidebar'
     >

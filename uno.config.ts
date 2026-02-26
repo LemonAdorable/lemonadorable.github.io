@@ -185,6 +185,11 @@ export default defineConfig({
     // TOC
     'rounded-t-2xl',
     'rounded-b-2xl',
+    '[&.highlight-bg]:bg-primary',
+    '[&.is-read]:bg-border',
+    '[&.highlight]:font-medium',
+    '[&.highlight]:text-primary',
+    '[&.highlight-bg-translucent]:bg-muted',
     // Typography
     'text-base',
     'prose'
