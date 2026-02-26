@@ -103,6 +103,42 @@ const primaryColor = data.heroImage?.color ?? '#B19CD9'
 </script>
 
 <script>
+  /**
+   * Enhanced anchor navigation: scroll-to-center + highlight animation
+   * Handles: footnote refs, footnote backrefs, wikilink in-page locate
+   */
+  function scrollToAndHighlight(target: Element, highlightClass = 'anchor-highlight') {
+    target.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    target.classList.add(highlightClass)
+    setTimeout(() => target.classList.remove(highlightClass), 2400)
+  }
+
+  // Intercept footnote reference clicks (sup a[data-footnote-ref])
+  document.querySelectorAll('a[data-footnote-ref]').forEach((link) => {
+    link.addEventListener('click', (e) => {
+      const href = (link as HTMLAnchorElement).getAttribute('href')
+      if (!href?.startsWith('#')) return
+      const target = document.getElementById(href.slice(1))
+      if (!target) return
+      e.preventDefault()
+      scrollToAndHighlight(target)
+    })
+  })
+
+  // Intercept footnote backref clicks (a.data-footnote-backref)
+  document.querySelectorAll('a.data-footnote-backref').forEach((link) => {
+    link.addEventListener('click', (e) => {
+      const href = (link as HTMLAnchorElement).getAttribute('href')
+      if (!href?.startsWith('#')) return
+      const target = document.getElementById(href.slice(1))
+      if (!target) return
+      e.preventDefault()
+      scrollToAndHighlight(target)
+    })
+  })
+</script>
+
+<script>
   // Helper function to locate and highlight a wikilink
   function locateWikilink(target: string) {
     const wikilinks = document.querySelectorAll('a.wikilink')
@@ -166,7 +202,7 @@ const primaryColor = data.heroImage?.color ?? '#B19CD9'
 
       const section = document.getElementById('wikilinks-section')
       if (section) {
-        section.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        section.scrollIntoView({ behavior: 'smooth', block: 'center' })
 
         // Find and highlight the corresponding link by index
         setTimeout(() => {

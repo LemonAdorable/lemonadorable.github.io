@@ -22,6 +22,11 @@ const socialImageURL = new URL(ogImage ? ogImage : config.socialCard, Astro.url)
 <meta content='IE=edge' http-equiv='X-UA-Compatible' />
 <title>{siteTitle}</title>
 
+{/* Preconnect hints for third-party origins */}
+<link rel='preconnect' href='https://cdn.jsdelivr.net' crossorigin />
+<link rel='preconnect' href='https://giscus.app' crossorigin />
+<link rel='dns-prefetch' href='https://dummyjson.com' />
+
 {/* Icons / Favicon */}
 <link rel='icon' type='image/gif' href='/favicon/favicon.gif' />
 

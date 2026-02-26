@@ -26,6 +26,9 @@ import config from './src/site.config.ts'
 
 // https://astro.build/config
 export default defineConfig({
+  // [Performance]
+  compressHTML: true,
+
   // [Basic]
   site: 'https://lemonadorable.github.io',
   // Deploy to a sub path
@@ -140,6 +143,18 @@ export default defineConfig({
     ]
   },
   vite: {
+    build: {
+      cssMinify: 'lightningcss',
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            d3: ['d3'],
+            mermaid: ['mermaid'],
+            search: ['flexsearch']
+          }
+        }
+      }
+    },
     ssr: {
       external: ['@myriaddreamin/typst-ts-node-compiler']
     }

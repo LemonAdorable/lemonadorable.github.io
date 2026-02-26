@@ -1,6 +1,6 @@
 ---
-import { Image } from 'astro:assets'
 import type { ImageMetadata } from 'astro'
+import { Image } from 'astro:assets'
 
 import { Quote } from 'astro-pure/advanced'
 import { PostPreview } from 'astro-pure/components/pages'
@@ -31,23 +31,29 @@ if (!images[imagePath])
 ---
 
 <PageLayout meta={{ title: 'Home' }} highlightColor='#B19CD9'>
-  <main class='flex w-full flex-col items-center relative -mt-16' data-page="home">
+  <main class='flex w-full flex-col items-center relative -mt-16' data-page='home'>
     {/* Profile Section - Full Screen Hero */}
-    <section class='flex min-h-[calc(100vh-4rem)] w-full flex-col items-center justify-center relative overflow-hidden page-transition-enter' id='profile-hero'>
+    <section
+      class='flex min-h-[calc(100vh-4rem)] w-full flex-col items-center justify-center relative overflow-hidden page-transition-enter'
+      id='profile-hero'
+    >
       <div class='relative z-10 flex flex-col items-center gap-y-5 max-w-2xl mx-auto px-4'>
         {/* Avatar */}
         <div class='relative group'>
-          <div class='absolute inset-0 rounded-full bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 blur-xl group-hover:blur-2xl transition-all duration-500'></div>
+          <div
+            class='absolute inset-0 rounded-full bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 blur-xl group-hover:blur-2xl transition-all duration-500'
+          >
+          </div>
           <div class='relative'>
-      <Image
+            <Image
               id='home-avatar'
-        src={images[imagePath]()}
-        alt={config.logo.alt || 'Profile'}
+              src={images[imagePath]()}
+              alt={config.logo.alt || 'Profile'}
               class='rounded-full border-4 border-foreground/10 shadow-2xl transition-transform duration-500 group-hover:scale-105'
               style='width: 120px; height: 120px; object-fit: cover;'
-        loading='eager'
-        fetchpriority='high'
-      />
+              loading='eager'
+              fetchpriority='high'
+            />
           </div>
         </div>
 
@@ -57,32 +63,43 @@ if (!images[imagePath])
         </h1>
 
         {/* Description */}
-        <p class='text-lg sm:text-xl text-muted-foreground font-light text-center max-w-lg leading-relaxed'>
+        <p
+          class='text-lg sm:text-xl text-muted-foreground font-light text-center max-w-lg leading-relaxed'
+        >
           {config.description}
         </p>
 
         {/* Navigation Buttons */}
         <div class='flex flex-wrap justify-center gap-3 mt-1'>
-          <a 
-            href='/blog' 
+          <a
+            href='/blog'
             class='home-nav-btn group relative px-6 py-2.5 text-sm font-medium rounded-full bg-background/60 backdrop-blur-sm border border-foreground/10 text-foreground/80 hover:text-foreground hover:bg-background/80 hover:border-foreground/20 transition-all duration-300 hover:scale-105 hover:shadow-md'
           >
             <span class='relative z-10'>文章</span>
-            <div class='absolute inset-0 rounded-full bg-gradient-to-r from-purple-500/0 via-purple-400/0 to-purple-500/0 group-hover:from-purple-500/10 group-hover:via-purple-400/10 group-hover:to-purple-500/10 transition-all duration-300 opacity-0 group-hover:opacity-100'></div>
+            <div
+              class='absolute inset-0 rounded-full bg-gradient-to-r from-purple-500/0 via-purple-400/0 to-purple-500/0 group-hover:from-purple-500/10 group-hover:via-purple-400/10 group-hover:to-purple-500/10 transition-all duration-300 opacity-0 group-hover:opacity-100'
+            >
+            </div>
           </a>
-          <a 
-            href='/tags' 
+          <a
+            href='/tags'
             class='home-nav-btn group relative px-6 py-2.5 text-sm font-medium rounded-full bg-background/60 backdrop-blur-sm border border-foreground/10 text-foreground/80 hover:text-foreground hover:bg-background/80 hover:border-foreground/20 transition-all duration-300 hover:scale-105 hover:shadow-md'
           >
             <span class='relative z-10'>标签</span>
-            <div class='absolute inset-0 rounded-full bg-gradient-to-r from-purple-500/0 via-purple-400/0 to-purple-500/0 group-hover:from-purple-500/10 group-hover:via-purple-400/10 group-hover:to-purple-500/10 transition-all duration-300 opacity-0 group-hover:opacity-100'></div>
+            <div
+              class='absolute inset-0 rounded-full bg-gradient-to-r from-purple-500/0 via-purple-400/0 to-purple-500/0 group-hover:from-purple-500/10 group-hover:via-purple-400/10 group-hover:to-purple-500/10 transition-all duration-300 opacity-0 group-hover:opacity-100'
+            >
+            </div>
           </a>
-          <a 
-            href='/about' 
+          <a
+            href='/about'
             class='home-nav-btn group relative px-6 py-2.5 text-sm font-medium rounded-full bg-background/60 backdrop-blur-sm border border-foreground/10 text-foreground/80 hover:text-foreground hover:bg-background/80 hover:border-foreground/20 transition-all duration-300 hover:scale-105 hover:shadow-md'
           >
             <span class='relative z-10'>关于</span>
-            <div class='absolute inset-0 rounded-full bg-gradient-to-r from-purple-500/0 via-purple-400/0 to-purple-500/0 group-hover:from-purple-500/10 group-hover:via-purple-400/10 group-hover:to-purple-500/10 transition-all duration-300 opacity-0 group-hover:opacity-100'></div>
+            <div
+              class='absolute inset-0 rounded-full bg-gradient-to-r from-purple-500/0 via-purple-400/0 to-purple-500/0 group-hover:from-purple-500/10 group-hover:via-purple-400/10 group-hover:to-purple-500/10 transition-all duration-300 opacity-0 group-hover:opacity-100'
+            >
+            </div>
           </a>
         </div>
 
@@ -95,7 +112,10 @@ if (!images[imagePath])
             class='group relative p-2.5 rounded-full bg-muted/50 hover:bg-muted transition-all duration-300 hover:scale-110'
             aria-label='GitHub'
           >
-            <Icon name='github' class='size-5 text-muted-foreground group-hover:text-foreground transition-colors duration-300' />
+            <Icon
+              name='github'
+              class='size-5 text-muted-foreground group-hover:text-foreground transition-colors duration-300'
+            />
           </a>
           <a
             href='https://space.bilibili.com/2073317402'
@@ -104,7 +124,10 @@ if (!images[imagePath])
             class='group relative p-2.5 rounded-full bg-muted/50 hover:bg-muted transition-all duration-300 hover:scale-110'
             aria-label='Bilibili'
           >
-            <Icon name='bilibili' class='size-5 text-muted-foreground group-hover:text-foreground transition-colors duration-300' />
+            <Icon
+              name='bilibili'
+              class='size-5 text-muted-foreground group-hover:text-foreground transition-colors duration-300'
+            />
           </a>
           <a
             href='https://steamcommunity.com/id/lemonadora/'
@@ -113,30 +136,33 @@ if (!images[imagePath])
             class='group relative p-2.5 rounded-full bg-muted/50 hover:bg-muted transition-all duration-300 hover:scale-110'
             aria-label='Steam'
           >
-            <Icon name='steam' class='size-5 text-muted-foreground group-hover:text-foreground transition-colors duration-300' />
+            <Icon
+              name='steam'
+              class='size-5 text-muted-foreground group-hover:text-foreground transition-colors duration-300'
+            />
           </a>
         </div>
       </div>
 
       {/* Scroll indicator at bottom */}
       <a
-        href='#content' 
+        href='#content'
         class='scroll-indicator-circle absolute bottom-20 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full border-2 bg-background/80 backdrop-blur-sm flex items-center justify-center cursor-pointer group transition-all duration-300 hover:scale-110 shadow-lg z-20'
         aria-label='向下滚动'
         style='border-width: 0; border-color: transparent;'
       >
-        <svg 
-          width='20' 
-          height='20' 
-          viewBox='0 0 24 24' 
-          fill='none' 
-          stroke='currentColor' 
-          stroke-width='2.5' 
-          stroke-linecap='round' 
+        <svg
+          width='20'
+          height='20'
+          viewBox='0 0 24 24'
+          fill='none'
+          stroke='currentColor'
+          stroke-width='2.5'
+          stroke-linecap='round'
           stroke-linejoin='round'
           class='text-muted-foreground/70 group-hover:text-foreground transition-colors duration-300'
         >
-          <path d='M6 9l6 6 6-6'/>
+          <path d='M6 9l6 6 6-6'></path>
         </svg>
       </a>
     </section>
@@ -145,7 +171,9 @@ if (!images[imagePath])
     <div id='content' class='animate flex w-full flex-col gap-y-10 md:w-4/5 lg:w-5/6 pt-8'>
       <Section title='About'>
         <p class='text-muted-foreground'>既有缘相识，祝你心想事成</p>
-        <p class='text-muted-foreground'>Now that you have met by fate, I wish you all the best of luck</p>
+        <p class='text-muted-foreground'>
+          Now that you have met by fate, I wish you all the best of luck
+        </p>
         <Button title='More about me' class='w-fit self-end' href='/about' variant='ahead' />
       </Section>
       {
@@ -295,15 +323,14 @@ if (!images[imagePath])
       transform: translateY(0);
     }
   }
-  
+
   /* Navigation buttons animation */
   .home-nav-btn {
-    will-change: transform, opacity;
     animation: navBtnFadeIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
     animation-delay: 0.2s;
     opacity: 0;
   }
-  
+
   @keyframes navBtnFadeIn {
     from {
       opacity: 0;
@@ -318,7 +345,6 @@ if (!images[imagePath])
   /* Homepage entry animation - optimized for performance */
   /* Only animate the hero section, not the entire main */
   .page-transition-enter {
-    will-change: opacity, transform;
     animation: heroFadeIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   }
 
@@ -334,48 +360,47 @@ if (!images[imagePath])
     padding-top: 0;
     margin-top: 0;
   }
-  
+
   #content {
     scroll-margin-top: 2rem;
     opacity: 0;
-    will-change: opacity, transform;
     animation: fadeInUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.3s forwards;
   }
-  
+
   /* Smooth scroll behavior */
   html {
     scroll-behavior: smooth;
   }
-  
+
   /* Enhanced scroll indicator circle - optimized */
   .scroll-indicator-circle {
-    will-change: transform, border-width, border-color;
-    animation: scrollBounce 2s infinite, borderReveal 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.4s forwards;
+    animation: scrollBounce 2s infinite;
+    border: 2px solid hsl(var(--background) / 0.8);
+    opacity: 0;
+    animation:
+      scrollBounce 2s infinite,
+      scrollFadeIn 0.8s 0.4s forwards;
   }
-  
-  @keyframes scrollBounce {
-    0%, 100% {
-      transform: translate(-50%, 0);
+
+  @keyframes scrollFadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
       opacity: 1;
+    }
+  }
+
+  @keyframes scrollBounce {
+    0%,
+    100% {
+      transform: translate(-50%, 0);
     }
     50% {
       transform: translate(-50%, 6px);
-      opacity: 0.7;
     }
   }
-  
-  /* Border reveal animation - starts with no border, gradually shows circular border */
-  @keyframes borderReveal {
-    0% {
-      border-width: 0;
-      border-color: transparent;
-    }
-    100% {
-      border-width: 2px;
-      border-color: hsl(var(--background) / 0.8);
-    }
-  }
-  
+
   /* Pulse effect for scroll indicator circle */
   .scroll-indicator-circle::before {
     content: '';
@@ -391,9 +416,10 @@ if (!images[imagePath])
     pointer-events: none;
     opacity: 0;
   }
-  
+
   @keyframes pulse {
-    0%, 100% {
+    0%,
+    100% {
       opacity: 0.4;
       transform: translate(-50%, -50%) scale(1);
     }
@@ -402,12 +428,12 @@ if (!images[imagePath])
       transform: translate(-50%, -50%) scale(1.3);
     }
   }
-  
+
   /* Avatar glow effect */
   #profile-hero .group:hover img {
     box-shadow: 0 0 30px hsl(var(--primary) / 0.3);
   }
-  
+
   /* Fade in animation for content */
   @keyframes fadeInUp {
     from {
@@ -419,13 +445,14 @@ if (!images[imagePath])
       transform: translateY(0);
     }
   }
-  
+
   /* Smooth transition when scrolling - optimized */
   #profile-hero {
-    will-change: opacity, transform;
-    transition: opacity 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition:
+      opacity 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+      transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
-  
+
   /* Hide header on scroll for better experience */
   @media (prefers-reduced-motion: no-preference) {
     #profile-hero.scrolled {
@@ -440,10 +467,10 @@ if (!images[imagePath])
   document.addEventListener('DOMContentLoaded', () => {
     const avatar = document.getElementById('home-avatar')
     if (!avatar) return
-    
+
     // Get all links on the page (excluding the scroll indicator)
     const links = document.querySelectorAll('a[href]:not(.scroll-indicator-circle)')
-    
+
     links.forEach((link) => {
       link.addEventListener('mouseenter', () => {
         // Remove the class first to reset animation
@@ -453,7 +480,7 @@ if (!images[imagePath])
         // Add the class to trigger rotation
         avatar.classList.add('rotate')
       })
-      
+
       // Remove the class after animation completes
       avatar.addEventListener('animationend', () => {
         avatar.classList.remove('rotate')
@@ -466,29 +493,29 @@ if (!images[imagePath])
     const profileHero = document.getElementById('profile-hero') as HTMLElement | null
     const scrollIndicator = document.querySelector('.scroll-indicator-circle') as HTMLElement | null
     const content = document.getElementById('content')
-    
+
     if (!profileHero || !scrollIndicator || !content) return
-    
+
     // Ensure button is always clickable initially
     scrollIndicator.style.pointerEvents = 'auto'
     scrollIndicator.style.opacity = '1'
-    
+
     // Handle scroll indicator click - always allow clicking
     scrollIndicator.addEventListener('click', (e) => {
       e.preventDefault()
       e.stopPropagation()
-      content.scrollIntoView({ 
+      content.scrollIntoView({
         behavior: 'smooth',
         block: 'start'
       })
     })
-    
+
     // Detect scroll position for fade effect
     // Keep button always clickable, only adjust opacity for visual feedback
     const handleScroll = () => {
       const scrollTop = window.pageYOffset || document.documentElement.scrollTop
       const heroHeight = profileHero.offsetHeight
-      
+
       // Always keep button clickable, only adjust opacity for visual feedback
       // Fade out when scrolled past hero section, but remain clickable
       if (scrollTop > heroHeight * 0.7) {
@@ -498,24 +525,28 @@ if (!images[imagePath])
         scrollIndicator.style.opacity = '1'
         profileHero.classList.remove('scrolled')
       }
-      
+
       // Always ensure button is clickable
       scrollIndicator.style.pointerEvents = 'auto'
     }
-    
+
     // Initialize scroll state
     handleScroll()
-    
+
     // Throttle scroll events
     let ticking = false
-    window.addEventListener('scroll', () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          handleScroll()
-          ticking = false
-        })
-        ticking = true
-      }
-    }, { passive: true })
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (!ticking) {
+          window.requestAnimationFrame(() => {
+            handleScroll()
+            ticking = false
+          })
+          ticking = true
+        }
+      },
+      { passive: true }
+    )
   })
 </script>

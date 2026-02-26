@@ -85,6 +85,20 @@ span.katex-display {
   padding-inline-start: 0.5rem;
 }
 
+/* [Mermaid constraints] */
+.mermaid {
+  overflow-x: auto;
+  max-width: 100%;
+  padding: 1rem 0;
+  display: flex;
+  justify-content: center;
+}
+
+.mermaid svg {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
 /* [Shiki basic] */
 .astro-code {
   margin-top: 0.5rem;
@@ -369,6 +383,25 @@ a.wikilink-highlight {
 
   50% {
     background-color: hsl(var(--primary) / 0.3);
+  }
+}
+
+/* Generic anchor target highlight — used by footnotes, wikilinks, etc. */
+.anchor-highlight {
+  animation: anchor-pulse 0.8s ease-in-out 3;
+  border-radius: 4px;
+  box-shadow: 0 0 0 4px hsl(var(--primary) / 0.4);
+}
+
+@keyframes anchor-pulse {
+
+  0%,
+  100% {
+    background-color: hsl(var(--primary) / 0.12);
+  }
+
+  50% {
+    background-color: hsl(var(--primary) / 0.35);
   }
 }
 
