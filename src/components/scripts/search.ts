@@ -943,9 +943,19 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
       const position = calculateMarkerPosition(highlight)
       marker.style.top = `${position}%`
 
-      // Click handler to scroll to highlight
+      // Click handler to scroll to highlight and flash it
       marker.addEventListener('click', () => {
         highlight.scrollIntoView({ block: 'center', behavior: 'smooth' })
+        // Flash the highlight after scroll completes
+        setTimeout(() => {
+          highlight.classList.remove('flash-highlight')
+          // Force reflow so re-adding the class restarts the animation
+          void highlight.offsetWidth
+          highlight.classList.add('flash-highlight')
+          highlight.addEventListener('animationend', () => {
+            highlight.classList.remove('flash-highlight')
+          }, { once: true })
+        }, 300)
       })
 
       scrollbarMarkersContainer!.appendChild(marker)
