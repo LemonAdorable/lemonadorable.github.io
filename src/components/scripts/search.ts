@@ -1241,7 +1241,8 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
 
     // Animate search space when user starts typing - find searchSpace from container (which may be in body)
     const searchSpace = container.querySelector('.search-space') as HTMLElement
-    if (searchSpace && (hasSearchTerm || hasActiveFilters)) {
+	let searching = searchSpace && (hasSearchTerm || hasActiveFilters)
+    if (searching) {
       searchSpace.classList.remove('centered')
     } else if (searchSpace && !hasSearchTerm && !hasActiveFilters) {
       searchSpace.classList.add('centered')
@@ -1305,7 +1306,7 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
     }
 
     // Apply filters
-    const filteredIds = applyFilters(allIds)
+    const filteredIds = applyFilters(searching ? allIds : [])
     const finalResults = filteredIds.map((id) => formatForDisplay(currentSearchTerm || '', id))
     await displayResults(finalResults)
   }
