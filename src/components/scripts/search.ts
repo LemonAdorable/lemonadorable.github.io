@@ -710,6 +710,8 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
       results.append(...finalResults.map(resultToHTML))
     }
 
+    await new Promise(res => setTimeout(res, 400))
+
     if (finalResults.length === 0 && preview) {
       removeAllChildren(preview)
     } else {
