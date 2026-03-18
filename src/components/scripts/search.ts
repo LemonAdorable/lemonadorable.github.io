@@ -1310,7 +1310,12 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
 
   document.addEventListener('keydown', shortcutHandler)
   searchButton.addEventListener('click', () => showSearch('basic'))
-  searchBar.addEventListener('input', onType)
+  let timeout: ReturnType<typeof setTimeout> | null = null;
+  function onTypeLazy(e: Event) {
+    if (timeout !== null) clearTimeout(timeout)
+    timeout = setTimeout(() => onType(e), 300)
+  }
+  searchBar.addEventListener('input', onTypeLazy)
   registerEscapeHandler(container, hideSearch)
 
   await fillDocument(data)
