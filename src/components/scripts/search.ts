@@ -710,8 +710,6 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
       results.append(...finalResults.map(resultToHTML))
     }
 
-    await new Promise(res => setTimeout(res, 400))
-
     if (finalResults.length === 0 && preview) {
       removeAllChildren(preview)
     } else {
@@ -1316,7 +1314,13 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
   let timeout: ReturnType<typeof setTimeout> | null = null;
   function onTypeLazy(e: Event) {
     if (timeout !== null) clearTimeout(timeout)
-    timeout = setTimeout(() => onType(e), 300)
+    const value = (e.target as HTMLInputElement).value
+    // If first char or empty, search immediately
+    if (value.length <= 1) {
+      onType(e)
+    } else {
+      timeout = setTimeout(() => onType(e), 150)
+    }
   }
   searchBar.addEventListener('input', onTypeLazy)
   registerEscapeHandler(container, hideSearch)
