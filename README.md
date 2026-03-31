@@ -36,35 +36,42 @@ This project is customized based on [astro-theme-pure](https://github.com/cworld
 ### ✨ Core Features
 
 #### 🔍 Powerful Search System
+
 - **FlexSearch Full-Text Search**: High-performance search supporting multiple languages including Chinese and English
 - **Three-Column Preview Layout**: Integrated search results, content preview, and scroll markers
 - **Multi-Dimensional Filtering**: Filter by date range, tags, and type (article/docs)
 - **Real-Time Highlighting**: Real-time search result highlighting with scroll positioning
 
 #### 🔗 Wikilink System
+
 - **Multi-Level Preview**: Uses Tippy.js to implement Quartz-like multi-layer preview functionality
 - **Smart Positioning**: Supports backlinks and reverse positioning references
 - **Smooth Interaction**: Supports nested previews
 
 #### 🗺️ Knowledge Graph (Graph View)
+
 - **D3.js Directed Graph**: Visualizes relationships between pages
 - **Local/Global Views**: View local graph for current page or site-wide global graph
 - **Node Types**: Distinguishes between articles, docs, tags, categories, and other types
 - **Interactive Operations**: Supports drag, zoom, and click navigation
 
 #### 🎨 UI Optimization
+
 - **Full-Screen Homepage**: Immersive homepage design with animation effects
 - **Gradient Background**: Article cards use light purple gradient backgrounds
 - **Interactive Animations**: Interactive animation effects for avatars and friend links
 - **Responsive Design**: Adapted for desktop and mobile devices
 
 #### 💬 Comment System
+
 - **Giscus Integration**: Comment system based on GitHub Discussions
 
 #### 📊 Mermaid Integration
+
 - **Mermaid Integration**: Mermaid integration for diagramming
 
 #### 🖋️ Typst Integration
+
 - **Typst Support**: Typst integration for high-quality mathematical equations and diagrams rendering in MDX
 
 ### 🚀 Quick Start
@@ -113,7 +120,6 @@ npm run preview
 - [ ] Package theme and new components
 - [ ] More documentation and examples
 
-
 ### 📚 Repository Structure
 
 ```
@@ -146,6 +152,7 @@ For questions or suggestions, please feel free to contact via email
 ### 📋 Usage Instructions
 
 #### Search Feature
+
 - Press `Ctrl+K` or `Cmd+K` to open the search box
 - Supports Chinese and English full-text search
 - Filter by date range, tags, and type
@@ -153,12 +160,14 @@ For questions or suggestions, please feel free to contact via email
 - Right preview area supports scroll marker positioning
 
 #### Wikilink Preview
+
 - Use `[[link text]]` or `[[link|display text]]` in articles to create wikilinks
 - Hover over wikilinks to preview link content
 - Supports multi-level nested previews
 - Preview box supports interaction, click links to navigate
 
 #### Knowledge Graph
+
 - Graph View displayed in sidebar on article and doc pages
 - Click nodes to navigate to corresponding pages
 - Supports dragging nodes to adjust layout
@@ -167,6 +176,7 @@ For questions or suggestions, please feel free to contact via email
 ### ⚙️ Configuration
 
 Main configuration file is located at `src/site.config.ts`, where you can configure:
+
 - Basic site information (title, description, author, etc.)
 - Social links
 - Comment system (Giscus/Waline)
