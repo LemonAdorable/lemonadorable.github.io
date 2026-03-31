@@ -79,12 +79,12 @@
   margin-top: 8vh;
   margin-left: auto;
   margin-right: auto;
-  transition: margin-top 0.4s cubic-bezier(0.4, 0, 0.2, 1), width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .search>.search-container>.search-space.centered,
 .search-container>.search-space.centered {
-  margin-top: 30vh;
+  transform: translateY(22vh);
   width: 50%;
   max-width: 600px;
 }
