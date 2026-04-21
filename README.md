@@ -12,6 +12,9 @@ English | [简体中文](./README-zh-CN.md)
 
 **Demo Blog**: [https://lemonadorable.github.io/](https://lemonadorable.github.io/)
 
+> [!NOTE]
+> Known issues: Header & customize options is still under development (template exposed still).
+
 <div align="center">
   <img src="./index.png" alt="Homepage Showcase" width="100%">
   <p><em>Full-screen homepage with animation effects</em></p>
