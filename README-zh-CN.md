@@ -12,6 +12,9 @@
 
 **示例博客**: [https://lemonadorable.github.io/](https://lemonadorable.github.io/)
 
+> [!NOTE]
+> 已知问题：Head 标签和自定义选项仍在开发中（已暴露模板用于修改）
+
 <div align="center">
   <img src="./index.png" alt="首页展示" width="100%">
   <p><em>首页全屏展示与动画效果</em></p>

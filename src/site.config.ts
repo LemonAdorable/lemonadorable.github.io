@@ -80,11 +80,12 @@ export const theme: ThemeUserConfig = {
     /** Enable displaying a "Astro & Pure theme powered" link in your site's footer. */
     credits: true,
     /** Optional details about the social media accounts for this site. */
-    social: { 
-      github: 'https://github.com/LemonAdorable',
-      bilibili: 'https://space.bilibili.com/2073317402',
-      steam: 'https://steamcommunity.com/id/lemonadora/'
-    }
+    social: [
+      { icon: 'github', label: 'GitHub', href: 'https://github.com/LemonAdorable' },
+      { icon: 'bilibili', label: 'Bilibili', href: 'https://space.bilibili.com/3706959832288012' },
+      { icon: 'steam', label: 'Steam', href: 'https://steamcommunity.com/id/lemonadora/' },
+      { icon: 'rss', label: 'RSS', href: '/rss.xml' }
+    ]
   },
 
   // [Content]
@@ -93,14 +94,15 @@ export const theme: ThemeUserConfig = {
     externalLinks: {
       content: ' ↗',
       /** Properties for the external links element */
-      properties: {
-        style: 'user-select:none'
-      }
+      properties: { style: 'user-select:none' }
     },
     /** Blog page size for pagination (optional) */
     blogPageSize: 8,
+    /** Share buttons to show */
     // Currently support weibo, x, bluesky
     share: ['weibo', 'x', 'bluesky']
+    /** Enable image captions (default false) */
+    // imageCaption: true
   }
 }
 
@@ -174,14 +176,14 @@ export const integ: IntegrationUserConfig = {
     //emoji: ['bmoji', 'weibo'],
     // Refer https://waline.js.org/en/reference/client/props.html
     //additionalConfigs: {
-      // search: false,
-      //pageview: true,
-      //comment: true,
-      //locale: {
-        //reaction0: 'Like',
-        //placeholder: 'Welcome to comment. (Email to receive replies. Login is unnecessary)'
-      //},
-      //imageUploader: false
+    // search: false,
+    //pageview: true,
+    //comment: true,
+    //locale: {
+    //reaction0: 'Like',
+    //placeholder: 'Welcome to comment. (Email to receive replies. Login is unnecessary)'
+    //},
+    //imageUploader: false
   },
   // Giscus comment system configuration
   giscus: {
