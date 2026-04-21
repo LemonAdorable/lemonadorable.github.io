@@ -163,11 +163,6 @@ export default defineConfig({
       cssMinify: 'lightningcss',
       rollupOptions: {
         output: {
-          manualChunks: {
-            d3: ['d3'],
-            mermaid: ['mermaid'],
-            search: ['flexsearch']
-          }
         }
       }
     },
