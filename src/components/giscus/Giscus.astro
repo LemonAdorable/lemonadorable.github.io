@@ -27,14 +27,13 @@ const { class: className } = Astro.props
 
   // 获取当前主题
   function getTheme() {
-    const isDark = document.body.classList.contains('dark') || 
-                   localStorage.getItem('pref-theme') === 'dark' ||
-                   (!localStorage.getItem('pref-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)
-    return isDark ? 'dark_tritanopia' : 'light_protanopia'
+    const isDark = document.documentElement.classList.contains('dark')
+    return isDark ? 'transparent_dark' : 'light'
   }
 
   // 更新Giscus主题
-  function updateGiscusTheme(theme: string) {
+  function updateGiscusTheme() {
+    const theme = getTheme()
     const iframe = document.querySelector('iframe.giscus-frame') as HTMLIFrameElement | null
     if (iframe && iframe.contentWindow) {
       iframe.contentWindow.postMessage(
@@ -71,21 +70,12 @@ const { class: className } = Astro.props
 
   // 监听主题切换
   function setupThemeListener() {
-    // 监听主题切换按钮
-    const themeToggle = document.getElementById('toggleDarkMode')
-    if (themeToggle) {
-      themeToggle.addEventListener('click', () => {
-        setTimeout(() => {
-          updateGiscusTheme(getTheme())
-        }, 100)
-      })
-    }
-
-    // 监听系统主题变化
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-      if (!localStorage.getItem('pref-theme')) {
-        updateGiscusTheme(getTheme())
-      }
+    const observer = new MutationObserver(() => {
+      updateGiscusTheme()
+    })
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class']
     })
   }
 
