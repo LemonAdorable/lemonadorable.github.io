@@ -32,7 +32,6 @@ const { title, list: friendList, ...props } = Astro.props as {
   title?: string
   list: FriendList
 }
-const { title, list: friendList, ...props } = Astro.props
 
 const getAvatarSrc = (friend: Friend) =>
   (config.integ?.links?.cacheAvatar ?? false)
