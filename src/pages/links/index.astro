@@ -7,7 +7,8 @@ import PageLayout from '@/layouts/CommonPage.astro'
 import FriendList from '@/components/links/FriendList.astro'
 
 const headings = [
-  { depth: 2, slug: 'common-links', text: '常用链接' },
+  { depth: 2, slug: 'friend-links', text: '好友链接' },
+  { depth: 2, slug: 'neighbor-feed', text: '邻站动态' },
   { depth: 2, slug: 'project-links', text: '项目链接' },
   { depth: 2, slug: 'special-links', text: '特殊链接' },
   { depth: 2, slug: 'apply-links', text: '申请友链' }
@@ -15,7 +16,7 @@ const headings = [
 
 const { friends } = links
 const linksConf = config.integ.links
-const linkEditPage = 'https://github.com/cworld1/astro-theme-pure/blob/main/public/links.json'
+const linkEditPage = 'https://github.com/LemonAdorable/lemonadorable.github.io/blob/main/public/links.json'
 
 const projectLinks = {
   id_name: 'project-links',
@@ -41,7 +42,7 @@ const projectLinks = {
 
 <PageLayout title='链接' {headings} comment hideBack>
   <p>链接随机排序。</p>
-  <h2 id='common-links'>常用链接</h2>
+  <h2 id='friend-links'>好友链接</h2>
   <FriendList list={friends[0]} />
   <Collapse title='状态异常的链接'>
     <FriendList list={friends[1]} />
@@ -49,6 +50,24 @@ const projectLinks = {
   <Collapse title='链接历史记录'>
     <Timeline events={linksConf.logbook} />
   </Collapse>
+
+  <h2 id='neighbor-feed'>邻站动态</h2>
+  <div id='friend-circle-lite-root' class='not-prose'>Loading...</div>
+  <script>
+    import '@/assets/styles/fc.css'
+
+    import { FriendCircle } from '@/plugins/friendCircle'
+
+    const fc = new FriendCircle()
+    fc.init({
+      private_api_url:
+        import.meta.env.PUBLIC_FRIEND_CIRCLE_API_URL ??
+        'https://lemonadorable.github.io/friend-circle-lite/',
+      page_turning_number: 10,
+      error_img: '/favicon/favicon.gif'
+    })
+    fc.load()
+  </script>
 
   <h2 id='project-links'>项目链接</h2>
   <FriendList list={projectLinks} />

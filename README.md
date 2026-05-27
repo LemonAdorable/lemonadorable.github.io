@@ -134,7 +134,7 @@ Template Repository (LemonAdorable/astro-theme-iris)
   └── main branch (default branch, iris template, branch of pure)
       ↓ (GitHub Actions auto-sync)
 Deployment Repository (LemonAdorable/lemonadorable.github.io)
-  └── master branch (for GitHub Pages deployment)
+  └── main branch (for GitHub Pages deployment)
 ```
 
 ### 🙏 Acknowledgments
