@@ -82,8 +82,6 @@ export const theme: ThemeUserConfig = {
     /** Optional details about the social media accounts for this site. */
     social: [
       { icon: 'github', label: 'GitHub', href: 'https://github.com/LemonAdorable' },
-      { icon: 'bilibili', label: 'Bilibili', href: '' },
-      { icon: 'steam', label: 'Steam', href: 'https://steamcommunity.com/id/lemonadora/' },
       { icon: 'rss', label: 'RSS', href: '/rss.xml' }
     ]
   },
@@ -123,7 +121,7 @@ export const integ: IntegrationUserConfig = {
       { name: 'Name', val: theme.title },
       { name: 'Desc', val: theme.description || 'Null' },
       { name: 'Link', val: 'https://lemonadorable.github.io/' },
-      { name: 'Avatar', val: 'https://lemonadorable.github.io/favicon_io/favicon.gif' }
+      { name: 'Avatar', val: 'https://lemonadorable.github.io/favicon/favicon.gif' }
     ],
     // Cache avatars in `public/avatars/` to improve user experience.
     cacheAvatar: false

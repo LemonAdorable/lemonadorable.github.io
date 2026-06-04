@@ -1,213 +1,251 @@
-type FriendCircleArticle = {
-  title?: string
-  link?: string
-  avatar?: string
-  author?: string
-  created?: string
-}
-
-type FriendCircleData = {
-  article_data?: FriendCircleArticle[]
-  statistical_data?: {
-    friends_num?: number
-    active_num?: number
-    article_num?: number
-    last_updated_time?: string
-  }
-}
-
-type FriendCircleOptions = {
+interface Config {
   private_api_url: string
-  page_turning_number?: number
-  error_img?: string
+  page_turning_number: number
+  error_img: string
+}
+
+interface Article {
+  title: string
+  link: string | URL
+  avatar: string
+  author: string
+  created: string
+}
+
+interface ArticleData {
+  article_data: Article[]
+  statistical_data: {
+    friends_num: number
+    active_num: number
+    article_num: number
+    last_updated_time: string
+  }
 }
 
 export class FriendCircle {
-  private root: HTMLElement | null = null
-  private articles: FriendCircleArticle[] = []
-  private cursor = 0
-  private options: Required<FriendCircleOptions> = {
-    private_api_url: '',
-    page_turning_number: 10,
-    error_img: '/favicon/favicon.gif'
-  }
+  config!: Config
+  root!: HTMLElement
+  start = 0
+  allArticles: Article[] = []
+  container!: HTMLElement
+  randomArticleContainer!: HTMLElement
+  statsContainer!: HTMLElement
+  loadMoreBtn!: HTMLButtonElement
+  modal!: HTMLElement
 
-  init(options: FriendCircleOptions) {
-    this.options = {
-      private_api_url: options.private_api_url,
-      page_turning_number: options.page_turning_number ?? 10,
-      error_img: options.error_img ?? '/favicon/favicon.gif'
-    }
-    this.root = document.getElementById('friend-circle-lite-root')
-  }
-
-  async load() {
-    if (!this.root) return
-
-    const apiUrl = this.normalizeUrl(this.options.private_api_url)
-    if (!apiUrl) {
-      this.renderMessage('暂未接入邻站动态。')
-      return
-    }
-
-    const cacheKey = `friend-circle-lite:${apiUrl}`
-    const cacheTimeKey = `${cacheKey}:time`
-    const cacheTime = Number(localStorage.getItem(cacheTimeKey) || 0)
-    const cached = localStorage.getItem(cacheKey)
-
-    if (cached && Date.now() - cacheTime < 10 * 60 * 1000) {
-      this.render(JSON.parse(cached))
-      return
-    }
-
-    try {
-      const response = await fetch(`${apiUrl}all.json`)
-      if (!response.ok) throw new Error(`HTTP ${response.status}`)
-      const data = (await response.json()) as FriendCircleData
-      localStorage.setItem(cacheKey, JSON.stringify(data))
-      localStorage.setItem(cacheTimeKey, String(Date.now()))
-      this.render(data)
-    } catch {
-      if (cached) {
-        this.render(JSON.parse(cached))
-      } else {
-        this.renderMessage('邻站动态暂时无法加载。')
+  load() {
+    this.loadMoreArticles()
+    this.loadMoreBtn.addEventListener('click', this.loadMoreArticles.bind(this))
+    window.onclick = (event) => {
+      const modal = document.getElementById('modal')
+      if (event.target === modal) {
+        this.hideModal()
       }
     }
   }
 
-  private normalizeUrl(url: string) {
-    const trimmed = url.trim()
-    if (!trimmed) return ''
-    return trimmed.endsWith('/') ? trimmed : `${trimmed}/`
-  }
-
-  private escapeHtml(value: string) {
-    return value
-      .replaceAll('&', '&amp;')
-      .replaceAll('<', '&lt;')
-      .replaceAll('>', '&gt;')
-      .replaceAll('"', '&quot;')
-      .replaceAll("'", '&#039;')
-  }
-
-  private renderMessage(message: string) {
-    if (!this.root) return
-    this.root.innerHTML = `<div class="fc-empty">${this.escapeHtml(message)}</div>`
-  }
-
-  private render(data: FriendCircleData) {
-    if (!this.root) return
-
-    this.articles = Array.isArray(data.article_data) ? data.article_data : []
-    this.cursor = 0
-
-    if (!this.articles.length) {
-      this.renderMessage('暂无邻站动态。')
-      return
+  init(config: Partial<Config>) {
+    this.config = {
+      private_api_url: config.private_api_url || '',
+      page_turning_number: config.page_turning_number || 20,
+      error_img:
+        config.error_img ||
+        'https://fastly.jsdelivr.net/gh/willow-god/Friend-Circle-Lite@latest/static/favicon.ico'
     }
 
-    const stats = data.statistical_data
-    this.root.innerHTML = `
-      <div class="fc-random" data-fc-random></div>
-      <div class="fc-list" data-fc-list></div>
-      <button class="fc-more" type="button" data-fc-more>加载更多</button>
-      ${
-        stats
-          ? `<p class="fc-stats">${stats.friends_num ?? 0} 个邻站，${stats.active_num ?? 0} 个活跃，累计 ${stats.article_num ?? this.articles.length} 篇，更新于 ${this.escapeHtml(stats.last_updated_time ?? '')}</p>`
-          : ''
+    this.root = document.getElementById('friend-circle-lite-root') as HTMLElement
+    if (!this.root) return
+
+    this.root.innerHTML = ''
+    this.createContainers()
+  }
+
+  private createContainers() {
+    const tip = this.createElement('div', {
+      id: 'fc-tip',
+      innerHTML: '<span class="fc-tip-icon">💡</span> 点击头像或作者名可查看近期文章'
+    })
+    this.randomArticleContainer = this.createElement('div', { id: 'random-article' })
+    this.container = this.createElement('div', {
+      className: 'articles-container',
+      id: 'articles-container'
+    })
+    this.loadMoreBtn = this.createElement('button', {
+      id: 'load-more-btn',
+      innerText: 'Load more'
+    }) as HTMLButtonElement
+    this.statsContainer = this.createElement('div', { id: 'stats-container' })
+
+    this.root.append(
+      tip,
+      this.randomArticleContainer,
+      this.container,
+      this.loadMoreBtn,
+      this.statsContainer
+    )
+  }
+
+  private createElement<K extends keyof HTMLElementTagNameMap>(
+    tag: K,
+    attributes: Partial<HTMLElementTagNameMap[K]>
+  ): HTMLElementTagNameMap[K] {
+    const element = document.createElement(tag)
+    Object.assign(element, attributes)
+    return element
+  }
+
+  loadMoreArticles() {
+    const cacheKey = 'friend-circle-lite-cache'
+    const cacheTimeKey = 'friend-circle-lite-cache-time'
+    const cacheTime = localStorage.getItem(cacheTimeKey)
+    const now = Date.now()
+
+    if (cacheTime && now - Number(cacheTime) < 10 * 60 * 1000) {
+      const cachedDataString = localStorage.getItem(cacheKey)
+      const cachedData = cachedDataString ? JSON.parse(cachedDataString) : null
+      if (cachedData) {
+        this.processArticles(cachedData)
+        return
       }
+    }
+
+    fetch(`${this.config.private_api_url}all.json`)
+      .then((response) => response.json())
+      .then((data) => {
+        localStorage.setItem(cacheKey, JSON.stringify(data))
+        localStorage.setItem(cacheTimeKey, now.toString())
+        this.processArticles(data)
+      })
+      .finally(() => {
+        this.loadMoreBtn.innerText = 'Load more'
+      })
+  }
+
+  processArticles({ article_data, statistical_data }: ArticleData) {
+    this.allArticles = article_data
+    this.updateStats(statistical_data)
+    this.displayRandomArticle()
+    this.displayArticles()
+  }
+
+  private updateStats(stats: ArticleData['statistical_data']) {
+    this.statsContainer.innerHTML = `
+      <div>${stats.friends_num} links with ${stats.active_num} active | ${stats.article_num} articles in total</div>
+      <div>Updated at ${stats.last_updated_time}</div>
+      <div>Powered by <a href="https://github.com/willow-god/Friend-Circle-Lite" target="_blank">FriendCircleLite</a><br></div>
     `
-
-    this.renderRandom()
-    this.renderNext()
-    this.root.querySelector('[data-fc-more]')?.addEventListener('click', () => this.renderNext())
   }
 
-  private renderRandom() {
-    const target = this.root?.querySelector<HTMLElement>('[data-fc-random]')
-    if (!target || !this.articles.length) return
+  private displayArticles() {
+    const articles = this.allArticles.slice(
+      this.start,
+      this.start + this.config.page_turning_number
+    )
+    articles.forEach((article) => this.createArticleCard(article))
+    this.start += this.config.page_turning_number
 
-    const article = this.articles[Math.floor(Math.random() * this.articles.length)]
-    target.innerHTML = `
-      <span class="fc-random-label">随机串门</span>
-      <a href="${this.escapeHtml(article.link || '#')}" target="_blank" rel="noreferrer">${this.escapeHtml(article.title || 'Untitled')}</a>
-      <button type="button" aria-label="换一篇" title="换一篇">↻</button>
-    `
-    target.querySelector('button')?.addEventListener('click', () => this.renderRandom())
+    if (this.start >= this.allArticles.length) {
+      this.loadMoreBtn.style.display = 'none'
+    }
   }
 
-  private renderNext() {
-    const list = this.root?.querySelector<HTMLElement>('[data-fc-list]')
-    const button = this.root?.querySelector<HTMLButtonElement>('[data-fc-more]')
-    if (!list || !button) return
-
-    this.articles
-      .slice(this.cursor, this.cursor + this.options.page_turning_number)
-      .forEach((article) => list.appendChild(this.createArticleCard(article)))
-
-    this.cursor += this.options.page_turning_number
-    button.hidden = this.cursor >= this.articles.length
-  }
-
-  private createArticleCard(article: FriendCircleArticle) {
-    const card = document.createElement('article')
-    card.className = 'fc-article'
-
-    const avatar = article.avatar || this.options.error_img
-    const author = article.author || 'Unknown'
-    const created = article.created ? article.created.substring(0, 10) : ''
-
+  private createArticleCard(article: Article) {
+    const card = document.createElement('div')
+    card.className = 'article'
     card.innerHTML = `
-      <button class="fc-avatar-button" type="button" aria-label="${this.escapeHtml(author)} 的文章">
-        <img class="fc-avatar no-lightbox" src="${this.escapeHtml(avatar)}" alt="" loading="lazy" onerror="this.src='${this.escapeHtml(this.options.error_img)}'" />
-      </button>
-      <div class="fc-article-body">
-        <div class="fc-meta">
-          <span>${this.escapeHtml(author)}</span>
-          <time>${this.escapeHtml(created)}</time>
-        </div>
-        <a class="fc-title" href="${this.escapeHtml(article.link || '#')}" target="_blank" rel="noreferrer">${this.escapeHtml(article.title || 'Untitled')}</a>
+      <div class="article-image author-click" title="点击查看作者文章">
+        <img class="no-lightbox" src="${article.avatar || this.config.error_img}" onerror="this.src='${this.config.error_img}'">
+      </div>
+      <div class="article-container">
+        <div class="article-author author-click" title="点击查看作者文章">${article.author}</div>
+        <a class="article-title" href="${article.link instanceof URL ? article.link.toString() : article.link}" target="_blank">${article.title}</a>
+        <div class="article-date">️${article.created.substring(0, 10)}</div>
       </div>
     `
-
-    card.querySelector('.fc-avatar-button')?.addEventListener('click', () => {
-      this.renderAuthor(author, avatar)
+    card.querySelectorAll('.author-click').forEach((el) => {
+      el.addEventListener('click', () => {
+        this.showAuthorArticles(article.author, article.avatar, article.link)
+      })
     })
-
-    return card
+    this.container.appendChild(card)
   }
 
-  private renderAuthor(author: string, avatar: string) {
-    const articles = this.articles.filter((article) => article.author === author).slice(0, 5)
-    const modal = document.createElement('div')
-    modal.className = 'fc-modal'
-    modal.innerHTML = `
-      <div class="fc-modal-panel">
-        <button class="fc-modal-close" type="button" aria-label="关闭">×</button>
-        <div class="fc-modal-header">
-          <img class="fc-avatar no-lightbox" src="${this.escapeHtml(avatar || this.options.error_img)}" alt="" loading="lazy" onerror="this.src='${this.escapeHtml(this.options.error_img)}'" />
-          <strong>${this.escapeHtml(author)}</strong>
-        </div>
-        <div class="fc-modal-list">
-          ${articles
-            .map(
-              (article) => `
-                <a href="${this.escapeHtml(article.link || '#')}" target="_blank" rel="noreferrer">
-                  <span>${this.escapeHtml(article.title || 'Untitled')}</span>
-                  <time>${this.escapeHtml(article.created ? article.created.substring(0, 10) : '')}</time>
-                </a>
-              `
-            )
-            .join('')}
-        </div>
+  displayRandomArticle() {
+    const randomArticle = this.allArticles[Math.floor(Math.random() * this.allArticles.length)]
+    if (!randomArticle) return
+    this.randomArticleContainer.innerHTML = `
+      <div class="random-title">Random Poll</div>
+      <div class="article-image author-click" title="点击查看作者文章">
+        <img class="no-lightbox" src="${randomArticle.avatar || this.config.error_img}" onerror="this.src='${this.config.error_img}'">
       </div>
+      <div class="article-container">
+        <div class="article-author author-click" title="点击查看作者文章">${randomArticle.author}</div>
+        <a class="article-title" href="${randomArticle.link}" target="_blank">${randomArticle.title}</a>
+        <div class="article-date">️${randomArticle.created.substring(0, 10)}</div>
+      </div>
+      <button id="random-refresh">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none"><path d="M24 0v24H0V0zM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.019-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z"/><path fill="currentColor" d="M2 12.08c-.006-.862.91-1.356 1.618-.975l.095.058l2.678 1.804c.972.655.377 2.143-.734 2.007l-.117-.02l-1.063-.234a8.002 8.002 0 0 0 14.804.605a1 1 0 0 1 1.82.828c-1.987 4.37-6.896 6.793-11.687 5.509A10 10 0 0 1 2 12.08m.903-4.228C4.89 3.482 9.799 1.06 14.59 2.343a10 10 0 0 1 7.414 9.581c.007.863-.91 1.358-1.617.976l-.096-.058l-2.678-1.804c-.972-.655-.377-2.143.734-2.007l.117.02l1.063.234A8.002 8.002 0 0 0 4.723 8.68a1 1 0 1 1-1.82-.828"/></g></svg>
+      </button>
     `
-    modal.addEventListener('click', (event) => {
-      if (event.target === modal || (event.target as HTMLElement).classList.contains('fc-modal-close')) {
-        modal.remove()
-      }
+    this.randomArticleContainer.querySelectorAll('.author-click').forEach((el) => {
+      el.addEventListener('click', () => {
+        this.showAuthorArticles(randomArticle.author, randomArticle.avatar, randomArticle.link)
+      })
     })
-    document.body.appendChild(modal)
+    this.randomArticleContainer
+      .querySelector('button#random-refresh')
+      ?.addEventListener('click', (event) => {
+        event.preventDefault()
+        this.displayRandomArticle()
+      })
+  }
+
+  // Enable modal
+  showAuthorArticles(author: string, avatar: string, link: string | URL) {
+    if (!document.getElementById('modal')) {
+      const modal = this.createElement('div', { id: 'modal', className: 'modal' })
+      modal.innerHTML = `
+      <div class="modal-content">
+        <div class="modal-header">
+          <img class="modal-author-avatar" src="${avatar || this.config.error_img}" alt="">
+          <a class="modal-author-name-link" href="${new URL(link.toString()).origin}" target="_blank">${author}</a>
+        </div>
+        <div id="modal-articles-container"></div>
+      </div>
+      `
+      document.body.appendChild(modal)
+    }
+    this.modal = document.getElementById('modal') as HTMLElement
+    const modalArticlesContainer = document.getElementById(
+      'modal-articles-container'
+    ) as HTMLElement
+    modalArticlesContainer.innerHTML = '' // Clear previous articles
+    const authorArticles = this.allArticles.filter((article) => article.author === author)
+    authorArticles.slice(0, 4).forEach((article) => {
+      const articleTemplate = `
+        <div class="modal-article">
+          <a class="modal-article-title" href="${article.link instanceof URL ? article.link.toString() : article.link}" target="_blank">${article.title}</a>
+          <div class="modal-article-date">${article.created.substring(0, 10)}</div>
+        </div>`
+      modalArticlesContainer.insertAdjacentHTML('beforeend', articleTemplate)
+    })
+
+    this.modal.style.display = 'block'
+    setTimeout(() => {
+      this.modal.classList.add('modal-open')
+    }, 10)
+  }
+
+  hideModal() {
+    if (!this.modal) return
+    this.modal.classList.remove('modal-open')
+    const cleanup = () => {
+      this.modal.style.display = 'none'
+      if (this.modal.parentNode === document.body) {
+        document.body.removeChild(this.modal)
+      }
+      this.modal.removeEventListener('transitionend', cleanup)
+    }
+    this.modal.addEventListener('transitionend', cleanup)
   }
 }
