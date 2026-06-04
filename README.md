@@ -102,16 +102,18 @@ bun install # or npm install
 
 ### 🔄 Updating Theme
 
-To get the latest features and fixes from the Iris theme, add this repository as an upstream remote:
+To get the latest features and fixes from the Iris theme:
 
 ```shell
-# Add upstream remote
+# Add upstream remote (only need to do once)
 git remote add upstream https://github.com/LemonAdorable/astro-theme-iris.git
 
-# Pull and merge updates
-git fetch upstream
+# Pull and merge updates from main branch
+git fetch upstream main
 git merge upstream/main --allow-unrelated-histories
 ```
+> [!TIP]
+> The `--allow-unrelated-histories` flag is only required for the first merge if you have an existing repository with a different history. For future updates, a simple `git pull upstream main` will work.
 
 ### 📝 Todo
 

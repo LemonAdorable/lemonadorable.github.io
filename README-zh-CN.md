@@ -102,16 +102,18 @@ bun install # 或 npm install
 
 ### 🔄 更新主题
 
-要获取 Iris 主题的最新功能和修复，请将本仓库添加为上游远程仓库：
+要获取 Iris 主题的最新功能和修复：
 
 ```shell
-# 添加上游仓库
+# 添加上游仓库 (只需执行一次)
 git remote add upstream https://github.com/LemonAdorable/astro-theme-iris.git
 
-# 获取并合并更新
-git fetch upstream
+# 获取并合并 main 分支的更新
+git fetch upstream main
 git merge upstream/main --allow-unrelated-histories
 ```
+> [!TIP]
+> `--allow-unrelated-histories` 参数仅在第一次合并（当历史记录不相关时）需要。后续更新只需执行普通的 `git pull upstream main` 即可。
 
 ### 📝 待办事项
 
