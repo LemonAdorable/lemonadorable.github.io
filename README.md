@@ -79,12 +79,17 @@ This project is customized based on [astro-theme-pure](https://github.com/cworld
 
 ### 🚀 Quick Start
 
-#### Requirements
+#### Option 1: Use as a Template (Recommended)
 
-- [Node.js](https://nodejs.org/): 18.0.0+
-- [Bun](https://bun.sh/) or npm/pnpm/yarn
+1. Click the **"Use this template"** button at the top of this repository.
+2. Clone your new repository to local.
+3. Install dependencies and start developing:
+   ```shell
+   bun install # or npm install
+   bun dev     # or npm run dev
+   ```
 
-#### Installation
+#### Option 2: Manual Installation
 
 ```shell
 # Clone repository
@@ -92,28 +97,20 @@ git clone https://github.com/LemonAdorable/astro-theme-iris.git
 cd astro-theme-iris
 
 # Install dependencies
-bun install
-# or
-npm install
+bun install # or npm install
 ```
 
-#### Development
+### 🔄 Updating Theme
+
+To get the latest features and fixes from the Iris theme, add this repository as an upstream remote:
 
 ```shell
-# Start development server
-bun dev
-# or
-npm run dev
+# Add upstream remote
+git remote add upstream https://github.com/LemonAdorable/astro-theme-iris.git
 
-# Build project
-bun run build
-# or
-npm run build
-
-# Preview build result
-bun preview
-# or
-npm run preview
+# Pull and merge updates
+git fetch upstream
+git merge upstream/main --allow-unrelated-histories
 ```
 
 ### 📝 Todo
@@ -126,15 +123,11 @@ npm run preview
 ### 📚 Repository Structure
 
 ```
-Original Repository (cworld1/astro-theme-pure)
-  └── main branch
-      ↓ (sync)
-Template Repository (LemonAdorable/astro-theme-iris)
-  ├── upstream-sync branch (tracks original updates, periodically merges to main)
-  └── main branch (default branch, iris template, branch of pure)
-      ↓ (GitHub Actions auto-sync)
-Deployment Repository (LemonAdorable/lemonadorable.github.io)
-  └── main branch (for GitHub Pages deployment)
+Iris Theme (LemonAdorable/astro-theme-iris)
+  └── main branch (Upstream)
+      ↓ (fetch & merge)
+Your Blog Repository
+  └── main branch (Your content + Iris components)
 ```
 
 ### 🙏 Acknowledgments

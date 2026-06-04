@@ -79,12 +79,17 @@
 
 ### 🚀 快速开始
 
-#### 环境要求
+#### 选项 1: 作为模板使用 (推荐)
 
-- [Node.js](https://nodejs.org/): 18.0.0+
-- [Bun](https://bun.sh/) 或 npm/pnpm/yarn
+1. 点击本仓库顶部的 **"Use this template"** 按钮。
+2. 将新仓库克隆到本地。
+3. 安装依赖并开始开发：
+   ```shell
+   bun install # 或 npm install
+   bun dev     # 或 npm run dev
+   ```
 
-#### 安装
+#### 选项 2: 手动安装
 
 ```shell
 # 克隆仓库
@@ -92,28 +97,20 @@ git clone https://github.com/LemonAdorable/astro-theme-iris.git
 cd astro-theme-iris
 
 # 安装依赖
-bun install
-# 或
-npm install
+bun install # 或 npm install
 ```
 
-#### 开发
+### 🔄 更新主题
+
+要获取 Iris 主题的最新功能和修复，请将本仓库添加为上游远程仓库：
 
 ```shell
-# 启动开发服务器
-bun dev
-# 或
-npm run dev
+# 添加上游仓库
+git remote add upstream https://github.com/LemonAdorable/astro-theme-iris.git
 
-# 构建项目
-bun run build
-# 或
-npm run build
-
-# 预览构建结果
-bun preview
-# 或
-npm run preview
+# 获取并合并更新
+git fetch upstream
+git merge upstream/main --allow-unrelated-histories
 ```
 
 ### 📝 待办事项
@@ -126,15 +123,11 @@ npm run preview
 ### 📚 仓库结构
 
 ```
-原作者仓库 (cworld1/astro-theme-pure)
-  └── main 分支
-      ↓ (同步)
-模板仓库 (LemonAdorable/astro-theme-iris)
-  ├── upstream-sync 分支 (跟踪原作者更新,定期合并到main)
-  └── main 分支 (默认分支，iris模板，是pure的分支)
-      ↓ (GitHub Actions 自动同步)
-部署仓库 (LemonAdorable/lemonadorable.github.io)
-  └── master 分支 (用于 GitHub Pages 部署)
+Iris 主题 (LemonAdorable/astro-theme-iris)
+  └── main 分支 (上游)
+      ↓ (fetch & merge)
+你的博客仓库
+  └── main 分支 (你的内容 + Iris 组件)
 ```
 
 ### 🙏 致谢
