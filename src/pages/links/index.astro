@@ -15,6 +15,8 @@ const headings = [
 
 const { friends } = links
 const linksConf = config.integ.links
+const linkApplyPage =
+  'https://github.com/LemonAdorable/lemonadorable.github.io/issues/new?template=friend-link.yml'
 const linkEditPage =
   'https://github.com/LemonAdorable/lemonadorable.github.io/blob/main/public/links.json'
 
@@ -83,7 +85,9 @@ const allVal = linksConf.applyTip.map(({ name, val }) => `${name}: ${val}`).join
   </blockquote>
 
   <p>
-    可通过下方留言或 <a href={linkEditPage} target='_blank'>提交 PR</a> 申请友链。申请说明：
+    推荐使用 <a href={linkApplyPage} target='_blank'>自动友链申请</a>
+    ，机器人会检查回链并自动添加。也可通过下方留言或
+    <a href={linkEditPage} target='_blank'>提交 PR</a> 人工申请。申请说明：
   </p>
   <ul>
     <li>推荐了本站</li>
