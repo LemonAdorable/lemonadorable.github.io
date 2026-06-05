@@ -174,7 +174,7 @@ export class FriendCircle {
     const randomArticle = this.allArticles[Math.floor(Math.random() * this.allArticles.length)]
     if (!randomArticle) return
     this.randomArticleContainer.innerHTML = `
-      <div class="random-title">Random Poll</div>
+      <div class="random-title">✨ 梦境漂流瓶</div>
       <div class="article-image author-click" title="点击查看作者文章">
         <img class="no-lightbox" src="${randomArticle.avatar || this.config.error_img}" onerror="this.src='${this.config.error_img}'">
       </div>
