@@ -2,7 +2,7 @@
 import links from '@/public/links.json'
 import config from 'virtual:config'
 
-import { Collapse, Timeline } from 'astro-pure/user'
+import { Button, Collapse, Icon, Timeline } from 'astro-pure/user'
 import PageLayout from '@/layouts/CommonPage.astro'
 import FriendList from '@/components/links/FriendList.astro'
 
@@ -17,6 +17,8 @@ const { friends } = links
 const linksConf = config.integ.links
 const linkEditPage =
   'https://github.com/LemonAdorable/lemonadorable.github.io/blob/main/piblic/links.json'
+
+const allVal = linksConf.applyTip.map(({ name, val }) => `${name}: ${val}`).join('\n')
 ---
 
 <PageLayout title='链接' {headings} comment hideBack>
@@ -52,7 +54,18 @@ const linkEditPage =
   <FriendList list={friends[2]} />
 
   <h2 id='apply-links'>申请友链</h2>
-  <p>本站信息（点击复制）：</p>
+  <p class='flex flex-row items-center gap-x-3'>
+    本站信息（点击复制）：
+    <Button
+      as='button'
+      title='Copy All'
+      data-all={allVal}
+      onclick="navigator.clipboard.writeText(this.dataset.all);document.dispatchEvent(new CustomEvent('toast',{detail:{message:'Copied all info to clipboard!'}}))"
+      class='h-7 text-xs'
+    >
+      <Icon name='copy' slot='before' />
+    </Button>
+  </p>
   <blockquote class='not-prose grid grid-cols-[auto_1fr] gap-x-2 break-words border-s-4 ps-4'>
     {
       linksConf.applyTip.map(({ name, val }) => {
