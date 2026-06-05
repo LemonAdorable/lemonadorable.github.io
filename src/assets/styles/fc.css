@@ -6,8 +6,22 @@
   align-items: center;
 }
 .random-title {
-  color: hsl(var(--foreground));
+  font-weight: 600;
+  background: linear-gradient(to right, #b19cd9, #ffb6c1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   white-space: nowrap;
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+#random-article:hover .random-title {
+  animation: float 2s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
 }
 #random-refresh {
   height: 2.35rem;
