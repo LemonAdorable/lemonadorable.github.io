@@ -69,6 +69,18 @@
           "intro": "一名 学生 / ACMer / 前端开发 / 电子音乐制作人",
           "link": "https://www.woodfish.site/",
           "avatar": "https://www.woodfish.site/newBlog/asset/f725f7fc67d79930b505550749765877.webp"
+        },
+        {
+          "name": "XgrBlog",
+          "intro": "学无止境",
+          "link": "https://xgrblog.cn",
+          "avatar": "https://xgrblog.cn/avatar.jpg"
+        },
+        {
+          "name": "时光潜流",
+          "intro": "妹控的中二君！",
+          "link": "http://www.dreamcenter.top",
+          "avatar": "https://www.dreamcenter.top/imgs/avatar.jpg"
         }
       ]
     },
