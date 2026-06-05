@@ -89,6 +89,34 @@ The friend links configurations are at `public/links.json`.
 }
 ```
 
+## Automatic Friend Link Applications
+
+Iris includes an optional GitHub Issue workflow that validates backlinks and writes approved
+sites to `public/links.json`.
+
+The automation uses these files:
+
+- `.github/ISSUE_TEMPLATE/friend-link.yml` collects the application.
+- `.github/friend-link.config.json` defines your site information and target friend group.
+- `.github/workflows/friend-link-checker.yml` listens for new issues and author comments.
+- `.github/scripts/process-friend-request.cjs` validates the site with Playwright and updates the
+  JSON file.
+
+Before enabling it:
+
+1. Edit `.github/friend-link.config.json` and replace the example site information.
+2. Change the automatic application URL in `src/pages/links/index.astro` to your repository.
+3. In GitHub, open **Settings > Actions > General > Workflow permissions** and enable
+   **Read and write permissions**.
+4. Ensure direct pushes from GitHub Actions are allowed on the default branch.
+
+Applicants must add your site first. If validation fails, the Issue receives a
+`friend-link: needs-update` label. The Issue author can comment after fixing the page to trigger
+validation again. A successful technical validation does not add the link immediately: it receives
+the `friend-link: awaiting-review` label and waits for a maintainer with repository write access.
+Maintainers can comment `/approve` to revalidate and add the link, or `/reject reason` to reject
+and close it.
+
 ## Integrated with `Friend-Circle-Lite`
 
 [Friend-Circle-Lite](https://github.com/willow-god/Friend-Circle-Lite) is a stripped-down friend-link app with no backend and running only using github action.
@@ -152,4 +180,3 @@ This theme has not integrated it and will not provide support for it in the futu
    ```
 
 </Steps>
-

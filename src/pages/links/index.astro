@@ -2,8 +2,9 @@
 import links from '@/public/links.json'
 import config from 'virtual:config'
 
-import { Button, Collapse, Icon, Timeline } from 'astro-pure/user'
+import { Collapse, Timeline } from 'astro-pure/user'
 import PageLayout from '@/layouts/CommonPage.astro'
+import FriendApplyGuide from '@/components/links/FriendApplyGuide.astro'
 import FriendList from '@/components/links/FriendList.astro'
 
 const headings = [
@@ -15,10 +16,10 @@ const headings = [
 
 const { friends } = links
 const linksConf = config.integ.links
+const linkApplyPage =
+  'https://github.com/LemonAdorable/lemonadorable.github.io/issues/new?template=friend-link.yml'
 const linkEditPage =
   'https://github.com/LemonAdorable/lemonadorable.github.io/blob/main/public/links.json'
-
-const allVal = linksConf.applyTip.map(({ name, val }) => `${name}: ${val}`).join('\n')
 ---
 
 <PageLayout title='链接' {headings} comment hideBack>
@@ -44,7 +45,7 @@ const allVal = linksConf.applyTip.map(({ name, val }) => `${name}: ${val}`).join
       private_api_url:
         import.meta.env.PUBLIC_FRIEND_CIRCLE_API_URL ??
         'https://lemonadorable.github.io/friend-circle-lite/',
-      page_turning_number: 10,
+      page_turning_number: 12,
       error_img: '/favicon/favicon.gif'
     })
     fc.load()
@@ -54,41 +55,5 @@ const allVal = linksConf.applyTip.map(({ name, val }) => `${name}: ${val}`).join
   <FriendList list={friends[2]} />
 
   <h2 id='apply-links'>申请友链</h2>
-  <p class='flex flex-row items-center gap-x-3'>
-    本站信息（点击任意条目来复制单条信息）：
-    <Button
-      as='button'
-      title='Copy All'
-      data-all={allVal}
-      onclick="navigator.clipboard.writeText(this.dataset.all);document.dispatchEvent(new CustomEvent('toast',{detail:{message:'Copied all info to clipboard!'}}))"
-      class='h-7 text-xs'
-    >
-      <Icon name='copy' slot='before' />
-    </Button>
-  </p>
-  <blockquote class='not-prose grid grid-cols-[auto_1fr] gap-x-2 break-words border-s-4 ps-4'>
-    {
-      linksConf.applyTip.map(({ name, val }) => {
-        const script = `navigator.clipboard.writeText('${val}');document.dispatchEvent(new CustomEvent('toast',{detail:{message:'Copied "${val}" to clipboard!'}}))`
-        return (
-          <>
-            <span class='text-end'>{name}:</span>
-            <samp class='cursor-pointer' onclick={script}>
-              {val}
-            </samp>
-          </>
-        )
-      })
-    }
-  </blockquote>
-
-  <p>
-    可通过下方留言或 <a href={linkEditPage} target='_blank'>提交 PR</a> 申请友链。申请说明：
-  </p>
-  <ul>
-    <li>推荐了本站</li>
-    <li>站点活着且地址不能是IP</li>
-    <li>至少一篇原创文章且最近一年更新过</li>
-    <li>内容无敏感内容且不违反国家法律</li>
-  </ul>
+  <FriendApplyGuide info={linksConf.applyTip} applyUrl={linkApplyPage} editUrl={linkEditPage} />
 </PageLayout>

@@ -1,49 +1,1176 @@
 ---
-import { PostPreview } from 'astro-pure/components/pages'
+import type { CollectionEntry } from 'astro:content'
+
 import { getBlogCollection, groupCollectionsByYear, sortMDByDate } from 'astro-pure/server'
+import { Icon } from 'astro-pure/user'
 import PageLayout from '@/layouts/BaseLayout.astro'
 
 export const prerender = true
 
-const allPosts = await getBlogCollection()
-const allPostsByDate = sortMDByDate(allPosts)
-const allPostsByYear = groupCollectionsByYear(allPostsByDate)
+const allPosts = (await getBlogCollection('blog')) as CollectionEntry<'blog'>[]
+const allPostsByDate = sortMDByDate(allPosts) as CollectionEntry<'blog'>[]
+const allPostsByYear = groupCollectionsByYear<'blog'>(allPostsByDate)
+const effectiveDate = (post: (typeof allPosts)[number]) =>
+  new Date(post.data.updatedDate ?? post.data.publishDate)
+const monthFormatter = new Intl.DateTimeFormat('zh-CN', { month: 'long' })
+const dayFormatter = new Intl.DateTimeFormat('zh-CN', { month: '2-digit', day: '2-digit' })
+const fullDateFormatter = new Intl.DateTimeFormat('zh-CN', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric'
+})
+
+const monthCounts = new Map<string, number>()
+allPostsByDate.forEach((post) => {
+  const date = effectiveDate(post)
+  const key = `${date.getFullYear()}-${date.getMonth()}`
+  monthCounts.set(key, (monthCounts.get(key) ?? 0) + 1)
+})
+
+const maxMonthCount = Math.max(...monthCounts.values(), 1)
+const activeMonths = monthCounts.size
+const latestPostDate = allPostsByDate[0] ? effectiveDate(allPostsByDate[0]) : null
+const earliestPostDate = allPostsByDate.at(-1) ? effectiveDate(allPostsByDate.at(-1)!) : null
+const archiveYears = allPostsByYear.map(([year]) => year)
+const archiveGroups = allPostsByYear.map(([year, posts]) => {
+  const postsByMonth = new Map<number, typeof posts>()
+
+  posts.forEach((post) => {
+    const month = effectiveDate(post).getMonth()
+    if (!postsByMonth.has(month)) postsByMonth.set(month, [])
+    postsByMonth.get(month)?.push(post)
+  })
+
+  return {
+    year,
+    posts,
+    months: [...postsByMonth.entries()].sort(([monthA], [monthB]) => monthB - monthA)
+  }
+})
 
 const meta = {
-  description: 'A list of all the years of creating my posts',
-  title: 'Archives'
+  description: '沿着时间线浏览所有文章与创作记录',
+  title: '时光机'
 }
 ---
 
 <PageLayout {meta}>
-  <main class='mt-6 lg:mt-10'>
-    <div id='content-header' class='animate'>
-      <h1 class='mb-6 text-3xl font-medium'>Archives</h1>
-    </div>
+  <main class='archive-page mt-6 lg:mt-10'>
+    <header id='content-header' class='archive-hero animate'>
+      <div class='archive-hero__copy'>
+        <span class='archive-hero__eyebrow'>
+          <Icon name='time' class='size-4' />
+          Writing history
+        </span>
+        <h1>时光机</h1>
+        <p>沿着时间回看文字留下的轨迹，每一次记录都连接着当时的思考。</p>
+      </div>
 
-    {allPosts.length === 0 && <p>No posts yet.</p>}
+      <dl class='archive-stats' aria-label='归档统计'>
+        <div>
+          <dt>文章</dt>
+          <dd>{allPosts.length}</dd>
+        </div>
+        <div>
+          <dt>年份</dt>
+          <dd>{archiveYears.length}</dd>
+        </div>
+        <div>
+          <dt>活跃月份</dt>
+          <dd>{activeMonths}</dd>
+        </div>
+      </dl>
+    </header>
 
-    <section id='content' class='animate' aria-label='Blog post list'>
-      {
-        allPostsByYear.map(([year, posts]) => (
-          <div class='relative mt-20'>
-            <h2
-              class='absolute -start-6 -top-16 z-0 text-9xl font-bold text-transparent opacity-12 dark:opacity-25'
-              style='-webkit-text-stroke-width:2px;-webkit-text-stroke-color:hsl(var(--foreground)/var(--un-text-opacity))'
-            >
-              <samp>{year}</samp>
-            </h2>
-            <p class='px-5 text-muted-foreground'>
-              {posts.length} post{posts.length > 1 && 's'}
-            </p>
-            <ul class='flex flex-col text-start'>
-              {posts.map((p) => (
-                <PostPreview post={p} class='border-0 bg-transparent py-2' />
+    {
+      allPosts.length > 0 ? (
+        <>
+          <section
+            id='archive-overview'
+            class='archive-overview animate'
+            aria-labelledby='archive-overview-title'
+          >
+            <div class='archive-overview__header'>
+              <div>
+                <h2 id='archive-overview-title'>创作概览</h2>
+                <p>
+                  {earliestPostDate && latestPostDate
+                    ? `${fullDateFormatter.format(earliestPostDate)} 至 ${fullDateFormatter.format(latestPostDate)}`
+                    : '暂无时间记录'}
+                </p>
+              </div>
+
+              <label class='archive-search'>
+                <Icon name='search' class='size-5' />
+                <span class='sr-only'>搜索归档文章</span>
+                <input
+                  type='search'
+                  placeholder='搜索标题、描述或标签...'
+                  autocomplete='off'
+                  data-archive-search
+                />
+                <kbd>/</kbd>
+              </label>
+            </div>
+
+            <nav class='archive-years' aria-label='按年份跳转'>
+              {archiveYears.map((year, index) => (
+                <a
+                  href={`#year-${year}`}
+                  class={index === 0 ? 'is-latest' : undefined}
+                  data-archive-jump
+                  data-archive-target-year={year}
+                >
+                  {year}
+                </a>
               ))}
-            </ul>
-          </div>
-        ))
-      }
-    </section>
+            </nav>
+
+            <div class='archive-heatmap' aria-label='每月文章发布热力图'>
+              <div class='archive-heatmap__months' aria-hidden='true'>
+                <span />
+                {Array.from({ length: 12 }, (_, month) => (
+                  <span>{month + 1}</span>
+                ))}
+              </div>
+              {archiveYears.map((year) => (
+                <div class='archive-heatmap__row'>
+                  <a
+                    href={`#year-${year}`}
+                    class='archive-heatmap__year'
+                    data-archive-jump
+                    data-archive-target-year={year}
+                  >
+                    {year}
+                  </a>
+                  {Array.from({ length: 12 }, (_, month) => {
+                    const count = monthCounts.get(`${year}-${month}`) ?? 0
+                    const heat = Math.max(count / maxMonthCount, 0.2)
+                    return count > 0 ? (
+                      <a
+                        href={`#month-${year}-${month + 1}`}
+                        class='archive-heatmap__cell'
+                        style={`--heat-bg:${0.1 + heat * 0.55};--heat-border:${0.22 + heat * 0.38}`}
+                        title={`${year}年${month + 1}月：${count} 篇文章`}
+                        aria-label={`${year}年${month + 1}月，${count}篇文章`}
+                        data-archive-jump
+                        data-archive-target-year={year}
+                      />
+                    ) : (
+                      <span
+                        class='archive-heatmap__cell is-empty'
+                        title={`${year}年${month + 1}月：无文章`}
+                      />
+                    )
+                  })}
+                </div>
+              ))}
+            </div>
+
+            <div class='archive-overview__footer'>
+              <span>
+                <i />
+                颜色越深，发布文章越多
+              </span>
+              <span>
+                当前显示 <strong data-visible-posts>{allPosts.length}</strong> 篇
+              </span>
+            </div>
+          </section>
+
+          <section id='content' class='archive-timeline animate' aria-label='文章时间线'>
+            <div class='archive-timeline__toolbar'>
+              <span>文章时间线</span>
+              <a href='#archive-overview' data-archive-jump>
+                <svg viewBox='0 0 24 24' aria-hidden='true'>
+                  <path d='m18 15-6-6-6 6' />
+                </svg>
+                返回创作概览
+              </a>
+            </div>
+
+            {archiveGroups.map(({ year, posts, months }, yearIndex) => (
+              <details
+                id={`year-${year}`}
+                class='archive-year'
+                open={yearIndex === 0}
+                data-archive-year
+              >
+                <summary>
+                  <span class='archive-year__marker' aria-hidden='true' />
+                  <span class='archive-year__title'>{year}</span>
+                  <span class='archive-year__count' data-year-count>
+                    {posts.length} 篇文章
+                  </span>
+                  <span class='archive-year__toggle' aria-hidden='true'>
+                    <svg viewBox='0 0 24 24'>
+                      <path d='m9 18 6-6-6-6' />
+                    </svg>
+                  </span>
+                </summary>
+
+                <div class='archive-year__content'>
+                  {months.map(([month, monthPosts]) => (
+                    <section
+                      id={`month-${year}-${month + 1}`}
+                      class='archive-month'
+                      data-archive-month
+                    >
+                      <header class='archive-month__header'>
+                        <h3>{monthFormatter.format(new Date(year, month, 1))}</h3>
+                        <span data-month-count>{monthPosts.length} 篇</span>
+                      </header>
+
+                      <ul>
+                        {monthPosts.map((post) => {
+                          const date = effectiveDate(post)
+                          const searchText = [
+                            post.data.title,
+                            post.data.description,
+                            ...post.data.tags
+                          ]
+                            .join(' ')
+                            .toLocaleLowerCase()
+
+                          return (
+                            <li data-archive-item data-search-text={searchText}>
+                              <span class='archive-item__dot' aria-hidden='true' />
+                              <time
+                                datetime={date.toISOString()}
+                                title={fullDateFormatter.format(date)}
+                              >
+                                {dayFormatter.format(date)}
+                              </time>
+                              <a
+                                class='archive-item__body'
+                                href={`/blog/${post.id}`}
+                                data-astro-prefetch
+                              >
+                                <span class='archive-item__title'>
+                                  {post.data.draft && <em>Draft</em>}
+                                  {post.data.title}
+                                </span>
+                                <span class='archive-item__description'>
+                                  {post.data.description}
+                                </span>
+                              </a>
+                              {post.data.tags.length > 0 && (
+                                <ul class='archive-item__tags' aria-label='文章标签'>
+                                  {post.data.tags.slice(0, 3).map((tag) => (
+                                    <li>
+                                      <a
+                                        href={`/tags/${encodeURIComponent(tag)}`}
+                                        data-astro-prefetch
+                                      >
+                                        #{tag}
+                                      </a>
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
+                              <span class='archive-item__arrow' aria-hidden='true'>
+                                ↗
+                              </span>
+                            </li>
+                          )
+                        })}
+                      </ul>
+                    </section>
+                  ))}
+                  <a class='archive-year__back' href='#archive-overview' data-archive-jump>
+                    <svg viewBox='0 0 24 24' aria-hidden='true'>
+                      <path d='m18 15-6-6-6 6' />
+                    </svg>
+                    返回创作概览
+                  </a>
+                </div>
+              </details>
+            ))}
+
+            <div class='archive-empty' data-archive-empty hidden>
+              <span>#</span>
+              <strong>没有找到匹配的文章</strong>
+              <p>尝试更换关键词。</p>
+            </div>
+          </section>
+
+          <aside class='archive-time-rail' aria-label='Timeline Navigation' data-time-rail>
+            <a href='#archive-overview' class='rail-overview-btn' title='返回概览' data-archive-jump>
+              <Icon name='up' class='size-4' />
+            </a>
+            <div class='rail-track'>
+              <div class='rail-indicator' data-rail-indicator></div>
+              {
+                archiveYears.map((year) => (
+                  <a
+                    href={`#year-${year}`}
+                    class='rail-year'
+                    data-archive-jump
+                    data-archive-target-year={year}
+                    data-rail-year={year}
+                  >
+                    {year}
+                  </a>
+                ))
+              }
+            </div>
+          </aside>
+        </>
+      ) : (
+        <div class='archive-empty'>
+          <span>○</span>
+          <strong>时光机尚未启动</strong>
+          <p>发布文章后，时间线会在这里出现。</p>
+        </div>
+      )
+    }
   </main>
+
+  <script>
+    const setupArchive = () => {
+      const input = document.querySelector<HTMLInputElement>('[data-archive-search]')
+      const items = [...document.querySelectorAll<HTMLElement>('[data-archive-item]')]
+      const years = [...document.querySelectorAll<HTMLDetailsElement>('[data-archive-year]')]
+      const empty = document.querySelector<HTMLElement>('[data-archive-empty]')
+      const visiblePosts = document.querySelector<HTMLElement>('[data-visible-posts]')
+      if (!input || items.length === 0) return
+
+      document.querySelectorAll<HTMLAnchorElement>('[data-archive-jump]').forEach((link) => {
+        link.onclick = (event) => {
+          const targetId = link.hash.slice(1)
+          const target = document.getElementById(targetId)
+          if (!target) return
+
+          event.preventDefault()
+          const year = link.dataset.archiveTargetYear
+          const yearDetails = year
+            ? document.getElementById(`year-${year}`)
+            : target.closest<HTMLDetailsElement>('[data-archive-year]')
+
+          if (yearDetails instanceof HTMLDetailsElement) yearDetails.open = true
+
+          requestAnimationFrame(() => {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+            history.replaceState(null, '', `#${targetId}`)
+          })
+        }
+      })
+
+      if (location.hash) {
+        const initialTarget = document.getElementById(location.hash.slice(1))
+        const initialYear = initialTarget?.closest<HTMLDetailsElement>('[data-archive-year]')
+        if (initialYear) initialYear.open = true
+      }
+
+      const filterArchive = () => {
+        const query = input.value.trim().toLocaleLowerCase()
+        let visibleTotal = 0
+
+        items.forEach((item) => {
+          const matches = item.dataset.searchText?.includes(query) ?? false
+          item.hidden = !matches
+          if (matches) visibleTotal += 1
+        })
+
+        document.querySelectorAll<HTMLElement>('[data-archive-month]').forEach((month) => {
+          const visible = month.querySelectorAll('[data-archive-item]:not([hidden])').length
+          month.hidden = visible === 0
+          const count = month.querySelector<HTMLElement>('[data-month-count]')
+          if (count) count.textContent = `${visible} 篇`
+        })
+
+        years.forEach((year) => {
+          const visible = year.querySelectorAll('[data-archive-item]:not([hidden])').length
+          year.hidden = visible === 0
+          if (query && visible > 0) year.open = true
+          const count = year.querySelector<HTMLElement>('[data-year-count]')
+          if (count) count.textContent = `${visible} 篇文章`
+        })
+
+        if (visiblePosts) visiblePosts.textContent = String(visibleTotal)
+        if (empty) empty.hidden = visibleTotal !== 0
+      }
+
+      input.oninput = filterArchive
+
+      // Time Rail Logic
+      const rail = document.querySelector<HTMLElement>('[data-time-rail]')
+      const indicator = document.querySelector<HTMLElement>('[data-rail-indicator]')
+      const railYears = [...document.querySelectorAll<HTMLElement>('[data-rail-year]')]
+      const overview = document.getElementById('archive-overview')
+
+      if (rail && indicator && railYears.length > 0) {
+        const updateRail = () => {
+          const scrollY = window.scrollY
+          const overviewBottom = (overview?.offsetTop ?? 0) + (overview?.offsetHeight ?? 0)
+
+          // Show/hide rail
+          if (scrollY > overviewBottom - 100) {
+            rail.classList.add('is-visible')
+          } else {
+            rail.classList.remove('is-visible')
+          }
+
+          // Update active year and indicator
+          let activeYearEl: HTMLElement | null = null
+          for (const yearSection of years) {
+            if (yearSection.hidden) continue
+            const rect = yearSection.getBoundingClientRect()
+            if (rect.top < window.innerHeight / 2 && rect.bottom > window.innerHeight / 2) {
+              const year = yearSection.id.replace('year-', '')
+              activeYearEl = rail.querySelector(`[data-rail-year="${year}"]`)
+              break
+            }
+          }
+
+          if (activeYearEl) {
+            railYears.forEach((el) => el.classList.remove('is-active'))
+            activeYearEl.classList.add('is-active')
+            const yearRect = activeYearEl.getBoundingClientRect()
+            const track = rail.querySelector('.rail-track')
+            if (track) {
+              const trackRect = track.getBoundingClientRect()
+              const offset = yearRect.top - trackRect.top + yearRect.height / 2 - indicator.offsetHeight / 2
+              indicator.style.transform = `translateY(${offset}px)`
+            }
+          }
+        }
+
+        window.addEventListener('scroll', updateRail, { passive: true })
+        updateRail()
+      }
+    }
+
+    const focusArchiveSearch = (event: KeyboardEvent) => {
+      const activeElement = document.activeElement
+      const input = document.querySelector<HTMLInputElement>('[data-archive-search]')
+
+      if (
+        event.key === '/' &&
+        input &&
+        activeElement?.tagName !== 'INPUT' &&
+        activeElement?.tagName !== 'TEXTAREA' &&
+        !(activeElement instanceof HTMLElement && activeElement.isContentEditable)
+      ) {
+        event.preventDefault()
+        input.focus()
+      }
+    }
+
+    setupArchive()
+    document.addEventListener('astro:page-load', setupArchive)
+    document.addEventListener('keydown', focusArchiveSearch)
+  </script>
+
+  <style>
+    .archive-hero {
+      position: relative;
+      display: grid;
+      gap: 2rem;
+      overflow: hidden;
+      padding: clamp(1.5rem, 4vw, 2.75rem);
+      border: 1px solid hsl(var(--border));
+      border-radius: 1.75rem;
+      background:
+        radial-gradient(circle at 88% 0%, hsl(var(--primary) / 0.18), transparent 34%),
+        linear-gradient(135deg, hsl(var(--background)), hsl(var(--muted) / 0.55));
+    }
+
+    .archive-hero::after {
+      position: absolute;
+      right: -1.5rem;
+      bottom: -4.5rem;
+      color: hsl(var(--primary) / 0.065);
+      font-size: 12rem;
+      font-weight: 700;
+      line-height: 1;
+      content: '∞';
+      pointer-events: none;
+    }
+
+    .archive-hero__copy,
+    .archive-stats {
+      position: relative;
+      z-index: 1;
+    }
+
+    .archive-hero__eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: hsl(var(--primary));
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .archive-hero h1 {
+      margin: 0.6rem 0 0.5rem;
+      font-size: clamp(2.4rem, 7vw, 4.5rem);
+      font-weight: 650;
+      letter-spacing: -0.055em;
+      line-height: 1;
+    }
+
+    .archive-hero__copy p {
+      max-width: 34rem;
+      margin: 0;
+      color: hsl(var(--muted-foreground));
+      font-size: 0.9rem;
+    }
+
+    .archive-stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      align-self: end;
+      margin: 0;
+      border: 1px solid hsl(var(--border) / 0.8);
+      border-radius: 1.2rem;
+      background: hsl(var(--background) / 0.72);
+      backdrop-filter: blur(12px);
+    }
+
+    .archive-stats div {
+      padding: 1rem;
+    }
+
+    .archive-stats div + div {
+      border-left: 1px solid hsl(var(--border) / 0.8);
+    }
+
+    .archive-stats dt {
+      color: hsl(var(--muted-foreground));
+      font-size: 0.66rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .archive-stats dd {
+      margin: 0.2rem 0 0;
+      font-size: 1.5rem;
+      font-weight: 650;
+      line-height: 1;
+    }
+
+    .archive-overview {
+      margin-top: 2rem;
+      padding: clamp(1rem, 3vw, 1.4rem);
+      border: 1px solid hsl(var(--border));
+      border-radius: 1.3rem;
+      background: hsl(var(--background));
+      scroll-margin-top: 6rem;
+    }
+
+    .archive-overview__header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+
+    .archive-overview h2 {
+      margin: 0;
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .archive-overview__header p {
+      margin: 0.25rem 0 0;
+      color: hsl(var(--muted-foreground));
+      font-size: 0.75rem;
+    }
+
+    .archive-search {
+      display: flex;
+      width: min(100%, 19rem);
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.6rem 0.7rem;
+      border: 1px solid hsl(var(--border));
+      border-radius: 0.85rem;
+      color: hsl(var(--muted-foreground));
+      transition:
+        border-color 180ms ease,
+        box-shadow 180ms ease;
+    }
+
+    .archive-search:focus-within {
+      border-color: hsl(var(--primary) / 0.7);
+      box-shadow: 0 0 0 3px hsl(var(--primary) / 0.12);
+    }
+
+    .archive-search input {
+      min-width: 0;
+      flex: 1;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: hsl(var(--foreground));
+      font-size: 0.8rem;
+    }
+
+    .archive-search kbd {
+      padding: 0.08rem 0.35rem;
+      border: 1px solid hsl(var(--border));
+      border-radius: 0.3rem;
+      background: hsl(var(--muted));
+      font-size: 0.65rem;
+      font-family: inherit;
+    }
+
+    .archive-years {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin-top: 1rem;
+    }
+
+    .archive-years a {
+      padding: 0.38rem 0.7rem;
+      border: 1px solid hsl(var(--border));
+      border-radius: 999px;
+      color: hsl(var(--muted-foreground));
+      font-size: 0.72rem;
+    }
+
+    .archive-years a:hover,
+    .archive-years .is-latest {
+      border-color: hsl(var(--primary) / 0.4);
+      background: hsl(var(--primary) / 0.09);
+      color: hsl(var(--primary));
+    }
+
+    .archive-heatmap {
+      margin-top: 1rem;
+      overflow-x: auto;
+      padding-bottom: 0.2rem;
+    }
+
+    .archive-heatmap__months,
+    .archive-heatmap__row {
+      display: grid;
+      min-width: 39rem;
+      grid-template-columns: 3.2rem repeat(12, minmax(1.5rem, 1fr));
+      gap: 0.35rem;
+      align-items: center;
+    }
+
+    .archive-heatmap__months {
+      margin-bottom: 0.35rem;
+      color: hsl(var(--muted-foreground));
+      font-size: 0.6rem;
+      text-align: center;
+    }
+
+    .archive-heatmap__row + .archive-heatmap__row {
+      margin-top: 0.35rem;
+    }
+
+    .archive-heatmap__year {
+      color: hsl(var(--muted-foreground));
+      font-size: 0.68rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .archive-heatmap__cell {
+      height: 1.35rem;
+      border: 1px solid hsl(var(--primary) / var(--heat-border));
+      border-radius: 0.3rem;
+      background: hsl(var(--primary) / var(--heat-bg));
+      transition:
+        transform 150ms ease,
+        border-color 150ms ease;
+    }
+
+    a.archive-heatmap__cell:hover {
+      border-color: hsl(var(--primary));
+      transform: scale(1.12);
+    }
+
+    .archive-heatmap__cell.is-empty {
+      border-color: hsl(var(--border) / 0.65);
+      background: hsl(var(--muted) / 0.45);
+    }
+
+    .archive-overview__footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-top: 0.75rem;
+      color: hsl(var(--muted-foreground));
+      font-size: 0.68rem;
+    }
+
+    .archive-overview__footer span:first-child {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .archive-overview__footer i {
+      width: 0.65rem;
+      height: 0.65rem;
+      border-radius: 0.2rem;
+      background: hsl(var(--primary) / 0.55);
+    }
+
+    .archive-overview__footer strong {
+      color: hsl(var(--foreground));
+    }
+
+    .archive-timeline {
+      position: relative;
+      margin-top: 2.5rem;
+      padding-left: 1.1rem;
+    }
+
+    .archive-timeline__toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin: 0 0 0.75rem 0.1rem;
+      color: hsl(var(--muted-foreground));
+      font-size: 0.72rem;
+    }
+
+    .archive-timeline__toolbar > span {
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .archive-timeline__toolbar a,
+    .archive-year__back {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      color: hsl(var(--muted-foreground));
+      font-size: 0.68rem;
+    }
+
+    .archive-timeline__toolbar a:hover,
+    .archive-year__back:hover {
+      color: hsl(var(--primary));
+    }
+
+    .archive-timeline__toolbar svg,
+    .archive-year__back svg {
+      width: 0.9rem;
+      height: 0.9rem;
+      fill: none;
+      stroke: currentColor;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-width: 2;
+    }
+
+    .archive-timeline::before {
+      position: absolute;
+      top: 1.5rem;
+      bottom: 1rem;
+      left: 0.28rem;
+      width: 1px;
+      background: linear-gradient(hsl(var(--primary) / 0.65), hsl(var(--border)));
+      content: '';
+    }
+
+    .archive-year {
+      position: relative;
+      scroll-margin-top: 6rem;
+    }
+
+    .archive-year + .archive-year {
+      margin-top: 1rem;
+    }
+
+    .archive-year > summary {
+      display: flex;
+      min-height: 3.5rem;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 0.75rem 1rem;
+      border: 1px solid hsl(var(--border));
+      border-radius: 1rem;
+      background: hsl(var(--background));
+      cursor: pointer;
+      list-style: none;
+    }
+
+    .archive-year > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .archive-year__marker {
+      position: absolute;
+      left: -1.18rem;
+      width: 0.72rem;
+      height: 0.72rem;
+      border: 2px solid hsl(var(--background));
+      border-radius: 999px;
+      background: hsl(var(--primary));
+      box-shadow: 0 0 0 2px hsl(var(--primary) / 0.3);
+    }
+
+    .archive-year__title {
+      font-size: 1.55rem;
+      font-weight: 650;
+      letter-spacing: -0.03em;
+    }
+
+    .archive-year__count {
+      color: hsl(var(--muted-foreground));
+      font-size: 0.72rem;
+    }
+
+    .archive-year__toggle {
+      display: grid;
+      width: 1.8rem;
+      height: 1.8rem;
+      margin-left: auto;
+      place-items: center;
+      border-radius: 0.55rem;
+      background: hsl(var(--muted));
+      color: hsl(var(--muted-foreground));
+    }
+
+    .archive-year__toggle svg {
+      width: 1rem;
+      height: 1rem;
+      fill: none;
+      stroke: currentColor;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-width: 2;
+      transition: transform 180ms ease;
+    }
+
+    .archive-year[open] .archive-year__toggle svg {
+      transform: rotate(90deg);
+    }
+
+    .archive-year__content {
+      padding: 0.5rem 0 0.5rem 1rem;
+    }
+
+    .archive-year__back {
+      width: fit-content;
+      margin: 0.25rem 0 0.5rem auto;
+      padding: 0.4rem 0.55rem;
+      border-radius: 0.6rem;
+      background: hsl(var(--muted) / 0.45);
+    }
+
+    .archive-month {
+      scroll-margin-top: 6rem;
+      padding: 1rem 0;
+    }
+
+    .archive-month + .archive-month {
+      border-top: 1px dashed hsl(var(--border));
+    }
+
+    .archive-month__header {
+      display: flex;
+      align-items: baseline;
+      gap: 0.6rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .archive-month__header h3 {
+      margin: 0;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .archive-month__header span {
+      color: hsl(var(--muted-foreground));
+      font-size: 0.65rem;
+    }
+
+    .archive-month > ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .archive-month > ul > li {
+      position: relative;
+      display: grid;
+      grid-template-columns: 3.2rem minmax(0, 1fr) auto 1rem;
+      align-items: center;
+      gap: 0.8rem;
+      min-height: 4.4rem;
+      padding: 0.7rem 0.75rem;
+      border-radius: 0.9rem;
+      transition: background 160ms ease;
+    }
+
+    .archive-month > ul > li:hover {
+      background: hsl(var(--primary) / 0.055);
+    }
+
+    .archive-item__dot {
+      position: absolute;
+      left: -1.25rem;
+      width: 0.45rem;
+      height: 0.45rem;
+      border: 2px solid hsl(var(--background));
+      border-radius: 999px;
+      background: hsl(var(--muted-foreground) / 0.45);
+    }
+
+    .archive-month time {
+      color: hsl(var(--muted-foreground));
+      font-size: 0.68rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .archive-item__body {
+      display: flex;
+      min-width: 0;
+      flex-direction: column;
+      gap: 0.2rem;
+      color: hsl(var(--foreground));
+      text-decoration: none;
+    }
+
+    .archive-item__title {
+      overflow: hidden;
+      font-size: 0.9rem;
+      font-weight: 550;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .archive-item__title em {
+      margin-right: 0.35rem;
+      color: #ef4444;
+      font-size: 0.65rem;
+      font-style: normal;
+      text-transform: uppercase;
+    }
+
+    .archive-item__description {
+      overflow: hidden;
+      color: hsl(var(--muted-foreground));
+      font-size: 0.7rem;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .archive-item__tags {
+      display: flex;
+      gap: 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .archive-item__tags a {
+      display: block;
+      max-width: 6.5rem;
+      overflow: hidden;
+      padding: 0.22rem 0.45rem;
+      border-radius: 999px;
+      background: hsl(var(--muted));
+      color: hsl(var(--muted-foreground));
+      font-size: 0.62rem;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .archive-item__tags a:hover {
+      color: hsl(var(--primary));
+    }
+
+    .archive-item__arrow {
+      color: hsl(var(--muted-foreground));
+      font-size: 0.75rem;
+    }
+
+    .archive-empty {
+      padding: 4rem 1rem;
+      border: 1px dashed hsl(var(--border));
+      border-radius: 1.2rem;
+      color: hsl(var(--muted-foreground));
+      text-align: center;
+    }
+
+    .archive-empty > span {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: hsl(var(--primary));
+      font-size: 2rem;
+      font-weight: 650;
+    }
+
+    .archive-empty strong {
+      color: hsl(var(--foreground));
+    }
+
+    .archive-empty p {
+      margin: 0.25rem 0 0;
+      font-size: 0.75rem;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    @media (min-width: 768px) {
+      .archive-hero {
+        grid-template-columns: minmax(0, 1.35fr) minmax(19rem, 0.65fr);
+      }
+    }
+
+    @media (max-width: 767px) {
+      .archive-overview__header {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .archive-search {
+        width: 100%;
+      }
+
+      .archive-month > ul > li {
+        grid-template-columns: 2.7rem minmax(0, 1fr) 1rem;
+      }
+
+      .archive-item__tags {
+        display: none;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .archive-overview__footer {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 0.35rem;
+      }
+
+      .archive-timeline {
+        padding-left: 0.85rem;
+      }
+
+      .archive-year__marker {
+        left: -0.93rem;
+      }
+
+      .archive-year__content {
+        padding-left: 0.5rem;
+      }
+
+      .archive-item__dot {
+        left: -0.75rem;
+      }
+
+      .archive-month > ul > li {
+        gap: 0.55rem;
+        padding-right: 0.35rem;
+        padding-left: 0.35rem;
+      }
+    }
+
+    .archive-time-rail {
+      position: fixed;
+      right: 1.5rem;
+      top: 55%;
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.85rem 0.4rem;
+      border: 1px solid hsl(var(--border));
+      border-radius: 999px;
+      background: hsl(var(--background) / 0.72);
+      backdrop-filter: blur(12px);
+      transform: translateY(-50%) translateX(1rem);
+      transition:
+        opacity 400ms ease,
+        transform 400ms cubic-bezier(0.4, 0, 0.2, 1);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .archive-time-rail.is-visible {
+      transform: translateY(-50%) translateX(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .rail-overview-btn {
+      display: grid;
+      width: 1.8rem;
+      height: 1.8rem;
+      place-items: center;
+      border-radius: 50%;
+      background: hsl(var(--primary) / 0.1);
+      color: hsl(var(--primary));
+      transition:
+        background 180ms ease,
+        transform 180ms ease;
+    }
+
+    .rail-overview-btn:hover {
+      background: hsl(var(--primary) / 0.2);
+      transform: translateY(-2px);
+    }
+
+    .rail-track {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .rail-indicator {
+      position: absolute;
+      left: -0.45rem;
+      top: 0.5rem;
+      width: 0.3rem;
+      height: 0.3rem;
+      border-radius: 50%;
+      background: hsl(var(--primary));
+      box-shadow: 0 0 8px hsl(var(--primary) / 0.4);
+      transition: transform 350ms cubic-bezier(0.34, 1.56, 0.64, 1);
+      pointer-events: none;
+    }
+
+    .rail-year {
+      padding: 0.2rem 0.45rem;
+      color: hsl(var(--muted-foreground));
+      font-size: 0.62rem;
+      font-weight: 600;
+      text-align: center;
+      transition:
+        color 200ms ease,
+        transform 200ms ease;
+    }
+
+    .rail-year:hover {
+      color: hsl(var(--primary));
+      transform: scale(1.1);
+    }
+
+    .rail-year.is-active {
+      color: hsl(var(--primary));
+    }
+
+    @media (max-width: 1280px) {
+      .archive-time-rail {
+        right: 0.8rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .archive-time-rail {
+        display: none;
+      }
+    }
+  </style>
 </PageLayout>
