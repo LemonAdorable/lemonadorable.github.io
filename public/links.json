@@ -122,6 +122,18 @@
           "intro": "博客俱乐部",
           "link": "https://www.blogsclub.org/",
           "avatar": "https://www.blogsclub.org/usr/uploads/2025/01/4195725068.jpg"
+        },
+        {
+          "name": "博客星球",
+          "intro": "每一个博客都是一个独立星球！",
+          "link": "https://www.blogplanet.cn/",
+          "avatar": "https://www.blogplanet.cn/img/bkxq.png"
+        },
+        {
+          "name": "若梦博客",
+          "intro": "每一个博客，都是精神的驿站。我们不同行，但彼此照亮。在此驻足，便积蓄前行的力量。",
+          "link": "https://www.rmbk.cc/",
+          "avatar": "https://www.rmbk.cc/favicon.ico"
         }
       ]
     }
