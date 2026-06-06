@@ -14,121 +14,73 @@
           "name": "CWorld Site",
           "intro": "求知若愚，虚怀若谷",
           "link": "https://cworld0.com/",
-          "avatar": "https://gravatar.loli.net/avatar/1ffe42aa45a6b1444a786b1f32dfa8aa?s=200",
-          "avatar_cache": {
-            "hash": "febe0464776c335d",
-            "path": "/avatars/febe0464776c335d.png"
-          }
+          "avatar": "https://gravatar.loli.net/avatar/1ffe42aa45a6b1444a786b1f32dfa8aa?s=200"
         },
         {
           "name": "梁栋烨",
           "intro": "梁栋烨的博客网站。",
           "link": "https://090909.top/",
-          "avatar": "https://090909.top/assets/images/avatar.webp",
-          "avatar_cache": {
-            "hash": "49c596aed4f4499b",
-            "path": "/avatars/49c596aed4f4499b.webp"
-          }
+          "avatar": "https://090909.top/assets/images/logo.ico"
         },
         {
           "name": "NNNullptr南",
           "intro": "数学生的古早拼贴风格网站",
           "link": "https://xnmoe.com",
-          "avatar": "https://www.xnmoe.com/assets/images/pfp.png",
-          "avatar_cache": {
-            "hash": "77a080c8d2442267",
-            "path": "/avatars/77a080c8d2442267.png"
-          }
+          "avatar": "https://www.xnmoe.com/assets/images/pfp.png"
         },
         {
           "name": "John Chiao",
           "intro": "JohnCh's Home",
           "link": "https://johnch.dpdns.org/",
-          "avatar": "https://cdn.luogu.com.cn/upload/usericon/1366636.png",
-          "avatar_cache": {
-            "hash": "72b17c65718c174a",
-            "path": "/avatars/72b17c65718c174a.png"
-          }
+          "avatar": "https://cdn.luogu.com.cn/upload/usericon/1366636.png"
         },
         {
           "name": "Benign X",
           "intro": "Overflow Stack Developer.",
           "link": "https://benign.host/",
-          "avatar": "https://avatars.githubusercontent.com/W-Mai",
-          "avatar_cache": {
-            "hash": "452fd35e4fc8bea9",
-            "path": "/avatars/452fd35e4fc8bea9.jpg"
-          }
+          "avatar": "https://avatars.githubusercontent.com/W-Mai"
         },
         {
           "name": "lvy-neko",
           "intro": "I'm lvy, Nice to meet you!",
           "link": "https://lvyovo-wiki.tech/",
-          "avatar": "https://lvyovo-wiki.tech/images/avatar.png",
-          "avatar_cache": {
-            "hash": "4e7eb54ad9222a3d",
-            "path": "/avatars/4e7eb54ad9222a3d.png"
-          }
+          "avatar": "https://lvyovo-wiki.tech/images/avatar.png"
         },
         {
           "name": "iMaeGoo’s Blog",
           "intro": "虹墨空间站",
           "link": "https://www.imaegoo.com",
-          "avatar": "https://cdn.jsdelivr.net/npm/imaegoo/avatar.jpg",
-          "avatar_cache": {
-            "hash": "f6842c0b75628813",
-            "path": "/avatars/f6842c0b75628813.jpg"
-          }
+          "avatar": "https://cdn.jsdelivr.net/npm/imaegoo/avatar.jpg"
         },
         {
           "name": "miuo's blog",
           "intro": "记录文章、笔记、实验和暂时不想丢掉的内容。",
           "link": "https://blog.miuo.me/",
-          "avatar": "https://blog.miuo.me/avatar.avif",
-          "avatar_cache": {
-            "hash": "12448a5a93ec4d92",
-            "path": "/avatars/12448a5a93ec4d92.avif"
-          }
+          "avatar": "https://blog.miuo.me/avatar.avif"
         },
         {
           "name": "清羽飞扬",
           "intro": "柳影曳曳，清酒孤灯，扬笔撒墨，心境如霜",
           "link": "https://blog.liushen.fun/",
-          "avatar": "https://p.liiiu.cn/i/2025/03/13/67d2fc82d329c.webp",
-          "avatar_cache": {
-            "hash": "c61ed5317099914b",
-            "path": "/avatars/c61ed5317099914b.webp"
-          }
+          "avatar": "https://blog.liushen.fun/info/avatar.ico"
         },
         {
           "name": "木鱼",
           "intro": "一名 学生 / ACMer / 前端开发 / 电子音乐制作人",
           "link": "https://www.woodfish.site/",
-          "avatar": "https://www.woodfish.site/newBlog/asset/f725f7fc67d79930b505550749765877.webp",
-          "avatar_cache": {
-            "hash": "e3189b4006afaf21",
-            "path": "/avatars/e3189b4006afaf21.webp"
-          }
+          "avatar": "https://www.woodfish.site/newBlog/remote-assets/7169dd51bc194ce663ef8873ccf3f5bbc7645e1b.jpg"
         },
         {
           "name": "XgrBlog",
           "intro": "学无止境",
           "link": "https://xgrblog.cn",
-          "avatar": "https://xgrblog.cn/avatar.jpg",
-          "avatar_cache": {
-            "hash": "612c3d155a36b7ec",
-            "path": "/avatars/612c3d155a36b7ec.jpg"
-          }
+          "avatar": "https://xgrblog.cn/avatar.jpg"
         },
         {
           "name": "时光潜流",
           "intro": "妹控的中二君！",
           "link": "http://www.dreamcenter.top",
-          "avatar": "https://www.dreamcenter.top/imgs/avatar.jpg",
-          "avatar_cache": {
-            "hash": "cf255bc76e1170b0",
-            "path": "/avatars/cf255bc76e1170b0.jpg"
-          }
+          "avatar": "https://www.dreamcenter.top/imgs/avatar.jpg"
         }
       ]
     },
@@ -145,11 +97,7 @@
           "name": "Astro",
           "intro": "The web framework for content-driven websites",
           "link": "https://astro.build/",
-          "avatar": "https://avatars.githubusercontent.com/u/44914786?s=200&v=4",
-          "avatar_cache": {
-            "hash": "8e6669377929d5f2",
-            "path": "/avatars/8e6669377929d5f2.png"
-          }
+          "avatar": "https://avatars.githubusercontent.com/u/44914786?s=200&v=4"
         }
       ]
     }

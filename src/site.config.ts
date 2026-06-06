@@ -124,7 +124,7 @@ export const integ: IntegrationUserConfig = {
       { name: 'Avatar', val: 'https://lemonadorable.github.io/favicon/favicon.gif' }
     ],
     // Cache avatars in `public/avatars/` to improve user experience.
-    cacheAvatar: true
+    cacheAvatar: false
   },
   // [Search]
   // Using flexsearch instead of pagefind
