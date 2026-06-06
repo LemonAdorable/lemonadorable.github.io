@@ -1,0 +1,227 @@
+---
+import type { GetStaticPaths } from 'astro'
+import type { CollectionEntry } from 'astro:content'
+
+import { PostPreview } from 'astro-pure/components/pages'
+import { getBlogCollection, sortMDByDate } from 'astro-pure/server'
+import { Icon } from 'astro-pure/user'
+import PageLayout from '@/layouts/BaseLayout.astro'
+import {
+  getAllCategories,
+  getCategoryLabel,
+  getCategorySegments,
+  getPostCategory
+} from '@/utils/content-paths'
+
+export const prerender = true
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const posts = sortMDByDate(await getBlogCollection()) as CollectionEntry<'blog'>[]
+  const categories = getAllCategories(posts)
+
+  return [...categories.entries()].map(([category, categoryPosts]) => ({
+    params: { category },
+    props: { categoryPosts, allCategories: [...categories.keys()] }
+  }))
+}
+
+interface Props {
+  categoryPosts: CollectionEntry<'blog'>[]
+  allCategories: string[]
+}
+
+const { categoryPosts, allCategories } = Astro.props
+const category = Astro.params.category!
+const segments = getCategorySegments(category)
+const currentLabel = getCategoryLabel(segments.at(-1)?.name ?? category)
+const childCategories = allCategories
+  .filter((path) => {
+    const childSegments = getCategorySegments(path)
+    return childSegments.length === segments.length + 1 && path.startsWith(`${category}/`)
+  })
+  .sort()
+const directPostCount = categoryPosts.filter((post) => getPostCategory(post) === category).length
+
+const meta = {
+  title: `Category: ${currentLabel}`,
+  description: `Browse posts filed under ${currentLabel}`
+}
+---
+
+<PageLayout {meta}>
+  <main class='category-detail mt-6 lg:mt-10'>
+    <header id='content-header' class='detail-hero animate'>
+      <nav aria-label='Breadcrumb'>
+        <a href='/categories'>分类</a>
+        {
+          segments.map((segment, index) => (
+            <>
+              <span aria-hidden='true'>/</span>
+              {index === segments.length - 1 ? (
+                <span>{getCategoryLabel(segment.name)}</span>
+              ) : (
+                <a href={`/categories/${segment.path}`}>{getCategoryLabel(segment.name)}</a>
+              )}
+            </>
+          ))
+        }
+      </nav>
+
+      <div class='detail-title'>
+        <span><Icon name='package' /></span>
+        <div>
+          <small>Knowledge folder</small>
+          <h1>{currentLabel}</h1>
+        </div>
+      </div>
+
+      <p>
+        此目录共收录 <strong>{categoryPosts.length}</strong> 篇文章， 其中 <strong
+          >{directPostCount}</strong
+        > 篇直接位于当前目录。
+      </p>
+    </header>
+
+    {
+      childCategories.length > 0 && (
+        <section class='child-folders animate' aria-labelledby='child-folders-title'>
+          <h2 id='child-folders-title'>子目录</h2>
+          <div>
+            {childCategories.map((path) => (
+              <a href={`/categories/${path}`}>
+                <Icon name='package' class='size-5' />
+                <span>{getCategoryLabel(path.split('/').at(-1)!)}</span>
+                <span aria-hidden='true'>→</span>
+              </a>
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    <section id='content' class='post-list animate'>
+      <div class='section-heading'>
+        <h2>目录中的文章</h2>
+        <a href='/tags'>按标签浏览 ↗</a>
+      </div>
+      <ul class='flex flex-col gap-y-4 text-start'>
+        {categoryPosts.map((post) => <PostPreview {post} detailed />)}
+      </ul>
+    </section>
+  </main>
+</PageLayout>
+
+<style>
+  .detail-hero {
+    padding: clamp(1.2rem, 3vw, 2rem);
+    border: 1px solid hsl(var(--border));
+    border-radius: 1.4rem;
+    background:
+      radial-gradient(circle at 90% 0%, hsl(var(--primary) / 0.15), transparent 32%),
+      hsl(var(--background));
+  }
+
+  nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    color: hsl(var(--muted-foreground));
+    font-size: 0.78rem;
+  }
+
+  nav a:hover,
+  .section-heading a:hover {
+    color: hsl(var(--primary));
+  }
+
+  .detail-title {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    margin-top: 1.5rem;
+  }
+
+  .detail-title > span {
+    display: grid;
+    width: 3.25rem;
+    height: 3.25rem;
+    place-items: center;
+    border-radius: 1rem;
+    background: hsl(var(--primary) / 0.1);
+    color: hsl(var(--primary));
+    font-size: 1.4rem;
+  }
+
+  .detail-title small {
+    color: hsl(var(--muted-foreground));
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    margin: 0.1rem 0 0;
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    letter-spacing: -0.045em;
+    line-height: 1;
+  }
+
+  .detail-hero > p {
+    margin: 1.25rem 0 0;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .detail-hero strong {
+    color: hsl(var(--foreground));
+  }
+
+  .child-folders,
+  .post-list {
+    margin-top: 2.5rem;
+  }
+
+  .child-folders h2,
+  .section-heading h2 {
+    margin: 0 0 1rem;
+    font-size: 1.25rem;
+  }
+
+  .child-folders > div {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+
+  .child-folders a {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.9rem;
+  }
+
+  .child-folders a:hover {
+    border-color: hsl(var(--primary) / 0.45);
+    color: hsl(var(--primary));
+  }
+
+  .section-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .section-heading a {
+    margin-bottom: 1rem;
+    color: hsl(var(--muted-foreground));
+    font-size: 0.8rem;
+  }
+
+  @media (max-width: 640px) {
+    .child-folders > div {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

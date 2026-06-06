@@ -2,13 +2,16 @@
 // Similar to Quartz's popover previews with multi-layer support
 
 import tippy, { type Instance } from 'tippy.js'
+
 import 'tippy.js/dist/tippy.css'
 
 interface ContentDetails {
   slug: string
+  aliases: string[]
   title: string
   content: string
   tags: string[]
+  categories: string[]
   links: string[]
   collection: 'blog' | 'docs'
   publishDate?: string
@@ -36,12 +39,12 @@ const elementToInstance: WeakMap<HTMLElement, Instance> = new WeakMap()
 // Load content index
 async function loadContentIndex(): Promise<ContentIndex> {
   if (contentIndex) return contentIndex
-  
+
   const response = await fetch('/contentIndex.json')
   if (!response.ok) {
     throw new Error('Failed to fetch contentIndex.json')
   }
-  
+
   contentIndex = await response.json()
   return contentIndex as ContentIndex
 }
@@ -86,14 +89,15 @@ async function fetchContent(slug: string): Promise<Element[]> {
       const html = p.parseFromString(contents ?? '', 'text/html')
       normalizeRelativeURLs(html, targetUrl)
       // Get main content area
-      const mainContent = html.querySelector('#content, article .prose, article, main article, main') || html.body
-      
+      const mainContent =
+        html.querySelector('#content, article .prose, article, main article, main') || html.body
+
       // Remove TOC and sidebar elements
       const elementsToRemove = mainContent.querySelectorAll(
         'aside, #sidebar, toc-heading, .toc, [class*="toc"], [id*="toc"], [class*="sidebar"], [id*="sidebar"], nav[class*="toc"]'
       )
       elementsToRemove.forEach((el) => el.remove())
-      
+
       // Filter out TOC-related elements from children
       const contentElements: Element[] = []
       for (const child of Array.from(mainContent.children)) {
@@ -103,13 +107,14 @@ async function fetchContent(slug: string): Promise<Element[]> {
           child.classList.contains('toc') ||
           child.classList.contains('sidebar') ||
           child.tagName === 'ASIDE' ||
-          (child.tagName === 'NAV' && (child.classList.contains('toc') || child.id?.includes('toc')))
+          (child.tagName === 'NAV' &&
+            (child.classList.contains('toc') || child.id?.includes('toc')))
         ) {
           continue
         }
         contentElements.push(child)
       }
-      
+
       return contentElements
     })
 
@@ -122,14 +127,14 @@ async function createPreviewContent(slug: string): Promise<HTMLElement> {
   let articleTitle = '加载中...'
   try {
     const index = await loadContentIndex()
-    const item = index[slug]
+    const item = index[slug] ?? Object.values(index).find((entry) => entry.aliases?.includes(slug))
     if (item) {
       articleTitle = item.title
     }
   } catch (error) {
     console.error('Error loading from content index:', error)
   }
-  
+
   // Create container
   const container = document.createElement('div')
   container.className = 'wikilink-preview-content'
@@ -141,7 +146,7 @@ async function createPreviewContent(slug: string): Promise<HTMLElement> {
     display: flex;
     flex-direction: column;
   `
-  
+
   // Create header
   const header = document.createElement('div')
   header.className = 'wikilink-preview-header'
@@ -151,7 +156,7 @@ async function createPreviewContent(slug: string): Promise<HTMLElement> {
     background: hsl(var(--muted) / var(--un-bg-opacity, 1));
     flex-shrink: 0;
   `
-  
+
   const title = document.createElement('h3')
   title.className = 'wikilink-preview-title'
   title.style.cssText = `
@@ -162,7 +167,7 @@ async function createPreviewContent(slug: string): Promise<HTMLElement> {
   `
   title.textContent = articleTitle
   header.appendChild(title)
-  
+
   // Create content area
   const content = document.createElement('div')
   content.className = 'wikilink-preview-content preview-inner prose text-base'
@@ -177,23 +182,23 @@ async function createPreviewContent(slug: string): Promise<HTMLElement> {
     line-height: 1.5em;
     flex: 1;
   `
-  
+
   container.appendChild(header)
   container.appendChild(content)
-  
+
   // Fetch full content
   try {
     const contents = await fetchContent(slug)
-    
+
     // Update title from fetched content if not found in index
     if (articleTitle === '加载中...') {
-      const titleElement = contents.find(el => el.tagName === 'H1')
+      const titleElement = contents.find((el) => el.tagName === 'H1')
       if (titleElement) {
         articleTitle = titleElement.textContent || '未找到标题'
         title.textContent = articleTitle
       }
     }
-    
+
     // Add all content elements
     contents.forEach((el) => {
       content.appendChild(el.cloneNode(true))
@@ -203,7 +208,7 @@ async function createPreviewContent(slug: string): Promise<HTMLElement> {
     title.textContent = articleTitle !== '加载中...' ? articleTitle : '无法加载预览'
     content.innerHTML = '<p>无法加载此文章的内容</p>'
   }
-  
+
   return container
 }
 
@@ -224,12 +229,12 @@ function setupTippyForLink(link: HTMLAnchorElement, parentSlug: string | null = 
   if (elementToInstance.has(link)) {
     return
   }
-  
+
   const href = link.getAttribute('href')
   if (!href) return
-  
+
   const slug = extractSlug(href)
-  
+
   // Skip if already has instance for this slug
   if (tippyInstances.has(slug)) {
     const existing = tippyInstances.get(slug)!
@@ -237,7 +242,7 @@ function setupTippyForLink(link: HTMLAnchorElement, parentSlug: string | null = 
       return
     }
   }
-  
+
   // Calculate z-index based on parent level
   let zIndex = 9999
   if (parentSlug) {
@@ -248,7 +253,7 @@ function setupTippyForLink(link: HTMLAnchorElement, parentSlug: string | null = 
       zIndex = parentZIndex + 10
     }
   }
-  
+
   // Create tippy instance
   const instance = tippy(link, {
     content: '加载中...',
@@ -275,7 +280,7 @@ function setupTippyForLink(link: HTMLAnchorElement, parentSlug: string | null = 
       // Load content asynchronously
       createPreviewContent(slug).then((content) => {
         instance.setContent(content)
-        
+
         // Wait for content to be rendered
         setTimeout(() => {
           // Setup tippy for wikilinks in this preview
@@ -308,66 +313,68 @@ function setupTippyForLink(link: HTMLAnchorElement, parentSlug: string | null = 
         previewInstance.childInstances.clear()
       }
     },
-    getReferenceClientRect: parentSlug ? () => {
-      // Position relative to parent preview
-      const parentInstance = tippyInstances.get(parentSlug)
-      if (parentInstance && parentInstance.instance.popper) {
-        const parentRect = parentInstance.instance.popper.getBoundingClientRect()
-        const previewOffset = 20
-        
-        // Try to position to the right of parent
-        const viewportWidth = window.innerWidth
-        const viewportHeight = window.innerHeight
-        const containerWidth = 550
-        const containerHeight = 500
-        
-        let left = parentRect.right + previewOffset
-        let top = parentRect.top
-        
-        // Adjust if goes off screen
-        if (left + containerWidth > viewportWidth - 10) {
-          // Try left side
-          if (parentRect.left - containerWidth - previewOffset > 10) {
-            left = parentRect.left - containerWidth - previewOffset
-          } else {
-            // Overlap with offset
-            left = parentRect.left + previewOffset
-            top = parentRect.top + previewOffset
+    getReferenceClientRect: parentSlug
+      ? () => {
+          // Position relative to parent preview
+          const parentInstance = tippyInstances.get(parentSlug)
+          if (parentInstance && parentInstance.instance.popper) {
+            const parentRect = parentInstance.instance.popper.getBoundingClientRect()
+            const previewOffset = 20
+
+            // Try to position to the right of parent
+            const viewportWidth = window.innerWidth
+            const viewportHeight = window.innerHeight
+            const containerWidth = 550
+            const containerHeight = 500
+
+            let left = parentRect.right + previewOffset
+            let top = parentRect.top
+
+            // Adjust if goes off screen
+            if (left + containerWidth > viewportWidth - 10) {
+              // Try left side
+              if (parentRect.left - containerWidth - previewOffset > 10) {
+                left = parentRect.left - containerWidth - previewOffset
+              } else {
+                // Overlap with offset
+                left = parentRect.left + previewOffset
+                top = parentRect.top + previewOffset
+              }
+            }
+
+            if (top + containerHeight > viewportHeight - 10) {
+              top = Math.max(10, viewportHeight - containerHeight - 10)
+            }
+
+            return {
+              width: 0,
+              height: 0,
+              top,
+              left,
+              right: left,
+              bottom: top,
+              x: left,
+              y: top,
+              toJSON: () => ({})
+            } as DOMRect
           }
+          // Fallback to link position
+          return link.getBoundingClientRect()
         }
-        
-        if (top + containerHeight > viewportHeight - 10) {
-          top = Math.max(10, viewportHeight - containerHeight - 10)
-        }
-        
-        return {
-          width: 0,
-          height: 0,
-          top,
-          left,
-          right: left,
-          bottom: top,
-          x: left,
-          y: top,
-          toJSON: () => ({})
-        } as DOMRect
-      }
-      // Fallback to link position
-      return link.getBoundingClientRect()
-    } : undefined,
+      : undefined
   })
-  
+
   // Store instance
   const previewInstance: PreviewInstance = {
     instance,
     slug,
     parentSlug,
-    childInstances: new Set(),
+    childInstances: new Set()
   }
-  
+
   tippyInstances.set(slug, previewInstance)
   elementToInstance.set(link, instance)
-  
+
   // Update parent's child instances
   if (parentSlug) {
     const parentInstance = tippyInstances.get(parentSlug)
@@ -397,7 +404,7 @@ function findPreviewUnderMouse(x: number, y: number): string | null {
     const zIndexB = parseInt(getComputedStyle(b[1].instance.popper).zIndex) || 0
     return zIndexB - zIndexA
   })
-  
+
   for (const [slug, previewInstance] of sortedInstances) {
     if (previewInstance.instance.state.isVisible && previewInstance.instance.popper) {
       const rect = previewInstance.instance.popper.getBoundingClientRect()
@@ -413,10 +420,10 @@ function findPreviewUnderMouse(x: number, y: number): string | null {
 function hidePreviewsFrom(slug: string) {
   const previewInstance = tippyInstances.get(slug)
   if (!previewInstance) return
-  
+
   // Get all previews that should be hidden (this one and all its children)
   const previewsToHide: string[] = [slug]
-  
+
   // Add all children recursively
   function addChildren(slug: string) {
     const instance = tippyInstances.get(slug)
@@ -433,7 +440,7 @@ function hidePreviewsFrom(slug: string) {
     }
   }
   addChildren(slug)
-  
+
   // Hide all previews
   previewsToHide.forEach((s) => {
     const instance = tippyInstances.get(s)
@@ -449,24 +456,24 @@ function setupWikilinkPreviews() {
   let lastMouseY = 0
   let hideTimeout: number | null = null
   let currentPreviewSlug: string | null = null
-  
+
   document.addEventListener('mousemove', (e) => {
     lastMouseX = e.clientX
     lastMouseY = e.clientY
-    
+
     // Find which preview the mouse is over
     const previewSlug = findPreviewUnderMouse(lastMouseX, lastMouseY)
-    
+
     // Clear any pending hide timeout
     if (hideTimeout) {
       clearTimeout(hideTimeout)
       hideTimeout = null
     }
-    
+
     // If mouse moved to a different preview, set timeout to hide previews above this one
     if (previewSlug && previewSlug !== currentPreviewSlug) {
       currentPreviewSlug = previewSlug
-      
+
       // Set timeout to hide previews from this one onwards (including this one)
       hideTimeout = window.setTimeout(() => {
         const finalPreviewSlug = findPreviewUnderMouse(lastMouseX, lastMouseY)
@@ -478,18 +485,18 @@ function setupWikilinkPreviews() {
       }, 500)
     } else if (!previewSlug) {
       currentPreviewSlug = null
-      
+
       // Check if mouse is over any wikilink
       const elementUnderMouse = document.elementFromPoint(lastMouseX, lastMouseY)
       const isOverWikilink = elementUnderMouse?.closest('a.wikilink')
-      
+
       if (!isOverWikilink) {
         // Not over any preview or link, hide all after delay
         hideTimeout = window.setTimeout(() => {
           const finalPreviewSlug = findPreviewUnderMouse(lastMouseX, lastMouseY)
           const finalElement = document.elementFromPoint(lastMouseX, lastMouseY)
           const finalIsOverWikilink = finalElement?.closest('a.wikilink')
-          
+
           if (!finalPreviewSlug && !finalIsOverWikilink) {
             // Hide all previews
             tippyInstances.forEach((previewInstance) => {
@@ -501,31 +508,35 @@ function setupWikilinkPreviews() {
       }
     }
   })
-  
+
   // Setup tippy for existing wikilinks
   const wikilinks = document.querySelectorAll('a.wikilink')
   wikilinks.forEach((link) => {
     setupTippyForLink(link as HTMLAnchorElement)
   })
-  
+
   // Hide on scroll
-  window.addEventListener('scroll', () => {
-    tippyInstances.forEach((previewInstance) => {
-      previewInstance.instance.hide()
-    })
-    if (hideTimeout) {
-      clearTimeout(hideTimeout)
-      hideTimeout = null
-    }
-  }, { passive: true })
-  
+  window.addEventListener(
+    'scroll',
+    () => {
+      tippyInstances.forEach((previewInstance) => {
+        previewInstance.instance.hide()
+      })
+      if (hideTimeout) {
+        clearTimeout(hideTimeout)
+        hideTimeout = null
+      }
+    },
+    { passive: true }
+  )
+
   // Use MutationObserver to handle dynamically added wikilinks
   const observer = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       mutation.addedNodes.forEach((node) => {
         if (node.nodeType === Node.ELEMENT_NODE) {
           const element = node as HTMLElement
-          
+
           // Check for new wikilinks
           const newWikilinks = element.querySelectorAll?.('a.wikilink')
           if (newWikilinks && newWikilinks.length > 0) {
@@ -539,7 +550,7 @@ function setupWikilinkPreviews() {
       })
     })
   })
-  
+
   observer.observe(document.body, {
     childList: true,
     subtree: true

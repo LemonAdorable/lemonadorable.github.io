@@ -11,10 +11,12 @@ import { MediumZoom } from 'astro-pure/advanced'
 import { ArticleBottom, Copyright, GraphView, Hero, TOC } from 'astro-pure/components/pages'
 import PageLayout from '@/layouts/ContentLayout.astro'
 import Backlinks from '@/components/blog/Backlinks.astro'
+import CategoryBreadcrumbs from '@/components/blog/CategoryBreadcrumbs.astro'
 import OutgoingLinks from '@/components/blog/OutgoingLinks.astro'
 import { Giscus } from '@/components/giscus'
 import { PageInfo } from '@/components/waline'
 import type { Backlink } from '@/utils/backlinks'
+import { getPostSlug } from '@/utils/content-paths'
 
 interface Props {
   post: CollectionEntry<'blog'>
@@ -60,11 +62,14 @@ const primaryColor = data.heroImage?.color ?? '#B19CD9'
 >
   {!!headings.length && <TOC {headings} slot='sidebar' />}
 
-  <Hero {data} {remarkPluginFrontmatter} slot='header'>
-    <Fragment slot='description'>
-      {!isDraft && enableComment && <PageInfo comment class='mt-1' />}
-    </Fragment>
-  </Hero>
+  <Fragment slot='header'>
+    <CategoryBreadcrumbs post={Astro.props.post} />
+    <Hero {data} {remarkPluginFrontmatter}>
+      <Fragment slot='description'>
+        {!isDraft && enableComment && <PageInfo comment class='mt-1' />}
+      </Fragment>
+    </Hero>
+  </Fragment>
 
   <slot />
 
@@ -87,7 +92,7 @@ const primaryColor = data.heroImage?.color ?? '#B19CD9'
   </Fragment>
 
   <GraphView
-    currentSlug={`blog/${id}`}
+    currentSlug={`blog/${getPostSlug(Astro.props.post)}`}
     slot='bottom-sidebar'
     id='blog-graph-view'
     class='blog-graph-view'

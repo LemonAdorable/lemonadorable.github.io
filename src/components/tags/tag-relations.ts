@@ -7,6 +7,7 @@ interface RelatedTag {
 
 interface RelatedPost {
   id: string
+  href: string
   title: string
   tags: string[]
 }
@@ -51,7 +52,7 @@ function buildGraphData(data: GraphData) {
       id: postId,
       label: post.title,
       type: 'post',
-      href: `/blog/${post.id}`,
+      href: post.href,
       radius: 8
     })
     links.push({ source: `tag:${data.tag}`, target: postId })

@@ -31,6 +31,7 @@ interface PostLike {
   data: {
     title: string
     publishDate?: Date
+    slug?: string
   }
 }
 
@@ -66,6 +67,13 @@ function normalizePath(path: string): string {
   }
 
   return parts.join('/')
+}
+
+function getCanonicalSlug(post: PostLike): string {
+  if (post.data.slug) return normalizeId(post.data.slug)
+
+  const id = normalizeId(post.id)
+  return id.split('/').at(-1) ?? id
 }
 
 /**
@@ -226,7 +234,7 @@ export async function buildBacklinksMap(
             id: sourceId,
             title: post.data.title,
             context: getContextSnippet(content, targetSlug),
-            url: `${basePath}/${sourceId}`,
+            url: `${basePath}/${getCanonicalSlug(post)}`,
             date: post.data.publishDate
           })
         }
@@ -272,7 +280,7 @@ export function getOutgoingLinks(
       outgoing.push({
         id: targetSlug,
         title: targetPost.data.title,
-        url: `${basePath}/${targetSlug}`,
+        url: `${basePath}/${getCanonicalSlug(targetPost)}`,
         date: targetPost.data.publishDate
       })
     }

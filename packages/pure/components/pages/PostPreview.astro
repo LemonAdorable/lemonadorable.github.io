@@ -1,6 +1,6 @@
 ---
 import { Image } from 'astro:assets'
-import { type CollectionEntry, type CollectionKey, render } from 'astro:content'
+import { render, type CollectionEntry, type CollectionKey } from 'astro:content'
 
 import { cn } from '../../utils'
 import { Button, FormattedDate, Icon } from '../user'
@@ -13,6 +13,12 @@ type Props<T extends CollectionKey> = {
 
 const { post, detailed = false, class: className } = Astro.props
 const { id, data } = post
+const fallbackSlug =
+  id
+    .replace(/\/index$/, '')
+    .split('/')
+    .at(-1) ?? id
+const slug = 'slug' in data && typeof data.slug === 'string' ? data.slug : fallbackSlug
 const { remarkPluginFrontmatter } = await render(post)
 const postDate = data.updatedDate ?? data.publishDate
 ---
@@ -30,7 +36,7 @@ const postDate = data.updatedDate ?? data.publishDate
       detailed && 'max-sm:px-4 sm:py-5',
       detailed && data.heroImage && 'max-md:pt-24'
     )}
-    href={`/blog/${id}`}
+    href={`/blog/${slug}`}
     data-astro-prefetch
   >
     {
@@ -122,7 +128,9 @@ const postDate = data.updatedDate ?? data.publishDate
 
   <style>
     .post-preview {
-      --preview-highlight-final: var( --preview-highlight, hsl(var(--primary) / var(--un-text-opacity, 1))
+      --preview-highlight-final: var(
+        --preview-highlight,
+        hsl(var(--primary) / var(--un-text-opacity, 1))
       );
     }
     .post-preview > a {
@@ -164,7 +172,11 @@ const postDate = data.updatedDate ?? data.publishDate
 
     @media (max-width: 768px) {
       .cover-image {
-        -webkit-mask-image: -webkit-linear-gradient(bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%);
+        -webkit-mask-image: -webkit-linear-gradient(
+          bottom,
+          rgba(0, 0, 0, 0) 0%,
+          rgba(0, 0, 0, 1) 100%
+        );
         -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%);
         mask-image: linear-gradient(to top, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%);
       }

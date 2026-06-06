@@ -4,6 +4,7 @@ import type { CollectionEntry } from 'astro:content'
 import { getBlogCollection, groupCollectionsByYear, sortMDByDate } from 'astro-pure/server'
 import { Icon } from 'astro-pure/user'
 import PageLayout from '@/layouts/BaseLayout.astro'
+import { getPostPath } from '@/utils/content-paths'
 
 export const prerender = true
 
@@ -243,7 +244,7 @@ const meta = {
                               </time>
                               <a
                                 class='archive-item__body'
-                                href={`/blog/${post.id}`}
+                                href={getPostPath(post)}
                                 data-astro-prefetch
                               >
                                 <span class='archive-item__title'>
@@ -295,24 +296,27 @@ const meta = {
           </section>
 
           <aside class='archive-time-rail' aria-label='Timeline Navigation' data-time-rail>
-            <a href='#archive-overview' class='rail-overview-btn' title='返回概览' data-archive-jump>
+            <a
+              href='#archive-overview'
+              class='rail-overview-btn'
+              title='返回概览'
+              data-archive-jump
+            >
               <Icon name='up' class='size-4' />
             </a>
             <div class='rail-track'>
-              <div class='rail-indicator' data-rail-indicator></div>
-              {
-                archiveYears.map((year) => (
-                  <a
-                    href={`#year-${year}`}
-                    class='rail-year'
-                    data-archive-jump
-                    data-archive-target-year={year}
-                    data-rail-year={year}
-                  >
-                    {year}
-                  </a>
-                ))
-              }
+              <div class='rail-indicator' data-rail-indicator />
+              {archiveYears.map((year) => (
+                <a
+                  href={`#year-${year}`}
+                  class='rail-year'
+                  data-archive-jump
+                  data-archive-target-year={year}
+                  data-rail-year={year}
+                >
+                  {year}
+                </a>
+              ))}
             </div>
           </aside>
         </>
@@ -430,7 +434,8 @@ const meta = {
             const track = rail.querySelector('.rail-track')
             if (track) {
               const trackRect = track.getBoundingClientRect()
-              const offset = yearRect.top - trackRect.top + yearRect.height / 2 - indicator.offsetHeight / 2
+              const offset =
+                yearRect.top - trackRect.top + yearRect.height / 2 - indicator.offsetHeight / 2
               indicator.style.transform = `translateY(${offset}px)`
             }
           }

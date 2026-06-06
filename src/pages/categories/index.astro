@@ -1,0 +1,276 @@
+---
+import type { CollectionEntry } from 'astro:content'
+
+import { getBlogCollection, sortMDByDate } from 'astro-pure/server'
+import { Icon } from 'astro-pure/user'
+import PageLayout from '@/layouts/BaseLayout.astro'
+import {
+  getAllCategories,
+  getCategoryLabel,
+  getCategorySegments,
+  getPostCategory
+} from '@/utils/content-paths'
+
+const posts = sortMDByDate(await getBlogCollection()) as CollectionEntry<'blog'>[]
+const categoryMap = getAllCategories(posts)
+const categories = [...categoryMap.entries()]
+  .map(([path, categoryPosts]) => ({
+    path,
+    label: getCategoryLabel(path.split('/').at(-1) ?? path),
+    depth: getCategorySegments(path).length,
+    directPosts: categoryPosts.filter((post) => getPostCategory(post) === path).length,
+    totalPosts: categoryPosts.length
+  }))
+  .sort((a, b) => a.path.localeCompare(b.path))
+
+const rootCategories = categories.filter(({ depth }) => depth === 1)
+const meta = {
+  title: 'Categories',
+  description: 'Browse posts by their folder-based knowledge structure'
+}
+---
+
+<PageLayout {meta}>
+  <main class='categories-page mt-6 lg:mt-10'>
+    <header id='content-header' class='category-hero animate'>
+      <div>
+        <span class='category-eyebrow'>
+          <Icon name='package' class='size-4' />
+          Knowledge folders
+        </span>
+        <h1>分类</h1>
+        <p>目录表示稳定的知识归属，标签则负责跨目录连接不同主题。</p>
+      </div>
+      <dl>
+        <div><dt>Folders</dt><dd>{categories.length}</dd></div>
+        <div><dt>Root folders</dt><dd>{rootCategories.length}</dd></div>
+        <div><dt>Filed posts</dt><dd>{posts.filter(getPostCategory).length}</dd></div>
+      </dl>
+    </header>
+
+    <section id='content' class='category-browser animate'>
+      <div class='section-heading'>
+        <div>
+          <h2>知识目录</h2>
+          <p>子目录会继承到上级分类的文章集合中。</p>
+        </div>
+        <a href='/tags' data-astro-prefetch>查看标签体系 ↗</a>
+      </div>
+
+      {
+        rootCategories.length > 0 ? (
+          <div class='category-grid'>
+            {rootCategories.map((category) => {
+              const children = categories.filter(
+                ({ path, depth }) => depth === 2 && path.startsWith(`${category.path}/`)
+              )
+
+              return (
+                <article class='category-card'>
+                  <a class='category-card__main' href={`/categories/${category.path}`}>
+                    <span class='category-card__icon'>
+                      <Icon name='package' />
+                    </span>
+                    <span>
+                      <strong>{category.label}</strong>
+                      <small>{category.totalPosts} 篇文章</small>
+                    </span>
+                    <span aria-hidden='true'>→</span>
+                  </a>
+                  {children.length > 0 && (
+                    <ul>
+                      {children.map((child) => (
+                        <li>
+                          <a href={`/categories/${child.path}`}>
+                            {child.label}
+                            <span>{child.totalPosts}</span>
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </article>
+              )
+            })}
+          </div>
+        ) : (
+          <p class='empty-state'>把文章放进子文件夹后，分类会自动出现在这里。</p>
+        )
+      }
+    </section>
+  </main>
+</PageLayout>
+
+<style>
+  .category-hero {
+    display: grid;
+    gap: 2rem;
+    padding: clamp(1.5rem, 4vw, 3rem);
+    border: 1px solid hsl(var(--border));
+    border-radius: 1.75rem;
+    background:
+      radial-gradient(circle at 88% 0%, hsl(var(--primary) / 0.16), transparent 34%),
+      linear-gradient(135deg, hsl(var(--background)), hsl(var(--muted) / 0.55));
+  }
+
+  .category-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: hsl(var(--primary));
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .category-hero h1 {
+    margin: 0.65rem 0 0.5rem;
+    font-size: clamp(2.5rem, 7vw, 4.75rem);
+    font-weight: 650;
+    letter-spacing: -0.055em;
+    line-height: 0.95;
+  }
+
+  .category-hero p,
+  .section-heading p {
+    margin: 0;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .category-hero dl {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin: 0;
+    border: 1px solid hsl(var(--border));
+    border-radius: 1.25rem;
+    background: hsl(var(--background) / 0.72);
+  }
+
+  .category-hero dl div {
+    padding: 1rem;
+  }
+
+  .category-hero dl div + div {
+    border-left: 1px solid hsl(var(--border));
+  }
+
+  .category-hero dt {
+    color: hsl(var(--muted-foreground));
+    font-size: 0.68rem;
+    text-transform: uppercase;
+  }
+
+  .category-hero dd {
+    margin: 0.2rem 0 0;
+    font-size: 1.55rem;
+    font-weight: 650;
+  }
+
+  .category-browser {
+    margin-top: 2.75rem;
+  }
+
+  .section-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .section-heading h2 {
+    margin: 0 0 0.25rem;
+    font-size: 1.3rem;
+  }
+
+  .section-heading a {
+    color: hsl(var(--muted-foreground));
+    font-size: 0.8rem;
+  }
+
+  .category-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .category-card {
+    overflow: hidden;
+    border: 1px solid hsl(var(--border));
+    border-radius: 1.25rem;
+    background: hsl(var(--background) / 0.7);
+  }
+
+  .category-card__main {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 1.1rem;
+  }
+
+  .category-card__icon {
+    display: grid;
+    width: 2.75rem;
+    height: 2.75rem;
+    place-items: center;
+    border-radius: 0.85rem;
+    background: hsl(var(--primary) / 0.1);
+    color: hsl(var(--primary));
+  }
+
+  .category-card strong,
+  .category-card small {
+    display: block;
+  }
+
+  .category-card small {
+    margin-top: 0.15rem;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .category-card ul {
+    margin: 0;
+    padding: 0.75rem 1.1rem;
+    border-top: 1px solid hsl(var(--border));
+    list-style: none;
+  }
+
+  .category-card li a {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.35rem 0;
+    color: hsl(var(--muted-foreground));
+    font-size: 0.85rem;
+  }
+
+  .category-card a:hover {
+    color: hsl(var(--primary));
+  }
+
+  .empty-state {
+    padding: 2rem;
+    border: 1px dashed hsl(var(--border));
+    border-radius: 1rem;
+    color: hsl(var(--muted-foreground));
+    text-align: center;
+  }
+
+  @media (min-width: 768px) {
+    .category-hero {
+      grid-template-columns: minmax(0, 1fr) minmax(22rem, 0.7fr);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .category-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .section-heading {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+  }
+</style>

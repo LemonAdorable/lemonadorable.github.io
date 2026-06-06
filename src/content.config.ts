@@ -35,6 +35,11 @@ const blog = defineCollection({
         .optional(),
       tags: z.array(z.string()).default([]).transform(removeDupsAndLowerCase),
       language: z.string().optional(),
+      /** Optional stable URL independent from the content file location. */
+      slug: z
+        .string()
+        .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
+        .optional(),
       draft: z.boolean().default(false),
       // Special fields
       comment: z.boolean().default(true)

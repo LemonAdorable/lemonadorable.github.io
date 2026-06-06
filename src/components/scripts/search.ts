@@ -2,9 +2,11 @@ import FlexSearch, { type DefaultDocumentSearchResults } from 'flexsearch'
 
 interface ContentDetails {
   slug: string
+  aliases?: string[]
   title: string
   content: string
   tags: string[]
+  categories?: string[]
   links: string[]
   collection: 'blog' | 'docs'
   publishDate?: string
@@ -184,8 +186,9 @@ function highlight(searchTerm: string, text: string, trim?: boolean) {
     })
     .join(' ')
 
-  return `${startIndex === 0 ? '' : '...'}${slice}${endIndex === tokenizedText.length - 1 ? '' : '...'
-    }`
+  return `${startIndex === 0 ? '' : '...'}${slice}${
+    endIndex === tokenizedText.length - 1 ? '' : '...'
+  }`
 }
 
 function highlightHTML(searchTerm: string, el: HTMLElement) {
@@ -294,7 +297,7 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
   const allTags = new Set<string>()
   for (const item of Object.values(data)) {
     if (item.tags) {
-      item.tags.forEach(tag => allTags.add(tag))
+      item.tags.forEach((tag) => allTags.add(tag))
     }
   }
   const sortedTags = Array.from(allTags).sort()
@@ -323,7 +326,9 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
   // Initialize tags multiselect
   if (tagsMultiselect) {
     const tagsButton = tagsMultiselect.querySelector('.filter-multiselect-button') as HTMLElement
-    const tagsDropdown = tagsMultiselect.querySelector('.filter-multiselect-dropdown') as HTMLElement
+    const tagsDropdown = tagsMultiselect.querySelector(
+      '.filter-multiselect-dropdown'
+    ) as HTMLElement
     const tagsText = tagsMultiselect.querySelector('.filter-multiselect-text') as HTMLElement
 
     // Generate tag options
@@ -341,7 +346,7 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
     allOption.appendChild(allLabel)
     tagsDropdown.appendChild(allOption)
 
-    sortedTags.forEach(tag => {
+    sortedTags.forEach((tag) => {
       const option = document.createElement('div')
       option.className = 'filter-multiselect-option'
       const checkbox = document.createElement('input')
@@ -361,9 +366,11 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
       const checked = (e.target as HTMLInputElement).checked
       if (checked) {
         // Uncheck all other tags
-        tagsDropdown.querySelectorAll<HTMLInputElement>('input[type="checkbox"]:not(#tags-all)').forEach(cb => {
-          cb.checked = false
-        })
+        tagsDropdown
+          .querySelectorAll<HTMLInputElement>('input[type="checkbox"]:not(#tags-all)')
+          .forEach((cb) => {
+            cb.checked = false
+          })
         currentFilters.tags = []
         tagsText.textContent = '全部'
       }
@@ -371,30 +378,36 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
     })
 
     // Handle individual tag checkboxes
-    tagsDropdown.querySelectorAll<HTMLInputElement>('input[type="checkbox"]:not(#tags-all)').forEach(checkbox => {
-      checkbox.addEventListener('change', () => {
-        // Uncheck "全部" if any tag is selected
-        if (checkbox.checked) {
-          allCheckbox.checked = false
-        }
+    tagsDropdown
+      .querySelectorAll<HTMLInputElement>('input[type="checkbox"]:not(#tags-all)')
+      .forEach((checkbox) => {
+        checkbox.addEventListener('change', () => {
+          // Uncheck "全部" if any tag is selected
+          if (checkbox.checked) {
+            allCheckbox.checked = false
+          }
 
-        // Update selected tags
-        const selectedTags = Array.from(tagsDropdown.querySelectorAll<HTMLInputElement>('input[type="checkbox"]:not(#tags-all):checked')).map(cb => cb.value)
-        currentFilters.tags = selectedTags
+          // Update selected tags
+          const selectedTags = Array.from(
+            tagsDropdown.querySelectorAll<HTMLInputElement>(
+              'input[type="checkbox"]:not(#tags-all):checked'
+            )
+          ).map((cb) => cb.value)
+          currentFilters.tags = selectedTags
 
-        // Update button text
-        if (selectedTags.length === 0) {
-          allCheckbox.checked = true
-          tagsText.textContent = '全部'
-        } else if (selectedTags.length === 1) {
-          tagsText.textContent = selectedTags[0]
-        } else {
-          tagsText.textContent = `已选择 ${selectedTags.length} 项`
-        }
+          // Update button text
+          if (selectedTags.length === 0) {
+            allCheckbox.checked = true
+            tagsText.textContent = '全部'
+          } else if (selectedTags.length === 1) {
+            tagsText.textContent = selectedTags[0]
+          } else {
+            tagsText.textContent = `已选择 ${selectedTags.length} 项`
+          }
 
-        triggerSearch()
+          triggerSearch()
+        })
       })
-    })
 
     // Toggle dropdown
     tagsButton.addEventListener('click', (e) => {
@@ -417,7 +430,9 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
   // Initialize type multiselect
   if (typeMultiselect) {
     const typeButton = typeMultiselect.querySelector('.filter-multiselect-button') as HTMLElement
-    const typeDropdown = typeMultiselect.querySelector('.filter-multiselect-dropdown') as HTMLElement
+    const typeDropdown = typeMultiselect.querySelector(
+      '.filter-multiselect-dropdown'
+    ) as HTMLElement
     const typeText = typeMultiselect.querySelector('.filter-multiselect-text') as HTMLElement
     const typeAllCheckbox = typeDropdown.querySelector('#type-all') as HTMLInputElement
 
@@ -426,9 +441,11 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
       const checked = (e.target as HTMLInputElement).checked
       if (checked) {
         // Uncheck all other types
-        typeDropdown.querySelectorAll<HTMLInputElement>('input[type="checkbox"]:not(#type-all)').forEach(cb => {
-          cb.checked = false
-        })
+        typeDropdown
+          .querySelectorAll<HTMLInputElement>('input[type="checkbox"]:not(#type-all)')
+          .forEach((cb) => {
+            cb.checked = false
+          })
         currentFilters.types = []
         typeText.textContent = '全部'
       }
@@ -436,30 +453,36 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
     })
 
     // Handle individual type checkboxes
-    typeDropdown.querySelectorAll<HTMLInputElement>('input[type="checkbox"]:not(#type-all)').forEach(checkbox => {
-      checkbox.addEventListener('change', () => {
-        // Uncheck "全部" if any type is selected
-        if (checkbox.checked) {
-          typeAllCheckbox.checked = false
-        }
+    typeDropdown
+      .querySelectorAll<HTMLInputElement>('input[type="checkbox"]:not(#type-all)')
+      .forEach((checkbox) => {
+        checkbox.addEventListener('change', () => {
+          // Uncheck "全部" if any type is selected
+          if (checkbox.checked) {
+            typeAllCheckbox.checked = false
+          }
 
-        // Update selected types
-        const selectedTypes = Array.from(typeDropdown.querySelectorAll<HTMLInputElement>('input[type="checkbox"]:not(#type-all):checked')).map(cb => cb.value)
-        currentFilters.types = selectedTypes
+          // Update selected types
+          const selectedTypes = Array.from(
+            typeDropdown.querySelectorAll<HTMLInputElement>(
+              'input[type="checkbox"]:not(#type-all):checked'
+            )
+          ).map((cb) => cb.value)
+          currentFilters.types = selectedTypes
 
-        // Update button text
-        if (selectedTypes.length === 0) {
-          typeAllCheckbox.checked = true
-          typeText.textContent = '全部'
-        } else if (selectedTypes.length === 1) {
-          typeText.textContent = checkbox.nextElementSibling?.textContent || '全部'
-        } else {
-          typeText.textContent = `已选择 ${selectedTypes.length} 项`
-        }
+          // Update button text
+          if (selectedTypes.length === 0) {
+            typeAllCheckbox.checked = true
+            typeText.textContent = '全部'
+          } else if (selectedTypes.length === 1) {
+            typeText.textContent = checkbox.nextElementSibling?.textContent || '全部'
+          } else {
+            typeText.textContent = `已选择 ${selectedTypes.length} 项`
+          }
 
-        triggerSearch()
+          triggerSearch()
+        })
       })
-    })
 
     // Toggle dropdown
     typeButton.addEventListener('click', (e) => {
@@ -631,7 +654,8 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
     } else if (e.key === 'ArrowDown' || e.key === 'Tab') {
       e.preventDefault()
       if (document.activeElement === searchBar || currentHover !== null) {
-        const firstResult = currentHover || (document.getElementsByClassName('result-card')[0] as HTMLElement | null)
+        const firstResult =
+          currentHover || (document.getElementsByClassName('result-card')[0] as HTMLElement | null)
         const nextResult = firstResult?.nextElementSibling as HTMLElement | null
         if (nextResult) {
           nextResult.focus()
@@ -770,8 +794,8 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
       // Tags filter
       if (currentFilters.tags.length > 0) {
         const itemTags = item.tags || []
-        const hasMatchingTag = currentFilters.tags.some(selectedTag =>
-          itemTags.some(tag => tag.toLowerCase() === selectedTag.toLowerCase())
+        const hasMatchingTag = currentFilters.tags.some((selectedTag) =>
+          itemTags.some((tag) => tag.toLowerCase() === selectedTag.toLowerCase())
         )
         if (!hasMatchingTag) return false
       }
@@ -808,7 +832,8 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
         const html = p.parseFromString(contents ?? '', 'text/html')
         normalizeRelativeURLs(html, targetUrl)
         // Get main content area - adjust selector based on your HTML structure
-        const mainContent = html.querySelector('#content, article .prose, article, main article, main') || html.body
+        const mainContent =
+          html.querySelector('#content, article .prose, article, main article, main') || html.body
 
         // Remove TOC and sidebar elements
         const elementsToRemove = mainContent.querySelectorAll(
@@ -825,7 +850,8 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
             child.classList.contains('toc') ||
             child.classList.contains('sidebar') ||
             child.tagName === 'ASIDE' ||
-            (child.tagName === 'NAV' && (child.classList.contains('toc') || child.id?.includes('toc')))
+            (child.tagName === 'NAV' &&
+              (child.classList.contains('toc') || child.id?.includes('toc')))
           ) {
             continue
           }
@@ -870,7 +896,8 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
       breadcrumb.appendChild(separator1)
 
       const category = pathParts[0]
-      const categoryTitle = categoryMap[category] || category.charAt(0).toUpperCase() + category.slice(1)
+      const categoryTitle =
+        categoryMap[category] || category.charAt(0).toUpperCase() + category.slice(1)
       const categoryLink = document.createElement('a')
       categoryLink.href = resolveUrl(`docs/${category}`)
       categoryLink.className = 'breadcrumb-link'
@@ -879,7 +906,10 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
     }
 
     // Add current page (only if it's not the same as category)
-    if (pathParts.length > 1 || (pathParts.length === 1 && pathParts[0] !== title.toLowerCase().replace(/\s+/g, '-'))) {
+    if (
+      pathParts.length > 1 ||
+      (pathParts.length === 1 && pathParts[0] !== title.toLowerCase().replace(/\s+/g, '-'))
+    ) {
       const separator2 = document.createElement('span')
       separator2.className = 'breadcrumb-separator'
       separator2.textContent = ' / '
@@ -952,9 +982,13 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
           // Force reflow so re-adding the class restarts the animation
           void highlight.offsetWidth
           highlight.classList.add('flash-highlight')
-          highlight.addEventListener('animationend', () => {
-            highlight.classList.remove('flash-highlight')
-          }, { once: true })
+          highlight.addEventListener(
+            'animationend',
+            () => {
+              highlight.classList.remove('flash-highlight')
+            },
+            { once: true }
+          )
         }, 300)
       })
 
@@ -1092,9 +1126,13 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
         const maxScrollTop = scrollHeight - clientHeight
 
         // How many pixels of scroll per pixel of drag
-        const scrollRatio = maxScrollTop / (containerHeight - (containerHeight * (clientHeight / scrollHeight)))
+        const scrollRatio =
+          maxScrollTop / (containerHeight - containerHeight * (clientHeight / scrollHeight))
         const deltaY = e.clientY - dragStartY
-        const newScrollTop = Math.max(0, Math.min(maxScrollTop, dragStartScrollTop + deltaY * scrollRatio))
+        const newScrollTop = Math.max(
+          0,
+          Math.min(maxScrollTop, dragStartScrollTop + deltaY * scrollRatio)
+        )
 
         preview.scrollTop = newScrollTop
       }
@@ -1233,13 +1271,14 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
     if (!searchLayout || !index) return
     currentSearchTerm = (e.target as HTMLInputElement).value
     const hasSearchTerm = currentSearchTerm.trim() !== ''
-    const hasActiveFilters = currentFilters.date !== 'all' ||
+    const hasActiveFilters =
+      currentFilters.date !== 'all' ||
       currentFilters.tags.length > 0 ||
       currentFilters.types.length > 0
 
     // Animate search space when user starts typing - find searchSpace from container (which may be in body)
     const searchSpace = container.querySelector('.search-space') as HTMLElement
-	let searching = searchSpace && (hasSearchTerm || hasActiveFilters)
+    let searching = searchSpace && (hasSearchTerm || hasActiveFilters)
     if (searching) {
       searchSpace.classList.remove('centered')
     } else if (searchSpace && !hasSearchTerm && !hasActiveFilters) {
@@ -1293,11 +1332,9 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
       }
 
       // order titles ahead of content
-      allIds = [...new Set([
-        ...getByField('title'),
-        ...getByField('content'),
-        ...getByField('tags')
-      ])]
+      allIds = [
+        ...new Set([...getByField('title'), ...getByField('content'), ...getByField('tags')])
+      ]
     } else {
       // If no search term, show all items (will be filtered by filters)
       allIds = Array.from({ length: idDataMap.length }, (_, i) => i)
@@ -1311,7 +1348,7 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
 
   document.addEventListener('keydown', shortcutHandler)
   searchButton.addEventListener('click', () => showSearch('basic'))
-  let timeout: ReturnType<typeof setTimeout> | null = null;
+  let timeout: ReturnType<typeof setTimeout> | null = null
   function onTypeLazy(e: Event) {
     if (timeout !== null) clearTimeout(timeout)
     const value = (e.target as HTMLInputElement).value
@@ -1374,4 +1411,3 @@ if (document.readyState === 'loading') {
 } else {
   initSearch()
 }
-

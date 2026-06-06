@@ -51,31 +51,12 @@ function normalizeSlug(slug: string): string {
     .replace(/[^\w\-/]/g, '')
 }
 
-function getSourceDirectory(filePath?: string): string {
-  if (!filePath) return ''
-
-  const normalizedPath = filePath.replaceAll('\\', '/')
-  const match = normalizedPath.match(/\/src\/content\/blog\/(.+)\.(?:md|mdx)$/)
-  if (!match) return ''
-
-  const id = match[1].replace(/\/index$/, '')
-  const separator = id.lastIndexOf('/')
-  return separator === -1 ? '' : id.slice(0, separator)
-}
-
-function resolveLinkSlug(slug: string, sourceDirectory: string): string {
-  const normalizedSlug = normalizeSlug(slug)
-  if (!sourceDirectory || normalizedSlug.includes('/')) return normalizedSlug
-  return `${sourceDirectory}/${normalizedSlug}`
-}
-
 export const remarkWikilinks: Plugin<[WikilinkOptions?], Root> = function (options = {}) {
   const { basePath = '/blog', validSlugs } = options
 
   return function (tree, file) {
     // Collect wikilinks for backlink processing
     const foundLinks: string[] = []
-    const sourceDirectory = getSourceDirectory(file.path)
 
     visit(tree, 'text', (node: Text, index, parent) => {
       if (!parent || index === undefined) return
@@ -112,7 +93,7 @@ export const remarkWikilinks: Plugin<[WikilinkOptions?], Root> = function (optio
           linkUrl = slug
         } else {
           // Convert to absolute path
-          const normalizedSlug = resolveLinkSlug(slug, sourceDirectory)
+          const normalizedSlug = normalizeSlug(slug)
           linkUrl = `${basePath}/${normalizedSlug}`
 
           // Record the link for backlink processing
