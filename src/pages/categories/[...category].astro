@@ -144,7 +144,7 @@ const meta = {
       </div>
 
       <p>
-        目录用于稳定归档，标签和双向链接负责跨目录建立关系。按方向键浏览，按 Enter 打开，按
+        目录用于稳定归档，标签和双向链接负责跨目录建立关系。按 Enter 打开，按
         Backspace 返回上级。
       </p>
     </header>
@@ -459,56 +459,39 @@ const meta = {
 
       const items = [...browser.querySelectorAll<HTMLElement>('[data-browser-item]')]
       const panels = [...browser.querySelectorAll<HTMLElement>('[data-preview-panel]')]
+      let previewTimeout: number | undefined
 
-      const showPreview = (item: HTMLElement) => {
+      const showPreview = (item: HTMLElement, immediate = false) => {
         const key = item.dataset.previewKey
         if (!key) return
-        items.forEach((candidate) =>
-          candidate.classList.toggle('is-previewing', candidate === item)
-        )
-        panels.forEach((panel) => {
-          panel.hidden = panel.dataset.previewPanel !== key
-        })
+
+        const update = () => {
+          items.forEach((candidate) =>
+            candidate.classList.toggle('is-previewing', candidate === item)
+          )
+          panels.forEach((panel) => {
+            panel.hidden = panel.dataset.previewPanel !== key
+          })
+        }
+
+        if (immediate) {
+          clearTimeout(previewTimeout)
+          update()
+        } else {
+          clearTimeout(previewTimeout)
+          previewTimeout = window.setTimeout(update, 150)
+        }
       }
 
       items.forEach((item) => {
-        item.addEventListener('focus', () => showPreview(item))
+        item.addEventListener('focus', () => showPreview(item, true))
         item.addEventListener('mouseenter', () => showPreview(item))
-      })
+        item.addEventListener('mouseleave', () => clearTimeout(previewTimeout))
+        })
+        })
 
-      browser.addEventListener('keydown', (event) => {
-        const target = event.target
-        if (!(target instanceof HTMLElement)) return
-        const current = target.closest<HTMLElement>('[data-browser-item]')
-        if (!current) return
+        document.addEventListener(
 
-        const column = current.closest<HTMLElement>('[data-browser-column]')
-        const columnItems = column
-          ? [...column.querySelectorAll<HTMLElement>('[data-browser-item]')]
-          : []
-        const index = columnItems.indexOf(current)
-
-        if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-          event.preventDefault()
-          const direction = event.key === 'ArrowDown' ? 1 : -1
-          columnItems[(index + direction + columnItems.length) % columnItems.length]?.focus()
-        }
-
-        if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
-          const columns = [...browser.querySelectorAll<HTMLElement>('[data-browser-column]')]
-          const columnIndex = column ? columns.indexOf(column) : -1
-          const direction = event.key === 'ArrowRight' ? 1 : -1
-          const nextColumn = columns[columnIndex + direction]
-          const nextItem = nextColumn?.querySelector<HTMLElement>('[data-browser-item]')
-          if (nextItem) {
-            event.preventDefault()
-            nextItem.focus()
-          }
-        }
-      })
-    })
-
-    document.addEventListener(
       'keydown',
       (event) => {
         const target = event.target
@@ -520,7 +503,10 @@ const meta = {
           return
         }
         event.preventDefault()
-        window.location.href = browsers[0].dataset.parentHref ?? '/categories'
+        const browsers = [...document.querySelectorAll<HTMLElement>('[data-category-browser]')]
+        if (browsers.length > 0) {
+          window.location.href = browsers[0].dataset.parentHref ?? '/categories'
+        }
       },
       { signal: backNavigationController.signal }
     )

@@ -16,7 +16,7 @@ import {
 
 const posts = sortMDByDate(await getBlogCollection()) as CollectionEntry<'blog'>[]
 const categoryMap = getAllCategories(posts)
-const { insights } = await buildCategoryInsights(posts)
+const { insights, postInsights } = await buildCategoryInsights(posts)
 const categories = [...categoryMap.entries()]
   .map(([path, categoryPosts]) => ({
     path,
@@ -28,8 +28,17 @@ const categories = [...categoryMap.entries()]
   .sort((a, b) => a.path.localeCompare(b.path))
 
 const rootCategories = categories.filter(({ depth }) => depth === 1)
+const unfiledPostItems = posts.filter((post) => !getPostCategory(post))
 const filedPosts = posts.filter(getPostCategory)
 const unfiledPosts = posts.length - filedPosts.length
+
+const formatDate = (date: string) =>
+  new Intl.DateTimeFormat('zh-CN', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  }).format(new Date(date))
+
 const tagCounts = new Map<string, number>()
 posts.forEach((post) => {
   post.data.tags.forEach((tag) => tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1))
@@ -62,7 +71,7 @@ const meta = {
     />
 
     {
-      rootCategories.length > 0 ? (
+      rootCategories.length > 0 || unfiledPostItems.length > 0 ? (
         <section
           id='content'
           class='root-browser animate'
@@ -114,31 +123,54 @@ const meta = {
           <div class='browser-column browser-roots' data-browser-column>
             <header>
               <span>根目录</span>
-              <small>{rootCategories.length} 个目录</small>
+              <small>{rootCategories.length} 目录 · {unfiledPostItems.length} 文章</small>
             </header>
             <div class='browser-list'>
-              {rootCategories.map((category) => {
-                const insight = insights.get(category.path)!
-                return (
-                  <a
-                    class='browser-row'
-                    href={`/categories/${category.path}`}
-                    data-browser-item
-                    data-preview-key={`category:${category.path}`}
-                  >
-                    <span class='row-icon'>
-                      <Icon name='package' />
-                    </span>
-                    <span>
-                      <strong>{category.label}</strong>
-                      <small>
-                        {category.totalPosts} 篇 · {insight.childCategories} 个子目录
-                      </small>
-                    </span>
-                    <span aria-hidden='true'>›</span>
-                  </a>
-                )
-              })}
+              {
+                rootCategories.map((category) => {
+                  const insight = insights.get(category.path)!
+                  return (
+                    <a
+                      class='browser-row'
+                      href={`/categories/${category.path}`}
+                      data-browser-item
+                      data-preview-key={`category:${category.path}`}
+                    >
+                      <span class='row-icon'>
+                        <Icon name='package' />
+                      </span>
+                      <span>
+                        <strong>{category.label}</strong>
+                        <small>
+                          {category.totalPosts} 篇 · {insight.childCategories} 个子目录
+                        </small>
+                      </span>
+                      <span aria-hidden='true'>›</span>
+                    </a>
+                  )
+                })
+              }
+              {
+                unfiledPostItems.map((post) => {
+                  const insight = postInsights.get(post.id)!
+                  return (
+                    <a
+                      class='browser-row'
+                      href={insight.href}
+                      data-browser-item
+                      data-preview-key={`post:${post.id}`}
+                    >
+                      <span class='row-icon'>
+                        <Icon name='document' />
+                      </span>
+                      <span>
+                        <strong>{insight.title}</strong>
+                        <small>{formatDate(insight.date)}</small>
+                      </span>
+                    </a>
+                  )
+                })
+              }
             </div>
           </div>
 
@@ -301,6 +333,55 @@ const meta = {
                 </article>
               )
             })}
+
+            {unfiledPostItems.map((post) => {
+              const insight = postInsights.get(post.id)!
+              return (
+                <article class='preview-panel' data-preview-panel={`post:${post.id}`} hidden>
+                  <div class='preview-heading'>
+                    <span>
+                      <Icon name='document' />
+                    </span>
+                    <div>
+                      <small>文章</small>
+                      <h2>{insight.title}</h2>
+                    </div>
+                  </div>
+                  <p class='post-description'>{insight.description}</p>
+                  <dl class='preview-stats'>
+                    <div>
+                      <dt>入链</dt>
+                      <dd>{insight.inboundLinks}</dd>
+                    </div>
+                    <div>
+                      <dt>出链</dt>
+                      <dd>{insight.outboundLinks}</dd>
+                    </div>
+                    <div class='wide-stat'>
+                      <dt>更新</dt>
+                      <dd>{formatDate(insight.date)}</dd>
+                    </div>
+                  </dl>
+                  <LinkInsightList
+                    inbound={insight.inboundLinkDetails}
+                    outbound={insight.outboundLinkDetails}
+                  />
+                  {insight.tags.length > 0 && (
+                    <section class='preview-section'>
+                      <h3>标签</h3>
+                      <div class='tag-cloud'>
+                        {insight.tags.map((tag) => (
+                          <a href={`/tags/${encodeURIComponent(tag)}`}>#{tag}</a>
+                        ))}
+                      </div>
+                    </section>
+                  )}
+                  <a class='open-category' href={insight.href}>
+                    打开文章 <span aria-hidden='true'>→</span>
+                  </a>
+                </article>
+              )
+            })}
           </aside>
         </section>
       ) : (
@@ -319,52 +400,34 @@ const meta = {
 
         const items = [...browser.querySelectorAll<HTMLElement>('[data-browser-item]')]
         const panels = [...browser.querySelectorAll<HTMLElement>('[data-preview-panel]')]
+        let previewTimeout: number | undefined
 
-        const showPreview = (item: HTMLElement) => {
+        const showPreview = (item: HTMLElement, immediate = false) => {
           const key = item.dataset.previewKey
           if (!key) return
-          items.forEach((candidate) =>
-            candidate.classList.toggle('is-previewing', candidate === item)
-          )
-          panels.forEach((panel) => {
-            panel.hidden = panel.dataset.previewPanel !== key
-          })
+
+          const update = () => {
+            items.forEach((candidate) =>
+              candidate.classList.toggle('is-previewing', candidate === item)
+            )
+            panels.forEach((panel) => {
+              panel.hidden = panel.dataset.previewPanel !== key
+            })
+          }
+
+          if (immediate) {
+            clearTimeout(previewTimeout)
+            update()
+          } else {
+            clearTimeout(previewTimeout)
+            previewTimeout = window.setTimeout(update, 150)
+          }
         }
 
         items.forEach((item) => {
-          item.addEventListener('focus', () => showPreview(item))
+          item.addEventListener('focus', () => showPreview(item, true))
           item.addEventListener('mouseenter', () => showPreview(item))
-        })
-
-        browser.addEventListener('keydown', (event) => {
-          const target = event.target
-          if (!(target instanceof HTMLElement)) return
-          const current = target.closest<HTMLElement>('[data-browser-item]')
-          if (!current) return
-
-          const column = current.closest<HTMLElement>('[data-browser-column]')
-          const columnItems = column
-            ? [...column.querySelectorAll<HTMLElement>('[data-browser-item]')]
-            : []
-          const index = columnItems.indexOf(current)
-
-          if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-            event.preventDefault()
-            const direction = event.key === 'ArrowDown' ? 1 : -1
-            columnItems[(index + direction + columnItems.length) % columnItems.length]?.focus()
-          }
-
-          if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
-            const columns = [...browser.querySelectorAll<HTMLElement>('[data-browser-column]')]
-            const columnIndex = column ? columns.indexOf(column) : -1
-            const direction = event.key === 'ArrowRight' ? 1 : -1
-            const nextItem =
-              columns[columnIndex + direction]?.querySelector<HTMLElement>('[data-browser-item]')
-            if (nextItem) {
-              event.preventDefault()
-              nextItem.focus()
-            }
-          }
+          item.addEventListener('mouseleave', () => clearTimeout(previewTimeout))
         })
       })
     }
@@ -536,6 +599,21 @@ const meta = {
     margin: 0.15rem 0 0;
     font-size: 1.15rem;
     font-weight: 650;
+  }
+
+  .preview-stats .wide-stat {
+    grid-column: 1 / -1;
+  }
+
+  .wide-stat dd {
+    font-size: 0.9rem;
+  }
+
+  .post-description {
+    margin: 1rem 0 0;
+    color: hsl(var(--muted-foreground));
+    font-size: 0.76rem;
+    line-height: 1.6;
   }
 
   .preview-section {
