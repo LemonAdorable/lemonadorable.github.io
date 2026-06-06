@@ -41,7 +41,14 @@ export default function AstroPureIntegration(opts: UserInputConfig): AstroIntegr
         // config or by a plugin.
         const allIntegrations = [...config.integrations, ...integrations]
         if (!allIntegrations.find(({ name }) => name === '@astrojs/sitemap')) {
-          integrations.push(sitemap())
+          integrations.push(
+            sitemap({
+              filter: (page) => {
+                const parts = new URL(page).pathname.split('/').filter(Boolean)
+                return parts[0] !== 'blog' || parts.length <= 2
+              }
+            })
+          )
         }
         if (!allIntegrations.find(({ name }) => name === '@astrojs/mdx')) {
           integrations.push(mdx({ optimize: true }))

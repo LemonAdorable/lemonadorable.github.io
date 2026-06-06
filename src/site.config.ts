@@ -49,6 +49,7 @@ export const theme: ThemeUserConfig = {
   header: {
     menu: [
       { title: '文章', link: '/blog' },
+      { title: '分类', link: '/categories' },
       { title: '标签', link: '/tags' },
       { title: '时光机', link: '/archives' },
       { title: '项目', link: '/projects' },
@@ -165,7 +166,7 @@ export const integ: IntegrationUserConfig = {
   },
   // Comment system - Using Giscus instead of Waline
   waline: {
-    enable: false, // Disabled, using Giscus instead
+    enable: false // Disabled, using Giscus instead
     // Server service link
     //server: 'https://astro-theme-pure-waline.arthals.ink/',
     // Show meta info for comments

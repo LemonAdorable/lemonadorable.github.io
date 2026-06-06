@@ -3,9 +3,11 @@ import * as d3 from 'd3'
 
 interface ContentDetails {
   slug: string
+  aliases: string[]
   title: string
   content: string
   tags: string[]
+  categories: string[]
   links: string[]
   collection: 'blog' | 'docs'
   publishDate?: string
@@ -60,7 +62,7 @@ const localGraphConfig: GraphConfig = {
   fontSize: 0.6,
   opacityScale: 1,
   enableRadial: false,
-  focusOnHover: false,
+  focusOnHover: false
 }
 
 const globalGraphConfig: GraphConfig = {
@@ -74,7 +76,7 @@ const globalGraphConfig: GraphConfig = {
   fontSize: 0.6,
   opacityScale: 1,
   enableRadial: true,
-  focusOnHover: true,
+  focusOnHover: true
 }
 
 class GraphView {
@@ -143,7 +145,10 @@ class GraphView {
       // Check if node should be included
       if (this.config.depth >= 0 && this.currentSlug) {
         // Local graph: only include nodes within depth hops
-        if (slug !== this.currentSlug && !this.isWithinDepth(slug, this.currentSlug, this.config.depth)) {
+        if (
+          slug !== this.currentSlug &&
+          !this.isWithinDepth(slug, this.currentSlug, this.config.depth)
+        ) {
           return
         }
       }
@@ -163,7 +168,7 @@ class GraphView {
           radius: Math.max(2, Math.min(10, radius)),
           visited: this.isVisited(slug),
           collection: details.collection,
-          isTag: false,
+          isTag: false
         })
       }
 
@@ -187,13 +192,13 @@ class GraphView {
               radius: Math.max(2, Math.min(10, targetRadius)),
               visited: this.isVisited(normalizedLink),
               collection: targetDetails.collection,
-              isTag: false,
+              isTag: false
             })
           }
 
           links.push({
             source: slug,
-            target: normalizedLink,
+            target: normalizedLink
           })
         }
       })
@@ -202,11 +207,14 @@ class GraphView {
       if (details.tags && details.tags.length > 0) {
         details.tags.forEach((tag) => {
           const tagSlug = `tags/${tag}`
-          
+
           // Check if tag node should be included (for local graph)
           if (this.config.depth >= 0 && this.currentSlug) {
             // For local graph, only include tags if the current node is within depth
-            if (slug !== this.currentSlug && !this.isWithinDepth(slug, this.currentSlug, this.config.depth)) {
+            if (
+              slug !== this.currentSlug &&
+              !this.isWithinDepth(slug, this.currentSlug, this.config.depth)
+            ) {
               return
             }
           }
@@ -220,14 +228,45 @@ class GraphView {
               radius: 3,
               visited: false,
               collection: 'blog', // Tags don't have a collection, use blog as default
-              isTag: true,
+              isTag: true
             })
           }
 
           // Create link from content to tag
           links.push({
             source: slug,
-            target: tagSlug,
+            target: tagSlug
+          })
+        })
+      }
+
+      // Create category nodes and links for docs
+      if (details.collection === 'blog' && details.categories?.length > 0) {
+        details.categories.forEach((category) => {
+          const categorySlug = `categories/${category}`
+
+          if (!nodesMap.has(categorySlug)) {
+            const title = category
+              .split('/')
+              .at(-1)!
+              .split(/[-_]/g)
+              .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+              .join(' ')
+
+            nodesMap.set(categorySlug, {
+              id: categorySlug,
+              slug: categorySlug,
+              title,
+              radius: 3,
+              visited: false,
+              collection: 'blog',
+              isCategory: true
+            })
+          }
+
+          links.push({
+            source: slug,
+            target: categorySlug
           })
         })
       }
@@ -239,12 +278,15 @@ class GraphView {
         if (parts.length > 2) {
           const category = parts[1] // e.g., 'setup', 'integrations', 'advanced'
           const categorySlug = `docs/${category}`
-          
+
           // Check if category node should be included (for local graph)
           let shouldIncludeCategory = true
           if (this.config.depth >= 0 && this.currentSlug) {
             // For local graph, only include categories if the current node is within depth
-            if (slug !== this.currentSlug && !this.isWithinDepth(slug, this.currentSlug, this.config.depth)) {
+            if (
+              slug !== this.currentSlug &&
+              !this.isWithinDepth(slug, this.currentSlug, this.config.depth)
+            ) {
               shouldIncludeCategory = false
             }
           }
@@ -258,8 +300,9 @@ class GraphView {
                 integrations: 'Integrations',
                 advanced: 'Advanced'
               }
-              const categoryTitle = categoryNames[category] || category.charAt(0).toUpperCase() + category.slice(1)
-              
+              const categoryTitle =
+                categoryNames[category] || category.charAt(0).toUpperCase() + category.slice(1)
+
               nodesMap.set(categorySlug, {
                 id: categorySlug,
                 slug: categorySlug,
@@ -268,14 +311,14 @@ class GraphView {
                 visited: false,
                 collection: 'docs',
                 isTag: false,
-                isCategory: true,
+                isCategory: true
               })
             }
 
             // Create link from content to category
             links.push({
               source: slug,
-              target: categorySlug,
+              target: categorySlug
             })
           }
         }
@@ -289,23 +332,28 @@ class GraphView {
   normalizeSlug(link: string): string {
     // Remove leading slash and trailing slash
     let slug = link.replace(/^\//, '').replace(/\/$/, '')
-    
+
     // If it doesn't start with blog/ or docs/, assume it's a blog post
     if (!slug.startsWith('blog/') && !slug.startsWith('docs/')) {
       if (!slug.includes('/')) {
         slug = `blog/${slug}`
       }
     }
-    
-    return slug
+
+    if (!this.contentIndex || this.contentIndex[slug]) return slug
+
+    const canonicalEntry = Object.values(this.contentIndex).find((details) =>
+      details.aliases?.includes(slug)
+    )
+    return canonicalEntry?.slug ?? slug
   }
 
   getIncomingLinks(slug: string): string[] {
     if (!this.contentIndex) return []
-    
+
     const incoming: string[] = []
     Object.entries(this.contentIndex).forEach(([sourceSlug, details]) => {
-      if (details.links.some(link => this.normalizeSlug(link) === slug)) {
+      if (details.links.some((link) => this.normalizeSlug(link) === slug)) {
         incoming.push(sourceSlug)
       }
     })
@@ -349,6 +397,15 @@ class GraphView {
               }
             })
           }
+
+          if (details.categories && details.categories.length > 0) {
+            details.categories.forEach((category) => {
+              const categorySlug = `categories/${category}`
+              if (!visited.has(categorySlug)) {
+                queue.push({ slug: categorySlug, level: level + 1 })
+              }
+            })
+          }
         }
 
         // If current is a tag, find all content nodes that link to it
@@ -358,6 +415,15 @@ class GraphView {
               if (!visited.has(contentSlug)) {
                 queue.push({ slug: contentSlug, level: level + 1 })
               }
+            }
+          })
+        }
+
+        if (current.startsWith('categories/')) {
+          const category = current.slice('categories/'.length)
+          Object.entries(this.contentIndex!).forEach(([contentSlug, contentDetails]) => {
+            if (contentDetails.categories?.includes(category) && !visited.has(contentSlug)) {
+              queue.push({ slug: contentSlug, level: level + 1 })
             }
           })
         }
@@ -438,7 +504,9 @@ class GraphView {
       }
       document.addEventListener('keydown', escapeHandler)
 
-      this.fullscreenCanvas = this.fullscreenOverlay.querySelector('#graph-fullscreen-canvas') as HTMLElement
+      this.fullscreenCanvas = this.fullscreenOverlay.querySelector(
+        '#graph-fullscreen-canvas'
+      ) as HTMLElement
     }
     this.fullscreenOverlay.classList.add('active')
     this.hasCenteredFullscreen = false // Reset flag when opening fullscreen
@@ -508,11 +576,7 @@ class GraphView {
     const height = this.canvas.clientHeight || 400
 
     // Create SVG
-    this.svg = d3
-      .select(this.canvas)
-      .append('svg')
-      .attr('width', width)
-      .attr('height', height)
+    this.svg = d3.select(this.canvas).append('svg').attr('width', width).attr('height', height)
 
     // Create zoom behavior
     const zoom = d3
@@ -525,9 +589,12 @@ class GraphView {
           const scale = event.transform.k
           const labels = this.g.selectAll<SVGTextElement, GraphNode>('text')
           labels.style('opacity', (d) => {
-            const baseOpacity = this.config.focusOnHover && this.hoveredNodeId
-              ? (this.hoveredNeighbours.has(d.id) || d.id === this.hoveredNodeId ? 1 : 0.2)
-              : 0.8
+            const baseOpacity =
+              this.config.focusOnHover && this.hoveredNodeId
+                ? this.hoveredNeighbours.has(d.id) || d.id === this.hoveredNodeId
+                  ? 1
+                  : 0.2
+                : 0.8
             return Math.min(1, baseOpacity * Math.pow(scale, this.config.opacityScale))
           })
         }
@@ -568,7 +635,10 @@ class GraphView {
       )
       .force('charge', d3.forceManyBody().strength(-300 * this.config.repelForce))
       .force('center', d3.forceCenter(width / 2, height / 2).strength(this.config.centerForce))
-      .force('collide', d3.forceCollide<GraphNode>().radius((d) => d.radius + 2))
+      .force(
+        'collide',
+        d3.forceCollide<GraphNode>().radius((d) => d.radius + 2)
+      )
 
     // Apply radial force for global graph if enabled
     if (this.config.enableRadial && this.isGlobal && this.currentSlug) {
@@ -589,8 +659,7 @@ class GraphView {
     }
 
     // Draw links with arrows
-    const link = this.g!
-      .append('g')
+    const link = this.g!.append('g')
       .selectAll('line')
       .data(this.links)
       .enter()
@@ -601,8 +670,7 @@ class GraphView {
       .style('opacity', 0.3)
 
     // Draw nodes with different styles based on type
-    const nodeGroup = this.g!
-      .append('g')
+    const nodeGroup = this.g!.append('g')
       .selectAll('g.node-group')
       .data(this.nodes)
       .enter()
@@ -663,23 +731,7 @@ class GraphView {
     const currentSlug = this.currentSlug
     nodeGroup.each(function (d) {
       const group = d3.select(this)
-      if (d.collection === 'blog') {
-        group
-          .append('text')
-          .attr('text-anchor', 'middle')
-          .attr('dominant-baseline', 'middle')
-          .attr('font-size', `${d.radius * 0.8}px`)
-          .attr('fill', d.slug === currentSlug ? 'white' : 'hsl(var(--foreground))')
-          .text('📝')
-      } else if (d.collection === 'docs') {
-        group
-          .append('text')
-          .attr('text-anchor', 'middle')
-          .attr('dominant-baseline', 'middle')
-          .attr('font-size', `${d.radius * 0.8}px`)
-          .attr('fill', d.slug === currentSlug ? 'white' : 'hsl(var(--foreground))')
-          .text('📄')
-      } else if (d.isTag) {
+      if (d.isTag) {
         group
           .append('text')
           .attr('text-anchor', 'middle')
@@ -695,6 +747,22 @@ class GraphView {
           .attr('font-size', `${d.radius * 0.6}px`)
           .attr('fill', 'hsl(var(--primary))')
           .text('📁')
+      } else if (d.collection === 'blog') {
+        group
+          .append('text')
+          .attr('text-anchor', 'middle')
+          .attr('dominant-baseline', 'middle')
+          .attr('font-size', `${d.radius * 0.8}px`)
+          .attr('fill', d.slug === currentSlug ? 'white' : 'hsl(var(--foreground))')
+          .text('📝')
+      } else if (d.collection === 'docs') {
+        group
+          .append('text')
+          .attr('text-anchor', 'middle')
+          .attr('dominant-baseline', 'middle')
+          .attr('font-size', `${d.radius * 0.8}px`)
+          .attr('fill', d.slug === currentSlug ? 'white' : 'hsl(var(--foreground))')
+          .text('📄')
       }
     })
 
@@ -703,8 +771,7 @@ class GraphView {
     }
 
     // Add labels
-    const label = this.g!
-      .append('g')
+    const label = this.g!.append('g')
       .selectAll('text')
       .data(this.nodes)
       .enter()
@@ -826,7 +893,10 @@ class GraphView {
       )
       .force('charge', d3.forceManyBody().strength(-300 * this.config.repelForce))
       .force('center', d3.forceCenter(width / 2, height / 2).strength(this.config.centerForce))
-      .force('collide', d3.forceCollide<GraphNode>().radius((d) => d.radius + 2))
+      .force(
+        'collide',
+        d3.forceCollide<GraphNode>().radius((d) => d.radius + 2)
+      )
 
     // Apply radial force for global graph
     if (this.config.enableRadial && this.currentSlug) {
@@ -907,23 +977,7 @@ class GraphView {
     const currentSlugFullscreen = this.currentSlug
     nodeGroup.each(function (d) {
       const group = d3.select(this)
-      if (d.collection === 'blog') {
-        group
-          .append('text')
-          .attr('text-anchor', 'middle')
-          .attr('dominant-baseline', 'middle')
-          .attr('font-size', `${d.radius * 0.8}px`)
-          .attr('fill', d.slug === currentSlugFullscreen ? 'white' : 'hsl(var(--foreground))')
-          .text('📝')
-      } else if (d.collection === 'docs') {
-        group
-          .append('text')
-          .attr('text-anchor', 'middle')
-          .attr('dominant-baseline', 'middle')
-          .attr('font-size', `${d.radius * 0.8}px`)
-          .attr('fill', d.slug === currentSlugFullscreen ? 'white' : 'hsl(var(--foreground))')
-          .text('📄')
-      } else if (d.isTag) {
+      if (d.isTag) {
         group
           .append('text')
           .attr('text-anchor', 'middle')
@@ -939,6 +993,22 @@ class GraphView {
           .attr('font-size', `${d.radius * 0.6}px`)
           .attr('fill', 'hsl(var(--primary))')
           .text('📁')
+      } else if (d.collection === 'blog') {
+        group
+          .append('text')
+          .attr('text-anchor', 'middle')
+          .attr('dominant-baseline', 'middle')
+          .attr('font-size', `${d.radius * 0.8}px`)
+          .attr('fill', d.slug === currentSlugFullscreen ? 'white' : 'hsl(var(--foreground))')
+          .text('📝')
+      } else if (d.collection === 'docs') {
+        group
+          .append('text')
+          .attr('text-anchor', 'middle')
+          .attr('dominant-baseline', 'middle')
+          .attr('font-size', `${d.radius * 0.8}px`)
+          .attr('fill', d.slug === currentSlugFullscreen ? 'white' : 'hsl(var(--foreground))')
+          .text('📄')
       }
     })
 
@@ -1010,7 +1080,11 @@ class GraphView {
       const currentNode = this.nodes.find((n) => n.slug === this.currentSlug)
       if (currentNode) {
         simulation.on('end', () => {
-          if (!this.hasCenteredFullscreen && currentNode.x !== undefined && currentNode.y !== undefined) {
+          if (
+            !this.hasCenteredFullscreen &&
+            currentNode.x !== undefined &&
+            currentNode.y !== undefined
+          ) {
             const transform = d3.zoomIdentity
               .translate(width / 2 - currentNode.x, height / 2 - currentNode.y)
               .scale(this.config.scale)
@@ -1045,7 +1119,8 @@ class GraphView {
 // Initialize graph view
 export function initGraphView() {
   // Try to find graph-view container by ID (supports both 'graph-view' and 'blog-graph-view')
-  const container = document.getElementById('graph-view') || document.getElementById('blog-graph-view')
+  const container =
+    document.getElementById('graph-view') || document.getElementById('blog-graph-view')
   if (container) {
     // Check if already initialized
     if (container.hasAttribute('data-initialized')) {
@@ -1056,4 +1131,3 @@ export function initGraphView() {
     new GraphView(container, currentSlug)
   }
 }
-

@@ -31,6 +31,7 @@ interface PostLike {
   data: {
     title: string
     publishDate?: Date
+    slug?: string
   }
 }
 
@@ -40,10 +41,71 @@ interface PostLike {
 function normalizeId(id: string): string {
   return id
     .toLowerCase()
+    .split('#', 1)[0]
+    .split('?', 1)[0]
     .replace(/\s+/g, '-')
     .replace(/\.(md|mdx)$/, '')
     .replace(/^\/+|\/+$/g, '')
     .replace(/\/index$/, '')
+}
+
+function dirname(id: string): string {
+  const index = id.lastIndexOf('/')
+  return index === -1 ? '' : id.slice(0, index)
+}
+
+function normalizePath(path: string): string {
+  const parts: string[] = []
+
+  for (const part of path.split('/')) {
+    if (!part || part === '.') continue
+    if (part === '..') {
+      parts.pop()
+    } else {
+      parts.push(part)
+    }
+  }
+
+  return parts.join('/')
+}
+
+function getCanonicalSlug(post: PostLike): string {
+  if (post.data.slug) return normalizeId(post.data.slug)
+
+  const id = normalizeId(post.id)
+  return id.split('/').at(-1) ?? id
+}
+
+/**
+ * Resolve a wikilink target against collection IDs.
+ *
+ * Bare filenames are resolved relative to the source post first, then by a
+ * unique filename match. This keeps Obsidian-style links concise while routes
+ * continue to use the full collection ID, such as `flash/post-name`.
+ */
+export function resolveContentId(
+  target: string,
+  sourceId: string,
+  validIds: Iterable<string>
+): string | undefined {
+  const normalizedTarget = normalizeId(target.replace(/^\/?blog\//, ''))
+  const normalizedSource = normalizeId(sourceId)
+  const ids = [...validIds].map(normalizeId)
+  const validIdSet = new Set(ids)
+
+  if (validIdSet.has(normalizedTarget)) return normalizedTarget
+
+  const relativeTarget = normalizePath(`${dirname(normalizedSource)}/${normalizedTarget}`)
+  if (validIdSet.has(relativeTarget)) return relativeTarget
+
+  if (!normalizedTarget.includes('/')) {
+    const filenameMatches = ids.filter(
+      (id) => id === normalizedTarget || id.endsWith(`/${normalizedTarget}`)
+    )
+    if (filenameMatches.length === 1) return filenameMatches[0]
+  }
+
+  return undefined
 }
 
 /**
@@ -87,11 +149,15 @@ function extractLinksFromContent(content: string): string[] {
 /**
  * Get a context snippet around a link
  */
-function getContextSnippet(content: string, targetSlug: string, maxLength: number = 100): string | undefined {
+function getContextSnippet(
+  content: string,
+  targetSlug: string,
+  maxLength: number = 100
+): string | undefined {
   // Try to find wikilink first
   const wikilinkPattern = new RegExp(`\\[\\[${escapeRegex(targetSlug)}(?:\\|[^\\]]+)?\\]\\]`, 'i')
   let match = wikilinkPattern.exec(content)
-  
+
   // Try relative link
   if (!match) {
     const relativePattern = new RegExp(`\\(\\./${escapeRegex(targetSlug)}\\)`, 'i')
@@ -102,14 +168,11 @@ function getContextSnippet(content: string, targetSlug: string, maxLength: numbe
 
   const start = Math.max(0, match.index - 50)
   const end = Math.min(content.length, match.index + match[0].length + 50)
-  
+
   let snippet = content.slice(start, end)
-  
+
   // Clean up the snippet
-  snippet = snippet
-    .replace(/\n+/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
+  snippet = snippet.replace(/\n+/g, ' ').replace(/\s+/g, ' ').trim()
 
   // Add ellipsis if truncated
   if (start > 0) snippet = '...' + snippet
@@ -133,7 +196,7 @@ export async function buildBacklinksMap(
   basePath: string = '/blog'
 ): Promise<BacklinksMap> {
   const backlinksMap: BacklinksMap = {}
-  
+
   // Initialize empty arrays for all posts
   for (const post of posts) {
     const normalizedId = normalizeId(post.id)
@@ -141,20 +204,23 @@ export async function buildBacklinksMap(
   }
 
   // Build map of valid slugs
-  const validSlugs = new Set(posts.map(p => normalizeId(p.id)))
+  const validSlugs = new Set(posts.map((p) => normalizeId(p.id)))
 
   // Process each post to find outgoing links
   for (const post of posts) {
     const sourceId = normalizeId(post.id)
     const content = post.body || ''
-    
+
     // Extract all links from this post
     const links = extractLinksFromContent(content)
 
-    for (const targetSlug of links) {
+    for (const link of links) {
+      const targetSlug = resolveContentId(link, sourceId, validSlugs)
+      if (!targetSlug) continue
+
       // Skip self-references
       if (targetSlug === sourceId) continue
-      
+
       // Only add backlink if target exists
       if (validSlugs.has(targetSlug)) {
         if (!backlinksMap[targetSlug]) {
@@ -162,13 +228,13 @@ export async function buildBacklinksMap(
         }
 
         // Avoid duplicate backlinks
-        const exists = backlinksMap[targetSlug].some(bl => bl.id === sourceId)
+        const exists = backlinksMap[targetSlug].some((bl) => bl.id === sourceId)
         if (!exists) {
           backlinksMap[targetSlug].push({
             id: sourceId,
             title: post.data.title,
             context: getContextSnippet(content, targetSlug),
-            url: `${basePath}/${sourceId}`,
+            url: `${basePath}/${getCanonicalSlug(post)}`,
             date: post.data.publishDate
           })
         }
@@ -182,10 +248,7 @@ export async function buildBacklinksMap(
 /**
  * Get backlinks for a specific post
  */
-export function getBacklinksForPost(
-  backlinksMap: BacklinksMap,
-  postId: string
-): Backlink[] {
+export function getBacklinksForPost(backlinksMap: BacklinksMap, postId: string): Backlink[] {
   const normalizedId = normalizeId(postId)
   return backlinksMap[normalizedId] || []
 }
@@ -200,12 +263,15 @@ export function getOutgoingLinks(
 ): Backlink[] {
   const content = post.body || ''
   const links = extractLinksFromContent(content)
-  const validPosts = new Map(posts.map(p => [normalizeId(p.id), p]))
-  
+  const validPosts = new Map(posts.map((p) => [normalizeId(p.id), p]))
+
   const outgoing: Backlink[] = []
   const seen = new Set<string>()
 
-  for (const targetSlug of links) {
+  for (const link of links) {
+    const targetSlug = resolveContentId(link, post.id, validPosts.keys())
+    if (!targetSlug) continue
+
     if (seen.has(targetSlug)) continue
     seen.add(targetSlug)
 
@@ -214,7 +280,7 @@ export function getOutgoingLinks(
       outgoing.push({
         id: targetSlug,
         title: targetPost.data.title,
-        url: `${basePath}/${targetSlug}`,
+        url: `${basePath}/${getCanonicalSlug(targetPost)}`,
         date: targetPost.data.publishDate
       })
     }

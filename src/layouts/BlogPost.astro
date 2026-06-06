@@ -11,10 +11,12 @@ import { MediumZoom } from 'astro-pure/advanced'
 import { ArticleBottom, Copyright, GraphView, Hero, TOC } from 'astro-pure/components/pages'
 import PageLayout from '@/layouts/ContentLayout.astro'
 import Backlinks from '@/components/blog/Backlinks.astro'
+import CategoryBreadcrumbs from '@/components/blog/CategoryBreadcrumbs.astro'
 import OutgoingLinks from '@/components/blog/OutgoingLinks.astro'
 import { Giscus } from '@/components/giscus'
 import { PageInfo } from '@/components/waline'
 import type { Backlink } from '@/utils/backlinks'
+import { getPostSlug } from '@/utils/content-paths'
 
 interface Props {
   post: CollectionEntry<'blog'>
@@ -51,6 +53,7 @@ const socialImage = heroImage
   : config.socialCard
 const articleDate = updatedDate?.toISOString() ?? publishDate.toISOString()
 const primaryColor = data.heroImage?.color ?? '#B19CD9'
+const currentPostSlug = getPostSlug(Astro.props.post)
 ---
 
 <PageLayout
@@ -60,11 +63,14 @@ const primaryColor = data.heroImage?.color ?? '#B19CD9'
 >
   {!!headings.length && <TOC {headings} slot='sidebar' />}
 
-  <Hero {data} {remarkPluginFrontmatter} slot='header'>
-    <Fragment slot='description'>
-      {!isDraft && enableComment && <PageInfo comment class='mt-1' />}
-    </Fragment>
-  </Hero>
+  <Fragment slot='header'>
+    <CategoryBreadcrumbs post={Astro.props.post} />
+    <Hero {data} {remarkPluginFrontmatter}>
+      <Fragment slot='description'>
+        {!isDraft && enableComment && <PageInfo comment class='mt-1' />}
+      </Fragment>
+    </Hero>
+  </Fragment>
 
   <slot />
 
@@ -74,7 +80,7 @@ const primaryColor = data.heroImage?.color ?? '#B19CD9'
       (outgoingLinks.length > 0 || backlinks.length > 0) && (
         <div id='wikilinks-section' class='wikilinks-container mt-3 sm:mt-6 flex flex-col gap-3'>
           {outgoingLinks.length > 0 && <OutgoingLinks links={outgoingLinks} />}
-          {backlinks.length > 0 && <Backlinks backlinks={backlinks} currentPostId={id} />}
+          {backlinks.length > 0 && <Backlinks {backlinks} {currentPostSlug} />}
         </div>
       )
     }
@@ -87,7 +93,7 @@ const primaryColor = data.heroImage?.color ?? '#B19CD9'
   </Fragment>
 
   <GraphView
-    currentSlug={`blog/${id}`}
+    currentSlug={`blog/${getPostSlug(Astro.props.post)}`}
     slot='bottom-sidebar'
     id='blog-graph-view'
     class='blog-graph-view'
@@ -144,7 +150,8 @@ const primaryColor = data.heroImage?.color ?? '#B19CD9'
     const wikilinks = document.querySelectorAll('a.wikilink')
     for (const link of wikilinks) {
       const href = link.getAttribute('href') || ''
-      if (href.includes(target)) {
+      const linkSlug = href.split('/').filter(Boolean).at(-1)
+      if (linkSlug === target) {
         link.scrollIntoView({ behavior: 'smooth', block: 'center' })
         link.classList.add('wikilink-highlight')
         setTimeout(() => link.classList.remove('wikilink-highlight'), 2000)

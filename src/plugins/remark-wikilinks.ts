@@ -2,7 +2,7 @@
  * Remark plugin to transform Obsidian-style wikilinks [[link]] to standard markdown links
  * 将 Obsidian 风格的双链 [[link]] 转换为标准 markdown 链接
  */
-import type { Root, Text, Link } from 'mdast'
+import type { Link, Root, Text } from 'mdast'
 import type { Plugin } from 'unified'
 import { visit } from 'unist-util-visit'
 
@@ -143,4 +143,3 @@ export const remarkWikilinks: Plugin<[WikilinkOptions?], Root> = function (optio
 }
 
 export default remarkWikilinks
-
