@@ -3,17 +3,17 @@
  * Backlinks component - displays posts that link to the current post
  * 反向链接组件 - 显示链接到当前文章的其他文章
  */
-import type { Backlink } from '@/utils/backlinks'
 import { cn } from 'astro-pure/utils'
+import type { Backlink } from '@/utils/backlinks'
 
 interface Props {
   backlinks: Backlink[]
-  currentPostId: string
+  currentPostSlug: string
   class?: string
   title?: string
 }
 
-const { backlinks, currentPostId, class: className, title = '反向链接' } = Astro.props
+const { backlinks, currentPostSlug, class: className, title = '反向链接' } = Astro.props
 
 // Format date helper
 function formatDate(date?: Date): string {
@@ -29,55 +29,53 @@ function formatDate(date?: Date): string {
 {
   backlinks.length > 0 && (
     <section class={cn('rounded-xl border px-3 sm:px-4 py-2 sm:py-3', className)}>
-      <div class="links-header">
+      <div class='links-header'>
         <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="text-muted-foreground"
+          xmlns='http://www.w3.org/2000/svg'
+          width='16'
+          height='16'
+          viewBox='0 0 24 24'
+          fill='none'
+          stroke='currentColor'
+          stroke-width='2'
+          stroke-linecap='round'
+          stroke-linejoin='round'
+          class='text-muted-foreground'
         >
-          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+          <path d='M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71' />
+          <path d='M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71' />
         </svg>
-        <h3 class="links-title">{title}</h3>
-        <span class="links-count">({backlinks.length})</span>
+        <h3 class='links-title'>{title}</h3>
+        <span class='links-count'>({backlinks.length})</span>
       </div>
 
-      <ul class="links-list">
+      <ul class='links-list'>
         {backlinks.map((backlink) => (
-          <li class="links-item">
-            <div class="links-row">
-              <a href={backlink.url} class="links-link group">
-                <span class="links-link-title">{backlink.title}</span>
-                {backlink.date && (
-                  <span class="links-date">{formatDate(backlink.date)}</span>
-                )}
+          <li class='links-item'>
+            <div class='links-row'>
+              <a href={backlink.url} class='links-link group'>
+                <span class='links-link-title'>{backlink.title}</span>
+                {backlink.date && <span class='links-date'>{formatDate(backlink.date)}</span>}
               </a>
               <a
-                href={`${backlink.url}?locate=${currentPostId}`}
-                class="locate-btn"
-                title="跳转并定位到引用处"
-                aria-label="跳转并定位到引用处"
+                href={`${backlink.url}?locate=${encodeURIComponent(currentPostSlug)}`}
+                class='locate-btn'
+                title='跳转并定位到引用处'
+                aria-label='跳转并定位到引用处'
               >
                 <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
+                  xmlns='http://www.w3.org/2000/svg'
+                  width='14'
+                  height='14'
+                  viewBox='0 0 24 24'
+                  fill='none'
+                  stroke='currentColor'
+                  stroke-width='2'
+                  stroke-linecap='round'
+                  stroke-linejoin='round'
                 >
-                  <circle cx="12" cy="12" r="10" />
-                  <circle cx="12" cy="12" r="3" />
+                  <circle cx='12' cy='12' r='10' />
+                  <circle cx='12' cy='12' r='3' />
                 </svg>
               </a>
             </div>

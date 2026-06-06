@@ -2,6 +2,7 @@
 import { getBlogCollection, getUniqueTagsWithCount } from 'astro-pure/server'
 import { Icon } from 'astro-pure/user'
 import PageLayout from '@/layouts/BaseLayout.astro'
+import KnowledgeIndexHero from '@/components/KnowledgeIndexHero.astro'
 import GlobalTagGraph from '@/components/tags/GlobalTagGraph.astro'
 
 const allPosts = await getBlogCollection()
@@ -38,31 +39,19 @@ const meta = {
 
 <PageLayout {meta}>
   <main class='tags-page mt-6 lg:mt-10'>
-    <header id='content-header' class='tag-hero animate'>
-      <div class='tag-hero__copy'>
-        <span class='tag-hero__eyebrow'>
-          <Icon name='hashtag' class='size-4' />
-          Topic index
-        </span>
-        <h1>Tags</h1>
-        <p>Follow a topic and find every post connected to it.</p>
-      </div>
-
-      <dl class='tag-stats' aria-label='Tag statistics'>
-        <div>
-          <dt>Topics</dt>
-          <dd>{allTags.length}</dd>
-        </div>
-        <div>
-          <dt>Posts</dt>
-          <dd>{allPosts.length}</dd>
-        </div>
-        <div>
-          <dt>Connections</dt>
-          <dd>{totalTagUses}</dd>
-        </div>
-      </dl>
-    </header>
+    <KnowledgeIndexHero
+      icon='hashtag'
+      eyebrow='Topic index'
+      title='标签'
+      description='沿着主题浏览文章，并发现跨目录重复出现的概念与联系。'
+      stats={[
+        { label: '标签', value: allTags.length },
+        { label: '文章', value: allPosts.length },
+        { label: '标签引用', value: totalTagUses }
+      ]}
+      statsLabel='标签统计'
+      symbol='#'
+    />
 
     <GlobalTagGraph nodes={graphNodes} links={graphLinks} />
 
@@ -187,96 +176,6 @@ const meta = {
   </script>
 
   <style>
-    .tag-hero {
-      position: relative;
-      display: grid;
-      gap: 2rem;
-      overflow: hidden;
-      padding: clamp(1.5rem, 4vw, 3rem);
-      border: 1px solid hsl(var(--border));
-      border-radius: 1.75rem;
-      background:
-        radial-gradient(circle at 88% 0%, hsl(var(--primary) / 0.16), transparent 34%),
-        linear-gradient(135deg, hsl(var(--background)), hsl(var(--muted) / 0.55));
-    }
-
-    .tag-hero::after {
-      position: absolute;
-      right: -1.5rem;
-      bottom: -5.5rem;
-      color: hsl(var(--primary) / 0.07);
-      font-size: 15rem;
-      font-weight: 700;
-      line-height: 1;
-      content: '#';
-      pointer-events: none;
-    }
-
-    .tag-hero__copy,
-    .tag-stats {
-      position: relative;
-      z-index: 1;
-    }
-
-    .tag-hero__eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      color: hsl(var(--primary));
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-    }
-
-    .tag-hero h1 {
-      margin: 0.65rem 0 0.5rem;
-      font-size: clamp(2.5rem, 7vw, 4.75rem);
-      font-weight: 650;
-      letter-spacing: -0.055em;
-      line-height: 0.95;
-    }
-
-    .tag-hero__copy p {
-      max-width: 32rem;
-      margin: 0;
-      color: hsl(var(--muted-foreground));
-      font-size: 0.95rem;
-    }
-
-    .tag-stats {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      align-self: end;
-      margin: 0;
-      border: 1px solid hsl(var(--border) / 0.8);
-      border-radius: 1.25rem;
-      background: hsl(var(--background) / 0.72);
-      backdrop-filter: blur(12px);
-    }
-
-    .tag-stats div {
-      padding: 1rem;
-    }
-
-    .tag-stats div + div {
-      border-left: 1px solid hsl(var(--border) / 0.8);
-    }
-
-    .tag-stats dt {
-      color: hsl(var(--muted-foreground));
-      font-size: 0.68rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-
-    .tag-stats dd {
-      margin: 0.2rem 0 0;
-      font-size: 1.55rem;
-      font-weight: 650;
-      line-height: 1;
-    }
-
     .tag-browser {
       margin-top: 2.75rem;
     }
@@ -472,12 +371,6 @@ const meta = {
     @media (min-width: 640px) {
       .tag-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-    }
-
-    @media (min-width: 768px) {
-      .tag-hero {
-        grid-template-columns: minmax(0, 1.35fr) minmax(19rem, 0.65fr);
       }
     }
 

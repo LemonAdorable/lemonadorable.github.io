@@ -3,8 +3,8 @@
  * OutgoingLinks component - displays posts that the current post links to
  * 外链组件 - 显示当前文章链接到的其他文章（正向链接）
  */
-import type { Backlink } from '@/utils/backlinks'
 import { cn } from 'astro-pure/utils'
+import type { Backlink } from '@/utils/backlinks'
 
 interface Props {
   links: Backlink[]
@@ -27,57 +27,57 @@ function formatDate(date?: Date): string {
 
 {
   links.length > 0 && (
-    <section class={cn('outgoing-links-section rounded-xl border px-3 sm:px-4 py-2 sm:py-3', className)}>
-      <div class="links-header">
+    <section
+      class={cn('outgoing-links-section rounded-xl border px-3 sm:px-4 py-2 sm:py-3', className)}
+    >
+      <div class='links-header'>
         <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="text-muted-foreground"
+          xmlns='http://www.w3.org/2000/svg'
+          width='16'
+          height='16'
+          viewBox='0 0 24 24'
+          fill='none'
+          stroke='currentColor'
+          stroke-width='2'
+          stroke-linecap='round'
+          stroke-linejoin='round'
+          class='text-muted-foreground'
         >
-          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-          <polyline points="15 3 21 3 21 9" />
-          <line x1="10" y1="14" x2="21" y2="3" />
+          <path d='M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6' />
+          <polyline points='15 3 21 3 21 9' />
+          <line x1='10' y1='14' x2='21' y2='3' />
         </svg>
-        <h3 class="links-title">{title}</h3>
-        <span class="links-count">({links.length})</span>
+        <h3 class='links-title'>{title}</h3>
+        <span class='links-count'>({links.length})</span>
       </div>
 
-      <ul class="links-list">
+      <ul class='links-list'>
         {links.map((link) => (
-          <li class="links-item">
-            <div class="links-row">
-              <a href={link.url} class="links-link group">
-                <span class="links-link-title">{link.title}</span>
-                {link.date && (
-                  <span class="links-date">{formatDate(link.date)}</span>
-                )}
+          <li class='links-item'>
+            <div class='links-row'>
+              <a href={link.url} class='links-link group'>
+                <span class='links-link-title'>{link.title}</span>
+                {link.date && <span class='links-date'>{formatDate(link.date)}</span>}
               </a>
               <button
-                class="outgoing-locate-btn"
-                data-target={link.id}
-                title="定位到引用处"
-                aria-label="定位到引用处"
+                class='outgoing-locate-btn'
+                data-target={link.url.split('/').filter(Boolean).at(-1)}
+                title='定位到引用处'
+                aria-label='定位到引用处'
               >
                 <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
+                  xmlns='http://www.w3.org/2000/svg'
+                  width='14'
+                  height='14'
+                  viewBox='0 0 24 24'
+                  fill='none'
+                  stroke='currentColor'
+                  stroke-width='2'
+                  stroke-linecap='round'
+                  stroke-linejoin='round'
                 >
-                  <circle cx="12" cy="12" r="10" />
-                  <circle cx="12" cy="12" r="3" />
+                  <circle cx='12' cy='12' r='10' />
+                  <circle cx='12' cy='12' r='3' />
                 </svg>
               </button>
             </div>
@@ -201,7 +201,8 @@ function formatDate(date?: Date): string {
       const wikilinks = document.querySelectorAll('a.wikilink')
       for (const link of wikilinks) {
         const href = link.getAttribute('href') || ''
-        if (href.includes(target)) {
+        const linkSlug = href.split('/').filter(Boolean).at(-1)
+        if (linkSlug === target) {
           link.scrollIntoView({ behavior: 'smooth', block: 'center' })
           link.classList.add('wikilink-highlight')
           setTimeout(() => link.classList.remove('wikilink-highlight'), 2000)

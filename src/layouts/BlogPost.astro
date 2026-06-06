@@ -53,6 +53,7 @@ const socialImage = heroImage
   : config.socialCard
 const articleDate = updatedDate?.toISOString() ?? publishDate.toISOString()
 const primaryColor = data.heroImage?.color ?? '#B19CD9'
+const currentPostSlug = getPostSlug(Astro.props.post)
 ---
 
 <PageLayout
@@ -79,7 +80,7 @@ const primaryColor = data.heroImage?.color ?? '#B19CD9'
       (outgoingLinks.length > 0 || backlinks.length > 0) && (
         <div id='wikilinks-section' class='wikilinks-container mt-3 sm:mt-6 flex flex-col gap-3'>
           {outgoingLinks.length > 0 && <OutgoingLinks links={outgoingLinks} />}
-          {backlinks.length > 0 && <Backlinks backlinks={backlinks} currentPostId={id} />}
+          {backlinks.length > 0 && <Backlinks {backlinks} {currentPostSlug} />}
         </div>
       )
     }
@@ -149,7 +150,8 @@ const primaryColor = data.heroImage?.color ?? '#B19CD9'
     const wikilinks = document.querySelectorAll('a.wikilink')
     for (const link of wikilinks) {
       const href = link.getAttribute('href') || ''
-      if (href.includes(target)) {
+      const linkSlug = href.split('/').filter(Boolean).at(-1)
+      if (linkSlug === target) {
         link.scrollIntoView({ behavior: 'smooth', block: 'center' })
         link.classList.add('wikilink-highlight')
         setTimeout(() => link.classList.remove('wikilink-highlight'), 2000)
