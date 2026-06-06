@@ -81,6 +81,18 @@
           "intro": "妹控的中二君！",
           "link": "http://www.dreamcenter.top",
           "avatar": "https://www.dreamcenter.top/imgs/avatar.jpg"
+        },
+        {
+          "name": "星河避难所",
+          "intro": "写代码，也写自己",
+          "link": "https://hejunjie.life",
+          "avatar": "https://cdn.hejunjie.life/avatar.jpg"
+        },
+        {
+          "name": "喵二の小博客",
+          "intro": "缘，妙不可言",
+          "link": "https://www.miaoer.net/",
+          "avatar": "https://static.miaoer.net/logo/avatar.webp"
         }
       ]
     },
@@ -98,6 +110,18 @@
           "intro": "The web framework for content-driven websites",
           "link": "https://astro.build/",
           "avatar": "https://avatars.githubusercontent.com/u/44914786?s=200&v=4"
+        },
+        {
+          "name": "博客圈子",
+          "intro": "收录万千博文，索引优质内容。",
+          "link": "https://bkqz.cn",
+          "avatar": "https://bkqz.cn/img/bkqztx.png"
+        },
+        {
+          "name": "BlogsClub",
+          "intro": "博客俱乐部",
+          "link": "https://www.blogsclub.org/",
+          "avatar": "https://www.blogsclub.org/usr/uploads/2025/01/4195725068.jpg"
         }
       ]
     }
