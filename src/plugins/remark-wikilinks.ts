@@ -55,6 +55,7 @@ export const remarkWikilinks: Plugin<[WikilinkOptions?], Root> = function (optio
   const { basePath = '/blog', validSlugs } = options
 
   return function (tree, file) {
+    const contentBasePath = file.path?.includes('/content/docs/') ? '/docs' : basePath
     // Collect wikilinks for backlink processing
     const foundLinks: string[] = []
 
@@ -94,7 +95,7 @@ export const remarkWikilinks: Plugin<[WikilinkOptions?], Root> = function (optio
         } else {
           // Convert to absolute path
           const normalizedSlug = normalizeSlug(slug)
-          linkUrl = `${basePath}/${normalizedSlug}`
+          linkUrl = `${contentBasePath}/${normalizedSlug}`
 
           // Record the link for backlink processing
           foundLinks.push(normalizedSlug)

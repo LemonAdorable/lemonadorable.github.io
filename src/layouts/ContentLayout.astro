@@ -14,6 +14,7 @@ interface Props {
   mainClass?: string
   sidebarClass?: string
   mode?: 'default' | 'article' | 'centered' | 'wide'
+  commentTarget?: string
 }
 
 const {
@@ -24,6 +25,7 @@ const {
   mainClass,
   sidebarClass,
   mode = 'default',
+  commentTarget,
   ...props
 } = Astro.props
 
@@ -137,6 +139,31 @@ const isSingleColumn = mode === 'centered' || mode === 'wide'
 
   <BackToTop header='content-header' content='content'>
     {
+      commentTarget && (
+        <button
+          slot='other-icons'
+          type='button'
+          aria-label='跳转到评论'
+          title='评论'
+          class='size-10 flex items-center justify-center rounded-full border-2 border-transparent bg-muted text-muted-foreground duration-300 hover:border-border/75 hover:text-primary sm:size-12'
+          data-comment-jump={commentTarget}
+        >
+          <svg
+            viewBox='0 0 24 24'
+            class='size-5'
+            fill='none'
+            stroke='currentColor'
+            stroke-width='2'
+            stroke-linecap='round'
+            stroke-linejoin='round'
+            aria-hidden='true'
+          >
+            <path d='M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z' />
+          </svg>
+        </button>
+      )
+    }
+    {
       hasSidebar && (
         <button
           slot='other-icons'
@@ -201,11 +228,24 @@ const isSingleColumn = mode === 'centered' || mode === 'wide'
     updateReadingProgress()
   }
 
+  function setupCommentJump() {
+    document.querySelectorAll<HTMLButtonElement>('[data-comment-jump]').forEach((button) => {
+      if (button.dataset.ready === 'true') return
+      button.dataset.ready = 'true'
+      button.addEventListener('click', () => {
+        const target = document.querySelector(button.dataset.commentJump || '')
+        target?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      })
+    })
+  }
+
   setupSidebar()
   setupReadingProgress()
+  setupCommentJump()
   document.addEventListener('astro:page-load', () => {
     setupSidebar()
     setupReadingProgress()
+    setupCommentJump()
   })
 </script>
 
@@ -292,7 +332,7 @@ const isSingleColumn = mode === 'centered' || mode === 'wide'
 
 <style is:global>
   .article-reading-layout {
-    width: min(82rem, calc(100vw - 3rem));
+    width: min(78rem, calc(100vw - 3rem));
     margin-inline: 50%;
     display: grid;
     grid-template-columns: minmax(10rem, 1fr) minmax(0, 44rem) minmax(10rem, 1fr);

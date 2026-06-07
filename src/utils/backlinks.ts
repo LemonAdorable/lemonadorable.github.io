@@ -118,7 +118,7 @@ export function resolveContentId(
   sourceId: string,
   validIds: Iterable<string>
 ): string | undefined {
-  const normalizedTarget = normalizeId(target.replace(/^\/?blog\//, ''))
+  const normalizedTarget = normalizeId(target.replace(/^\/?(?:blog|docs)\//, ''))
   const normalizedSource = normalizeId(sourceId)
   const ids = [...validIds].map(normalizeId)
   const validIdSet = new Set(ids)
@@ -141,7 +141,7 @@ export function resolveContentId(
 /**
  * Extract all links from post content (body)
  */
-function extractLinksFromContent(content: string): string[] {
+function extractLinksFromContent(content: string, basePath: string): string[] {
   const links: string[] = []
 
   // Extract wikilinks [[link]]
@@ -161,12 +161,13 @@ function extractLinksFromContent(content: string): string[] {
     links.push(normalizeId(match[1]))
   }
 
-  // Extract standard markdown links that point to /blog/
+  // Extract standard markdown links that point to the current collection.
   const mdMatches = content.matchAll(MARKDOWN_LINK_REGEX)
   for (const match of mdMatches) {
     const url = match[2]
-    if (url.startsWith('/blog/') || url.includes('/blog/')) {
-      const slug = url.replace(/^.*\/blog\//, '').replace(/\/$/, '')
+    const pathPrefix = `${basePath.replace(/\/$/, '')}/`
+    if (url.startsWith(pathPrefix) || url.includes(pathPrefix)) {
+      const slug = url.replace(new RegExp(`^.*${escapeRegex(pathPrefix)}`), '').replace(/\/$/, '')
       if (slug) {
         links.push(normalizeId(slug))
       }
@@ -242,7 +243,7 @@ export async function buildBacklinksMap(
     const content = post.body || ''
 
     // Extract all links from this post
-    const links = extractLinksFromContent(content)
+    const links = extractLinksFromContent(content, basePath)
 
     for (const link of links) {
       const targetSlug = resolveContentId(link, sourceId, validSlugs)
@@ -264,7 +265,7 @@ export async function buildBacklinksMap(
             id: sourceId,
             title: post.data.title,
             context: getContextSnippet(content, targetSlug),
-            url: `${basePath}/${getCanonicalSlug(post)}`,
+            url: `${basePath}/${basePath === '/docs' ? normalizeId(post.id) : getCanonicalSlug(post)}`,
             date: post.data.publishDate
           })
         }
@@ -292,7 +293,7 @@ export function getOutgoingLinks(
   basePath: string = '/blog'
 ): Backlink[] {
   const content = getPostContent(post)
-  const links = extractLinksFromContent(content)
+  const links = extractLinksFromContent(content, basePath)
   const validPosts = new Map(posts.map((p) => [normalizeId(p.id), p]))
 
   const outgoing: Backlink[] = []
@@ -310,7 +311,9 @@ export function getOutgoingLinks(
       outgoing.push({
         id: targetSlug,
         title: targetPost.data.title,
-        url: `${basePath}/${getCanonicalSlug(targetPost)}`,
+        url: `${basePath}/${
+          basePath === '/docs' ? normalizeId(targetPost.id) : getCanonicalSlug(targetPost)
+        }`,
         date: targetPost.data.publishDate
       })
     }

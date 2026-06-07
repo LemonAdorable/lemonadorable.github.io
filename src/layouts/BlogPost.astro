@@ -62,6 +62,7 @@ const currentPostSlug = getPostSlug(Astro.props.post)
   highlightColor={primaryColor}
   back='/blog'
   mode='article'
+  commentTarget={!isDraft && enableComment && config.integ.giscus?.enable ? '#giscus' : undefined}
 >
   <Fragment slot='left-sidebar'>
     <ArticleRail
@@ -69,11 +70,6 @@ const currentPostSlug = getPostSlug(Astro.props.post)
       inboundLinks={backlinks.length}
       outboundLinks={outgoingLinks.length}
       readingTime={remarkPluginFrontmatter.minutesRead as string}
-    />
-    <GraphView
-      currentSlug={`blog/${currentPostSlug}`}
-      id='blog-graph-view'
-      class='blog-graph-view'
     />
   </Fragment>
 
@@ -100,6 +96,11 @@ const currentPostSlug = getPostSlug(Astro.props.post)
         </div>
       )
     }
+    <GraphView
+      currentSlug={`blog/${currentPostSlug}`}
+      id='blog-graph-view'
+      class='blog-graph-view'
+    />
     {/* Copyright */}
     <Copyright {data} />
     {/* Article recommend */}
@@ -149,28 +150,7 @@ const currentPostSlug = getPostSlug(Astro.props.post)
       })
     })
 
-    // 2. Sidebar dashboard Relation triggers
-    const relationTriggers = document.querySelectorAll(
-      '.rail-card--interactive[href="#wikilinks-section"], .action-pill[href="#wikilinks-section"]'
-    )
-    relationTriggers.forEach((trigger) => {
-      trigger.addEventListener('click', (e) => {
-        e.preventDefault()
-        const target = document.getElementById('wikilinks-section')
-        if (target) {
-          target.scrollIntoView({ behavior: 'smooth', block: 'center' })
-          // Pulse all section headers for a subtle "here it is" effect
-          target.querySelectorAll('.links-header').forEach((header) => {
-            header.classList.remove('links-header-highlight')
-            void (header as HTMLElement).offsetWidth
-            header.classList.add('links-header-highlight')
-            setTimeout(() => header.classList.remove('links-header-highlight'), 2000)
-          })
-        }
-      })
-    })
-
-    // 3. Wikilink numbered locators
+    // 2. Wikilink numbered locators
     const wikilinks = document.querySelectorAll('a.wikilink')
     const indexMap = new Map<string, number>()
     let currentIndex = 1
@@ -213,7 +193,7 @@ const currentPostSlug = getPostSlug(Astro.props.post)
       link.parentNode?.insertBefore(btn, link.nextSibling)
     })
 
-    // 4. Indexing for link rows
+    // 3. Indexing for link rows
     document
       .querySelector('.outgoing-links-section')
       ?.querySelectorAll('.links-row')
@@ -231,7 +211,7 @@ const currentPostSlug = getPostSlug(Astro.props.post)
         }
       })
 
-    // 5. URL locate parameter
+    // 4. URL locate parameter
     const locateTarget = new URLSearchParams(window.location.search).get('locate')
     if (locateTarget) {
       setTimeout(() => {
@@ -246,13 +226,47 @@ const currentPostSlug = getPostSlug(Astro.props.post)
     }
   }
 
+  function setupRelatedNavigation() {
+    if (document.documentElement.dataset.relatedNavigationReady === 'true') return
+    document.documentElement.dataset.relatedNavigationReady = 'true'
+
+    document.addEventListener('click', (event) => {
+      const trigger = (event.target as Element | null)?.closest<HTMLAnchorElement>(
+        '[data-related-jump]'
+      )
+      if (!trigger) return
+
+      const href = trigger.getAttribute('href')
+      const target = href?.startsWith('#') ? document.querySelector(href) : null
+      if (!target) return
+
+      event.preventDefault()
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' })
+
+      if (href === '#wikilinks-section') {
+        target.querySelectorAll('.links-header').forEach((header) => {
+          header.classList.remove('links-header-highlight')
+          void (header as HTMLElement).offsetWidth
+          header.classList.add('links-header-highlight')
+          setTimeout(() => header.classList.remove('links-header-highlight'), 2000)
+        })
+      } else if (href === '#blog-graph-view') {
+        target.classList.remove('graph-view-locate-highlight')
+        void (target as HTMLElement).offsetWidth
+        target.classList.add('graph-view-locate-highlight')
+        setTimeout(() => target.classList.remove('graph-view-locate-highlight'), 2200)
+      }
+    })
+  }
+
+  setupRelatedNavigation()
   initBlogNavigation()
   document.addEventListener('astro:page-load', initBlogNavigation)
 </script>
 
 <style>
   .blog-graph-view {
-    margin-top: 1.75rem;
+    margin-top: 0;
   }
 </style>
 
@@ -360,6 +374,29 @@ const currentPostSlug = getPostSlug(Astro.props.post)
     50% {
       background: hsl(var(--primary) / 0.9);
       color: hsl(var(--background));
+    }
+  }
+
+  .graph-view-locate-highlight .graph-canvas {
+    animation: graph-view-locate 720ms ease-in-out 3;
+  }
+
+  @keyframes graph-view-locate {
+    0%,
+    100% {
+      border-color: hsl(var(--border) / 0.6);
+      box-shadow: 0 0 0 0 hsl(var(--primary) / 0);
+    }
+    50% {
+      border-color: hsl(var(--primary) / 0.72);
+      box-shadow: 0 0 0 0.28rem hsl(var(--primary) / 0.1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .graph-view-locate-highlight .graph-canvas {
+      animation: none;
+      border-color: hsl(var(--primary) / 0.72);
     }
   }
 </style>
