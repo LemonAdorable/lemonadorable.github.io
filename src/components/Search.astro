@@ -86,5 +86,36 @@ import './styles/search.css'
 </div>
 
 <script>
-  import('./scripts/search.ts')
+  function setupLazySearch() {
+    document.querySelectorAll<HTMLElement>('.search').forEach((search) => {
+      if (search.dataset.lazyReady === 'true') return
+      search.dataset.lazyReady = 'true'
+
+      const button = search.querySelector<HTMLButtonElement>('.search-button')
+      if (!button) return
+
+      let loadPromise: Promise<void> | undefined
+      const loadSearch = () => {
+        loadPromise ??= import('./scripts/search.ts').then(({ initSearch }) => initSearch())
+        return loadPromise
+      }
+
+      button.addEventListener('pointerenter', loadSearch, { once: true })
+      button.addEventListener('focus', loadSearch, { once: true })
+      button.addEventListener(
+        'click',
+        async (event) => {
+          if (search.dataset.searchReady === 'true') return
+          event.preventDefault()
+          event.stopImmediatePropagation()
+          await loadSearch()
+          button.click()
+        },
+        { capture: true }
+      )
+    })
+  }
+
+  setupLazySearch()
+  document.addEventListener('astro:page-load', setupLazySearch)
 </script>

@@ -46,10 +46,21 @@ const initialized = new WeakSet<HTMLElement>()
 let contentIndexPromise: Promise<ContentIndex> | null = null
 
 function loadContentIndex() {
-  contentIndexPromise ??= fetch('/contentIndex.json').then((response) => {
-    if (!response.ok) throw new Error('Failed to load content index')
-    return response.json() as Promise<ContentIndex>
-  })
+  contentIndexPromise ??= (async () => {
+    const controller = new AbortController()
+    const timeout = window.setTimeout(() => controller.abort(), 10000)
+
+    try {
+      const response = await fetch('/contentIndex.json', { signal: controller.signal })
+      if (!response.ok) throw new Error('Failed to load content index')
+      return (await response.json()) as ContentIndex
+    } catch (error) {
+      contentIndexPromise = null
+      throw error
+    } finally {
+      window.clearTimeout(timeout)
+    }
+  })()
   return contentIndexPromise
 }
 
@@ -304,6 +315,8 @@ function renderGraph(canvas: HTMLElement, data: GraphData, options: RenderOption
 
   const simulation = d3
     .forceSimulation<GraphNode>(data.nodes)
+    .alphaDecay(options.global ? 0.08 : 0.045)
+    .velocityDecay(options.global ? 0.5 : 0.4)
     .force(
       'link',
       d3
@@ -372,7 +385,6 @@ function renderGraph(canvas: HTMLElement, data: GraphData, options: RenderOption
 
 async function setupGraphView(root: HTMLElement) {
   if (initialized.has(root)) return
-  initialized.add(root)
 
   const canvas = root.querySelector<HTMLElement>('[data-graph-canvas]')
   const status = root.querySelector<HTMLElement>('[data-graph-status]')
@@ -385,9 +397,12 @@ async function setupGraphView(root: HTMLElement) {
   const globalStats = root.querySelector<HTMLElement>('[data-global-graph-stats]')
   const globalReset = root.querySelector<HTMLButtonElement>('[data-global-graph-reset]')
   if (!canvas) return
+  initialized.add(root)
 
   try {
     const index = await loadContentIndex()
+    if (!root.isConnected) return
+
     const currentSlug = root.dataset.currentSlug || null
     const localData = buildGraph(index, currentSlug, false)
     status?.remove()
@@ -400,15 +415,22 @@ async function setupGraphView(root: HTMLElement) {
       if (globalCanvas.dataset.rendered === 'true') return
       globalCanvas.dataset.rendered = 'true'
       requestAnimationFrame(() => {
-        const globalData = buildGraph(index, currentSlug, true)
-        globalCanvas.querySelector('p')?.remove()
-        if (globalStats) {
-          globalStats.textContent = `${globalData.nodes.length} 个节点，${globalData.links.length} 条连接`
-        }
-        renderGraph(globalCanvas, globalData, {
-          global: true,
-          reset: globalReset,
-          currentSlug
+        requestAnimationFrame(() => {
+          if (!root.isConnected || !dialog.open) {
+            globalCanvas.dataset.rendered = 'false'
+            return
+          }
+
+          const globalData = buildGraph(index, currentSlug, true)
+          globalCanvas.querySelector('p')?.remove()
+          if (globalStats) {
+            globalStats.textContent = `${globalData.nodes.length} 个节点，${globalData.links.length} 条连接`
+          }
+          renderGraph(globalCanvas, globalData, {
+            global: true,
+            reset: globalReset,
+            currentSlug
+          })
         })
       })
     })
@@ -418,7 +440,7 @@ async function setupGraphView(root: HTMLElement) {
     })
   } catch (error) {
     console.error('Failed to render graph view:', error)
-    if (status) status.textContent = '知识图谱暂时无法加载。'
+    if (root.isConnected && status) status.textContent = '知识图谱暂时无法加载，请刷新重试。'
   }
 }
 
@@ -429,4 +451,5 @@ export function initGraphView() {
 }
 
 initGraphView()
+document.addEventListener('astro:after-swap', initGraphView)
 document.addEventListener('astro:page-load', initGraphView)

@@ -267,6 +267,9 @@ function normalizeRelativeURLs(el: Element | Document, destination: string | URL
 }
 
 async function setupSearch(searchElement: Element, _currentSlug: string, data: ContentIndex) {
+  const searchRoot = searchElement as HTMLElement
+  if (searchRoot.dataset.searchReady === 'true') return
+
   const container = searchElement.querySelector('.search-container') as HTMLElement
   if (!container) return
 
@@ -1363,9 +1366,12 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
   registerEscapeHandler(container, hideSearch)
 
   await fillDocument(data)
+  searchRoot.dataset.searchReady = 'true'
 }
 
 let indexPopulated = false
+let contentIndexPromise: Promise<ContentIndex> | undefined
+
 async function fillDocument(data: ContentIndex) {
   if (indexPopulated) return
   let id = 0
@@ -1387,27 +1393,18 @@ async function fillDocument(data: ContentIndex) {
 }
 
 // Initialize search when DOM is ready
-async function initSearch() {
+export async function initSearch() {
   const currentSlug = getCurrentSlug()
 
-  // Fetch content index
-  const response = await fetch('/contentIndex.json')
-  if (!response.ok) {
-    console.error('Failed to fetch contentIndex.json')
-    return
-  }
+  contentIndexPromise ??= fetch('/contentIndex.json').then((response) => {
+    if (!response.ok) throw new Error('Failed to fetch contentIndex.json')
+    return response.json() as Promise<ContentIndex>
+  })
 
-  const data: ContentIndex = await response.json()
+  const data = await contentIndexPromise
   const searchElements = document.getElementsByClassName('search')
 
   for (const element of searchElements) {
     await setupSearch(element, currentSlug, data)
   }
-}
-
-// Initialize on DOM ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initSearch)
-} else {
-  initSearch()
 }

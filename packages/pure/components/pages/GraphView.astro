@@ -71,7 +71,9 @@ const isDocs = currentSlug?.startsWith('docs/') ?? false
 </section>
 
 <script>
-  import('./scripts/graph-view').then(({ initGraphView }) => initGraphView())
+  import { initGraphView } from './scripts/graph-view'
+
+  initGraphView()
 </script>
 
 <style>
@@ -216,14 +218,12 @@ const isDocs = currentSlug?.startsWith('docs/') ?? false
     border: 1px solid hsl(var(--border));
     border-radius: 1.35rem;
     color: hsl(var(--foreground));
-    background: hsl(var(--background) / 0.94);
+    background: hsl(var(--background));
     box-shadow: 0 24px 80px hsl(var(--foreground) / 0.2);
-    backdrop-filter: blur(18px);
   }
 
   .graph-dialog::backdrop {
     background: hsl(var(--foreground) / 0.32);
-    backdrop-filter: blur(5px);
   }
 
   .graph-dialog-panel {

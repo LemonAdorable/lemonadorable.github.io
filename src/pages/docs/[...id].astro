@@ -101,12 +101,26 @@ const editPath = `https://github.com/cworld1/astro-theme-pure/edit/main/${post.f
     console.error('Failed to load wikilink preview:', error)
   })
 
-  function highlightTarget(target: Element) {
+  function highlightTarget(target: Element, highlightClass = 'anchor-highlight') {
     target.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    target.classList.remove('wikilink-highlight')
+    target.classList.remove(highlightClass)
     void (target as HTMLElement).offsetWidth
-    target.classList.add('wikilink-highlight')
-    setTimeout(() => target.classList.remove('wikilink-highlight'), 2000)
+    target.classList.add(highlightClass)
+    setTimeout(() => target.classList.remove(highlightClass), 2400)
+  }
+
+  function getHashTarget(hash: string) {
+    if (!hash.startsWith('#') || hash.length === 1) return null
+    try {
+      return document.getElementById(decodeURIComponent(hash.slice(1)))
+    } catch {
+      return null
+    }
+  }
+
+  function highlightCurrentHash() {
+    const target = getHashTarget(window.location.hash)
+    if (target) highlightTarget(target)
   }
 
   function initDocsNavigation() {
@@ -119,14 +133,27 @@ const editPath = `https://github.com/cworld1/astro-theme-pure/edit/main/${post.f
         const target = document.getElementById(href.slice(1))
         if (!target) return
         event.preventDefault()
-        target.scrollIntoView({ behavior: 'smooth', block: 'center' })
-        target.classList.add('anchor-highlight')
-        setTimeout(() => target.classList.remove('anchor-highlight'), 2400)
+        highlightTarget(target)
+      })
+    })
+
+    document.querySelectorAll<HTMLAnchorElement>('#content a[href^="#"]').forEach((link) => {
+      if (link.hasAttribute('data-docs-hash-ready')) return
+      link.setAttribute('data-docs-hash-ready', 'true')
+      link.addEventListener('click', (event) => {
+        const target = getHashTarget(link.hash)
+        if (!target) return
+        event.preventDefault()
+        history.pushState(null, '', link.hash)
+        highlightTarget(target)
       })
     })
 
     const locateTarget = new URLSearchParams(window.location.search).get('locate')
-    if (!locateTarget) return
+    if (!locateTarget) {
+      if (window.location.hash) requestAnimationFrame(highlightCurrentHash)
+      return
+    }
 
     setTimeout(() => {
       const target = Array.from(document.querySelectorAll('#content a[href]')).find((link) => {
@@ -135,7 +162,7 @@ const editPath = `https://github.com/cworld1/astro-theme-pure/edit/main/${post.f
         return documentId === locateTarget
       })
       if (target) {
-        highlightTarget(target)
+        highlightTarget(target, 'wikilink-highlight')
         window.history.replaceState({}, '', window.location.pathname + window.location.hash)
       }
     }, 500)
@@ -143,6 +170,7 @@ const editPath = `https://github.com/cworld1/astro-theme-pure/edit/main/${post.f
 
   initDocsNavigation()
   document.addEventListener('astro:page-load', initDocsNavigation)
+  window.addEventListener('hashchange', highlightCurrentHash)
 </script>
 
 <style>

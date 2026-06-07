@@ -23,10 +23,11 @@ const {
 } = Astro.props
 ---
 
-<html lang={config.locale.lang} class='overflow-y-scroll'>
+<html lang={config.locale.lang} class='overflow-y-scroll' transition:animate='none'>
   <head>
     <BaseHead {articleDate} {description} {ogImage} {title} />
     <ThemeProvider />
+    <PageTransition />
   </head>
 
   <body class='bg-background text-foreground' {...props}>
@@ -86,6 +87,5 @@ const {
         }
       }
     </style>
-    <PageTransition />
   </body>
 </html>
