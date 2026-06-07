@@ -5,6 +5,7 @@ import config from 'virtual:config'
 import { TOC } from 'astro-pure/components/pages'
 import PageLayout from '@/layouts/ContentLayout.astro'
 import { Giscus } from '@/components/giscus'
+import ContentPageHero from '@/components/pages/ContentPageHero.astro'
 import { PageInfo } from '@/components/waline'
 
 interface Props {
@@ -16,6 +17,9 @@ interface Props {
   hideBack?: boolean
   mainClass?: string
   sidebarClass?: string
+  layout?: 'document' | 'centered' | 'wide'
+  eyebrow?: string
+  description?: string
 }
 
 const {
@@ -27,8 +31,13 @@ const {
   hideBack = false,
   mainClass,
   sidebarClass,
+  layout = 'document',
+  eyebrow,
+  description,
   ...props
 } = Astro.props
+
+const pageMode = layout === 'document' ? 'default' : layout
 
 // Get current page slug from URL (reserved for future use)
 // const currentSlug = Astro.url.pathname.replace(/^\//, '').replace(/\/$/, '') || undefined
@@ -39,15 +48,25 @@ const {
   hideBack={hideBack}
   mainClass={mainClass}
   sidebarClass={sidebarClass}
+  mode={pageMode}
   {...props}
 >
-  {headings?.length && <TOC headings={headings} slot='sidebar' />}
+  {layout === 'document' && headings?.length && <TOC headings={headings} slot='sidebar' />}
 
   {
-    !hideTitle && (
+    (
       <Fragment slot='header'>
-        <h1 class='text-2xl font-medium sm:mb-2 sm:text-3xl'>{title}</h1>
-        {(view || enableComment) && <PageInfo {view} comment={enableComment} class='italic' />}
+        {!hideTitle && layout === 'document' && (
+          <>
+            <h1 class='text-2xl font-medium sm:mb-2 sm:text-3xl'>{title}</h1>
+            {(view || enableComment) && <PageInfo {view} comment={enableComment} class='italic' />}
+          </>
+        )}
+        {!hideTitle && layout !== 'document' && (
+          <ContentPageHero {title} {eyebrow} {description}>
+            {(view || enableComment) && <PageInfo {view} comment={enableComment} class='italic' />}
+          </ContentPageHero>
+        )}
       </Fragment>
     )
   }

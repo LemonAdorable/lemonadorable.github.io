@@ -171,13 +171,37 @@ const meta = {
           <section id='content' class='archive-timeline animate' aria-label='文章时间线'>
             <div class='archive-timeline__toolbar'>
               <span>文章时间线</span>
-              <a href='#archive-overview' data-archive-jump>
-                <svg viewBox='0 0 24 24' aria-hidden='true'>
-                  <path d='m18 15-6-6-6 6' />
-                </svg>
-                返回创作概览
-              </a>
             </div>
+
+            <a
+              href='#archive-overview'
+              class='archive-rocket-wrapper'
+              data-archive-rocket
+              data-archive-jump
+              title='乘时光机返回概览'
+              aria-label='返回概览'
+            >
+              <span class='archive-rocket' aria-hidden='true'>
+                <span class='archive-rocket__halo' />
+                <svg viewBox='0 0 44 64' role='presentation'>
+                  <path
+                    class='archive-rocket__fin'
+                    d='M13.8 39.5C7.5 42 4.5 48 5.5 55.5l10.2-6.8m14.5-9.2C36.5 42 39.5 48 38.5 55.5l-10.2-6.8'
+                  />
+                  <path
+                    class='archive-rocket__body'
+                    d='M22 3.5C13.8 10.1 10.6 19.2 11.7 31.2c.6 6.6 3 13 6.5 18.3h7.6c3.5-5.3 5.9-11.7 6.5-18.3C33.4 19.2 30.2 10.1 22 3.5Z'
+                  />
+                  <path class='archive-rocket__panel' d='M13.1 34.5h17.8' />
+                  <circle class='archive-rocket__window' cx='22' cy='23.5' r='6.2' />
+                  <circle class='archive-rocket__window-glint' cx='19.8' cy='21.3' r='1.5' />
+                  <path class='archive-rocket__nozzle' d='M18.2 49.5v4.2h7.6v-4.2' />
+                </svg>
+                <span class='archive-rocket__flame'>
+                  <span />
+                </span>
+              </span>
+            </a>
 
             {archiveGroups.map(({ year, posts, months }, yearIndex) => (
               <details
@@ -267,12 +291,6 @@ const meta = {
                       </ul>
                     </section>
                   ))}
-                  <a class='archive-year__back' href='#archive-overview' data-archive-jump>
-                    <svg viewBox='0 0 24 24' aria-hidden='true'>
-                      <path d='m18 15-6-6-6 6' />
-                    </svg>
-                    返回创作概览
-                  </a>
                 </div>
               </details>
             ))}
@@ -283,31 +301,6 @@ const meta = {
               <p>尝试更换关键词。</p>
             </div>
           </section>
-
-          <aside class='archive-time-rail' aria-label='Timeline Navigation' data-time-rail>
-            <a
-              href='#archive-overview'
-              class='rail-overview-btn'
-              title='返回概览'
-              data-archive-jump
-            >
-              <Icon name='up' class='size-4' />
-            </a>
-            <div class='rail-track'>
-              <div class='rail-indicator' data-rail-indicator />
-              {archiveYears.map((year) => (
-                <a
-                  href={`#year-${year}`}
-                  class='rail-year'
-                  data-archive-jump
-                  data-archive-target-year={year}
-                  data-rail-year={year}
-                >
-                  {year}
-                </a>
-              ))}
-            </div>
-          </aside>
         </>
       ) : (
         <div class='archive-empty'>
@@ -386,52 +379,33 @@ const meta = {
 
       input.oninput = filterArchive
 
-      // Time Rail Logic
-      const rail = document.querySelector<HTMLElement>('[data-time-rail]')
-      const indicator = document.querySelector<HTMLElement>('[data-rail-indicator]')
-      const railYears = [...document.querySelectorAll<HTMLElement>('[data-rail-year]')]
-      const overview = document.getElementById('archive-overview')
+      // Rocket Indicator Logic
+      const rocket = document.querySelector<HTMLElement>('[data-archive-rocket]')
+      const timeline = document.querySelector<HTMLElement>('.archive-timeline')
 
-      if (rail && indicator && railYears.length > 0) {
-        const updateRail = () => {
-          const scrollY = window.scrollY
-          const overviewBottom = (overview?.offsetTop ?? 0) + (overview?.offsetHeight ?? 0)
+      if (rocket && timeline) {
+        const updateRocket = () => {
+          const timelineRect = timeline.getBoundingClientRect()
+          const viewportCenter = window.innerHeight / 2
 
-          // Show/hide rail
-          if (scrollY > overviewBottom - 100) {
-            rail.classList.add('is-visible')
+          // Calculate how far the timeline has scrolled
+          let progress = (viewportCenter - timelineRect.top) / timelineRect.height
+          progress = Math.max(0, Math.min(1, progress))
+
+          // Show rocket when scrolling into timeline
+          if (timelineRect.top < window.innerHeight && timelineRect.bottom > 0) {
+            rocket.style.opacity = '1'
+            const rocketTop = Number.parseFloat(getComputedStyle(rocket).top) || 0
+            const travel = Math.max(0, timeline.offsetHeight - rocket.offsetHeight - rocketTop)
+            const offset = progress * travel
+            rocket.style.transform = `translateY(${offset}px)`
           } else {
-            rail.classList.remove('is-visible')
-          }
-
-          // Update active year and indicator
-          let activeYearEl: HTMLElement | null = null
-          for (const yearSection of years) {
-            if (yearSection.hidden) continue
-            const rect = yearSection.getBoundingClientRect()
-            if (rect.top < window.innerHeight / 2 && rect.bottom > window.innerHeight / 2) {
-              const year = yearSection.id.replace('year-', '')
-              activeYearEl = rail.querySelector(`[data-rail-year="${year}"]`)
-              break
-            }
-          }
-
-          if (activeYearEl) {
-            railYears.forEach((el) => el.classList.remove('is-active'))
-            activeYearEl.classList.add('is-active')
-            const yearRect = activeYearEl.getBoundingClientRect()
-            const track = rail.querySelector('.rail-track')
-            if (track) {
-              const trackRect = track.getBoundingClientRect()
-              const offset =
-                yearRect.top - trackRect.top + yearRect.height / 2 - indicator.offsetHeight / 2
-              indicator.style.transform = `translateY(${offset}px)`
-            }
+            rocket.style.opacity = '0'
           }
         }
 
-        window.addEventListener('scroll', updateRail, { passive: true })
-        updateRail()
+        window.addEventListener('scroll', updateRocket, { passive: true })
+        updateRocket()
       }
     }
 
@@ -679,6 +653,156 @@ const meta = {
       width: 1px;
       background: linear-gradient(hsl(var(--primary) / 0.65), hsl(var(--border)));
       content: '';
+    }
+
+    .archive-rocket-wrapper {
+      position: absolute;
+      left: -1.07rem;
+      top: 1.5rem;
+      z-index: 10;
+      display: block;
+      width: 2.7rem;
+      height: 4.35rem;
+      border-radius: 999px;
+      outline: none;
+      transition:
+        opacity 180ms ease,
+        transform 100ms linear;
+    }
+
+    .archive-rocket {
+      position: relative;
+      display: block;
+      width: 100%;
+      height: 100%;
+      color: hsl(var(--foreground));
+      filter: drop-shadow(0 0.3rem 0.35rem hsl(var(--foreground) / 0.12));
+      transform-origin: 50% 42%;
+      transition:
+        color 180ms ease,
+        filter 180ms ease,
+        transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .archive-rocket__halo {
+      position: absolute;
+      top: 0.8rem;
+      left: 50%;
+      width: 2.35rem;
+      height: 2.35rem;
+      border: 1px solid hsl(var(--primary) / 0.18);
+      border-radius: 50%;
+      background: hsl(var(--primary) / 0.08);
+      box-shadow: 0 0 0 0.3rem hsl(var(--background) / 0.82);
+      transform: translateX(-50%);
+      transition:
+        background 180ms ease,
+        box-shadow 180ms ease,
+        transform 220ms ease;
+    }
+
+    .archive-rocket svg {
+      position: relative;
+      z-index: 1;
+      display: block;
+      width: 100%;
+      height: 3.7rem;
+      overflow: visible;
+    }
+
+    .archive-rocket__body {
+      fill: hsl(var(--background));
+      stroke: currentColor;
+      stroke-width: 1.7;
+    }
+
+    .archive-rocket__fin,
+    .archive-rocket__panel,
+    .archive-rocket__nozzle {
+      fill: hsl(var(--primary) / 0.12);
+      stroke: currentColor;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-width: 1.7;
+    }
+
+    .archive-rocket__window {
+      fill: hsl(var(--primary) / 0.2);
+      stroke: hsl(var(--primary));
+      stroke-width: 1.6;
+    }
+
+    .archive-rocket__window-glint {
+      fill: hsl(var(--background) / 0.9);
+    }
+
+    .archive-rocket__flame {
+      position: absolute;
+      z-index: 0;
+      top: 3.25rem;
+      left: 50%;
+      width: 0.68rem;
+      height: 1.05rem;
+      overflow: hidden;
+      border-radius: 50% 50% 55% 55%;
+      background: linear-gradient(to bottom, #facc15, #fb923c 48%, #ef4444 78%, transparent);
+      filter: drop-shadow(0 0 0.25rem rgb(249 115 22 / 55%));
+      opacity: 0.82;
+      transform: translateX(-50%);
+      transform-origin: 50% 0;
+      animation: archive-rocket-flame 420ms ease-in-out infinite alternate;
+    }
+
+    .archive-rocket__flame span {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 0.24rem;
+      height: 0.65rem;
+      border-radius: inherit;
+      background: #fff7c2;
+      transform: translateX(-50%);
+    }
+
+    .archive-rocket-wrapper:hover .archive-rocket,
+    .archive-rocket-wrapper:focus-visible .archive-rocket {
+      color: hsl(var(--primary));
+      filter: drop-shadow(0 0.4rem 0.55rem hsl(var(--primary) / 0.28));
+      transform: translateY(-0.22rem) scale(1.06);
+    }
+
+    .archive-rocket-wrapper:hover .archive-rocket__halo,
+    .archive-rocket-wrapper:focus-visible .archive-rocket__halo {
+      background: hsl(var(--primary) / 0.16);
+      box-shadow:
+        0 0 0 0.3rem hsl(var(--background) / 0.88),
+        0 0 1rem hsl(var(--primary) / 0.25);
+      transform: translateX(-50%) scale(1.08);
+    }
+
+    .archive-rocket-wrapper:focus-visible {
+      box-shadow: 0 0 0 2px hsl(var(--primary) / 0.45);
+    }
+
+    @keyframes archive-rocket-flame {
+      from {
+        opacity: 0.7;
+        transform: translateX(-50%) scaleY(0.72) scaleX(0.9);
+      }
+      to {
+        opacity: 0.95;
+        transform: translateX(-50%) scaleY(1.08) scaleX(1.04);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .archive-rocket-wrapper {
+        transition: opacity 180ms ease;
+      }
+
+      .archive-rocket__flame {
+        animation: none;
+      }
     }
 
     .archive-year {
@@ -970,104 +1094,6 @@ const meta = {
         gap: 0.55rem;
         padding-right: 0.35rem;
         padding-left: 0.35rem;
-      }
-    }
-
-    .archive-time-rail {
-      position: fixed;
-      right: 1.5rem;
-      top: 55%;
-      z-index: 50;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 1rem;
-      padding: 0.85rem 0.4rem;
-      border: 1px solid hsl(var(--border));
-      border-radius: 999px;
-      background: hsl(var(--background) / 0.72);
-      backdrop-filter: blur(12px);
-      transform: translateY(-50%) translateX(1rem);
-      transition:
-        opacity 400ms ease,
-        transform 400ms cubic-bezier(0.4, 0, 0.2, 1);
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .archive-time-rail.is-visible {
-      transform: translateY(-50%) translateX(0);
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .rail-overview-btn {
-      display: grid;
-      width: 1.8rem;
-      height: 1.8rem;
-      place-items: center;
-      border-radius: 50%;
-      background: hsl(var(--primary) / 0.1);
-      color: hsl(var(--primary));
-      transition:
-        background 180ms ease,
-        transform 180ms ease;
-    }
-
-    .rail-overview-btn:hover {
-      background: hsl(var(--primary) / 0.2);
-      transform: translateY(-2px);
-    }
-
-    .rail-track {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      gap: 0.15rem;
-    }
-
-    .rail-indicator {
-      position: absolute;
-      left: -0.45rem;
-      top: 0.5rem;
-      width: 0.3rem;
-      height: 0.3rem;
-      border-radius: 50%;
-      background: hsl(var(--primary));
-      box-shadow: 0 0 8px hsl(var(--primary) / 0.4);
-      transition: transform 350ms cubic-bezier(0.34, 1.56, 0.64, 1);
-      pointer-events: none;
-    }
-
-    .rail-year {
-      padding: 0.2rem 0.45rem;
-      color: hsl(var(--muted-foreground));
-      font-size: 0.62rem;
-      font-weight: 600;
-      text-align: center;
-      transition:
-        color 200ms ease,
-        transform 200ms ease;
-    }
-
-    .rail-year:hover {
-      color: hsl(var(--primary));
-      transform: scale(1.1);
-    }
-
-    .rail-year.is-active {
-      color: hsl(var(--primary));
-    }
-
-    @media (max-width: 1280px) {
-      .archive-time-rail {
-        right: 0.8rem;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .archive-time-rail {
-        display: none;
       }
     }
   </style>

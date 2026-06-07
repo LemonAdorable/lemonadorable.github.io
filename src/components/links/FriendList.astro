@@ -28,7 +28,11 @@ function shuffle(arr: Friend[]) {
   })
 }
 
-const { title, list: friendList, ...props } = Astro.props as {
+const {
+  title,
+  list: friendList,
+  ...props
+} = Astro.props as {
   title?: string
   list: FriendList
 }
@@ -40,38 +44,21 @@ const getAvatarSrc = (friend: Friend) =>
 ---
 
 {title && <h2 id={friendList.id_name}>{title}</h2>}
-<div class='grid gap-3.5 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3' {...props}>
-<script>
-  // Add rotation animation to friend avatars on hover, matching header avatar animation
-  document.addEventListener('DOMContentLoaded', () => {
-    const friendAvatars = document.querySelectorAll('.friend-avatar')
-    friendAvatars.forEach((avatar) => {
-      const link = avatar.closest('a')
-      if (!link) return
-      
-      const htmlAvatar = avatar as HTMLElement
-      link.addEventListener('mouseenter', () => {
-        htmlAvatar.style.transform = 'rotate(360deg)'
-        htmlAvatar.style.transition = 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)'
-      })
-      
-      link.addEventListener('mouseleave', () => {
-        htmlAvatar.style.transform = 'rotate(0deg)'
-      })
-    })
-  })
-</script>
+<div class='grid gap-4 sm:grid-cols-2' {...props}>
   {
     friendList.link_list.length > 0 ? (
-      shuffle(friendList.link_list).map((frd: Friend) => {
+      shuffle(friendList.link_list).map((frd: Friend, index) => {
         const avatarSrc = getAvatarSrc(frd)
         const isRemote = typeof avatarSrc === 'string' && avatarSrc.startsWith('http')
         return (
           <a href={frd.link} target='_blank' class='no-underline'>
-            <div class='group relative h-full overflow-hidden rounded-2xl border bg-background px-2.5 py-1.5 transition-colors hover:bg-muted sm:px-4 sm:py-2'>
-              <div class='relative z-10 flex h-full items-center gap-3'>
+            <div
+              class='friend-card group relative h-full overflow-hidden rounded-2xl border bg-background p-3.5 transition-all duration-300 sm:p-4'
+              style={`--friend-index:${index}`}
+            >
+              <div class='relative z-10 flex h-full items-center gap-3.5'>
                 {/* avatar */}
-                <div class='relative h-14 w-14 min-w-14 overflow-hidden rounded-full'>
+                <div class='relative h-12 w-12 min-w-12 overflow-hidden rounded-full ring-1 ring-border'>
                   {isRemote ? (
                     <img
                       class='friend-avatar my-0 bg-card transition-transform duration-600'
@@ -122,9 +109,11 @@ const getAvatarSrc = (friend: Friend) =>
                   </div>
                 </div>
                 {/* details */}
-                <div class='flex flex-col gap-y-1'>
-                  <p class='my-0 line-clamp-1 text-sm'>{frd.name} </p>
-                  <p class='my-0 line-clamp-1 text-xs text-muted-foreground'>{frd.intro}</p>
+                <div class='min-w-0 flex flex-col gap-y-1'>
+                  <p class='my-0 line-clamp-1 text-sm font-semibold'>{frd.name} </p>
+                  <p class='my-0 line-clamp-2 text-xs leading-5 text-muted-foreground'>
+                    {frd.intro}
+                  </p>
                 </div>
               </div>
               {/* avatar bg */}
@@ -142,7 +131,8 @@ const getAvatarSrc = (friend: Friend) =>
                       '-ms-linear-gradient(right, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%)',
                     WebkitMaskImage:
                       '-webkit-linear-gradient(right, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%)',
-                    maskImage: 'linear-gradient(to left, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%)'
+                    maskImage:
+                      'linear-gradient(to left, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%)'
                   }}
                 />
               ) : (
@@ -158,7 +148,8 @@ const getAvatarSrc = (friend: Friend) =>
                       '-ms-linear-gradient(right, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%)',
                     WebkitMaskImage:
                       '-webkit-linear-gradient(right, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%)',
-                    maskImage: 'linear-gradient(to left, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%)'
+                    maskImage:
+                      'linear-gradient(to left, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%)'
                   }}
                 />
               )}
@@ -171,3 +162,93 @@ const getAvatarSrc = (friend: Friend) =>
     )
   }
 </div>
+
+<style>
+  .friend-card {
+    min-height: 5.25rem;
+    isolation: isolate;
+    opacity: 0;
+    transform: translateY(20px);
+    transition:
+      opacity 0.6s ease-out,
+      transform 0.6s ease-out,
+      border-color 180ms ease,
+      background-color 180ms ease,
+      box-shadow 180ms ease;
+  }
+
+  .friend-card.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .friend-card::after {
+    position: absolute;
+    right: -1.4rem;
+    bottom: -1.4rem;
+    z-index: -1;
+    width: 4rem;
+    height: 4rem;
+    border: 1px solid hsl(var(--primary) / 0.11);
+    border-radius: 50%;
+    box-shadow: 0 0 0 0.6rem hsl(var(--primary) / 0.025);
+    content: '';
+    transition: transform 300ms ease;
+  }
+
+  .friend-card:hover {
+    border-color: hsl(var(--primary) / 0.35);
+    background: hsl(var(--muted) / 0.45);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px hsl(var(--foreground) / 0.055);
+  }
+
+  .friend-card:hover::after {
+    transform: scale(1.25);
+  }
+</style>
+
+<script>
+  function initFriendLinks() {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const el = entry.target as HTMLElement
+            if (!el.classList.contains('is-visible')) {
+              const index = parseInt(el.style.getPropertyValue('--friend-index') || '0')
+              el.style.transitionDelay = `${(index % 6) * 0.06}s`
+              el.classList.add('is-visible')
+            }
+          }
+        })
+      },
+      { threshold: 0.01 }
+    )
+
+    document.querySelectorAll('.friend-card, .timeline-event').forEach((el) => {
+      observer.observe(el)
+
+      if (el.classList.contains('friend-card')) {
+        const htmlCard = el as HTMLElement
+        htmlCard.addEventListener('mousemove', (e) => {
+          const rect = htmlCard.getBoundingClientRect()
+          htmlCard.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`)
+          htmlCard.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`)
+        })
+      }
+    })
+
+    document.querySelectorAll('.friend-avatar').forEach((avatar) => {
+      const link = avatar.closest('a')
+      if (link) {
+        const htmlAvatar = avatar as HTMLElement
+        link.addEventListener('mouseenter', () => (htmlAvatar.style.transform = 'rotate(360deg)'))
+        link.addEventListener('mouseleave', () => (htmlAvatar.style.transform = 'rotate(0deg)'))
+      }
+    })
+  }
+
+  initFriendLinks()
+  document.addEventListener('astro:page-load', initFriendLinks)
+</script>

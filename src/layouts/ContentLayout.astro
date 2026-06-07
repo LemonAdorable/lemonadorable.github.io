@@ -13,6 +13,7 @@ interface Props {
   hideBack?: boolean
   mainClass?: string
   sidebarClass?: string
+  mode?: 'default' | 'article' | 'centered' | 'wide'
 }
 
 const {
@@ -22,8 +23,12 @@ const {
   hideBack = false,
   mainClass,
   sidebarClass,
+  mode = 'default',
   ...props
 } = Astro.props
+
+const hasSidebar = mode === 'default' || mode === 'article'
+const isSingleColumn = mode === 'centered' || mode === 'wide'
 ---
 
 <PageLayout {meta} {highlightColor} {...props}>
@@ -31,36 +36,67 @@ const {
     <div id='reading-progress-bar' class='reading-progress-bar'></div>
   </div>
   {
-    !hideBack && (
+    !hideBack && mode !== 'article' && (
       <Button
         title='Back'
-        href='#'
+        href={back}
         onclick='history.back(); return false;'
         data-astro-prefetch='false'
         variant='back'
       />
     )
   }
-  <main class={cn('mt-6 items-start gap-x-10 md:flex', mainClass)}>
-    {/* Sidebar */}
-    <aside
-      class={cn(
-        'animate top-20 min-w-48 basis-60 overflow-y-scroll max-md:hidden z-40 fixed md:sticky md:order-2 lg:shrink-0 max-md:border max-md:px-4 max-md:py-3 max-md:bg-muted max-md:rounded-xl',
-        sidebarClass
-      )}
-      style='height:calc(100vh - 7rem); display: flex; flex-direction: column;'
-      id='sidebar'
-    >
-      <slot name='sidebar' />
-    </aside>
-    <div
-      id='sidebar-shade'
-      class='fixed top-0 start-0 w-full h-full'
-      style='display:none;background-color:#00000091;z-index:31'
-    >
-    </div>
+  <main
+    class={cn(
+      'mt-6 items-start',
+      mode === 'article'
+        ? 'article-reading-layout'
+        : isSingleColumn
+          ? mode === 'wide'
+            ? 'single-page-layout single-page-wide'
+            : 'single-page-layout single-page-centered'
+          : 'gap-x-10 md:flex',
+      mainClass
+    )}
+  >
+    {
+      mode === 'article' && (
+        <aside class='article-left-rail animate'>
+          <slot name='left-sidebar' />
+        </aside>
+      )
+    }
+    {
+      hasSidebar && (
+        <>
+          {/* Sidebar */}
+          <aside
+            class={cn(
+              'animate top-20 min-w-48 basis-60 overflow-y-scroll max-md:hidden z-40 fixed md:sticky md:order-2 lg:shrink-0 max-md:border max-md:px-4 max-md:py-3 max-md:bg-muted max-md:rounded-xl',
+              mode === 'article' && 'article-toc-rail',
+              sidebarClass
+            )}
+            style='max-height:calc(100vh - 7rem); display: flex; flex-direction: column;'
+            id='sidebar'
+          >
+            <slot name='sidebar' />
+          </aside>
+          <div
+            id='sidebar-shade'
+            class='fixed top-0 start-0 w-full h-full'
+            style='display:none;background-color:#00000091;z-index:31'
+          />
+        </>
+      )
+    }
 
-    <article class='min-w-0 grow'>
+    <article
+      class={cn(
+        'min-w-0 grow',
+        mode === 'article' && 'article-reading-column',
+        isSingleColumn && 'single-page-column'
+      )}
+    >
       {/* Content header */}
       <div id='content-header' class='animate'>
         <slot name='header' />
@@ -70,16 +106,26 @@ const {
       <div
         id='content'
         class={cn(
-          'max-w-none animate mt-8 md:min-w-[45ch] overflow-x-hidden',
+          'max-w-none animate mt-4 md:min-w-[45ch] overflow-x-hidden',
           integ.typography.class
         )}
       >
         <slot />
       </div>
+      <slot name='content-after' />
     </article>
   </main>
 
-  <div class='bottom mt-6 items-start gap-x-10 md:flex'>
+  <div
+    class={cn(
+      'bottom mt-6 items-start gap-x-10 md:flex',
+      mode === 'article' && 'article-bottom',
+      isSingleColumn && [
+        'single-page-bottom',
+        mode === 'wide' ? 'single-page-wide' : 'single-page-centered'
+      ]
+    )}
+  >
     {/* Bottom */}
     <div class='flex-1 text-muted-foreground md:min-w-[50ch]'>
       <slot name='bottom' />
@@ -90,99 +136,113 @@ const {
   </div>
 
   <BackToTop header='content-header' content='content'>
-    <button
-      slot='other-icons'
-      aria-label='Toggle sidebar'
-      class='size-10 flex items-center justify-center rounded-full border-2 border-transparent bg-muted text-muted-foreground duration-300 hover:border-border/75 md:hidden sm:size-12'
-      id='sidebar-btn'
-    >
-      <Icon name='list' />
-    </button>
+    {
+      hasSidebar && (
+        <button
+          slot='other-icons'
+          aria-label='Toggle sidebar'
+          class='size-10 flex items-center justify-center rounded-full border-2 border-transparent bg-muted text-muted-foreground duration-300 hover:border-border/75 md:hidden sm:size-12'
+          id='sidebar-btn'
+        >
+          <Icon name='list' />
+        </button>
+      )
+    }
   </BackToTop>
 </PageLayout>
 
 <script>
-  // Toggle sidebar visibility on button click
-  const sidebarButton = document.getElementById('sidebar-btn')
-  const sidebar = document.getElementById('sidebar')
-  const sidebarShade = document.getElementById('sidebar-shade') as HTMLElement
+  function setupSidebar() {
+    const sidebar = document.getElementById('sidebar')
+    const sidebarBtn = document.getElementById('sidebar-btn')
+    const sidebarShade = document.getElementById('sidebar-shade')
 
-  if (sidebarShade) {
-    sidebarShade.addEventListener('click', () => {
-      toggleSidebar()
-    })
-  }
+    if (!sidebar || !sidebarBtn || !sidebarShade || sidebarBtn.dataset.sidebarReady === 'true')
+      return
 
-  function toggleSidebar() {
-    if (sidebar && sidebar.classList.contains('show')) {
-      sidebar.classList.remove('show')
-      sidebarShade.style.display = 'none'
-    } else if (sidebar) {
-      sidebar.classList.add('show')
-      sidebarShade.style.display = 'block'
+    sidebarBtn.dataset.sidebarReady = 'true'
+
+    function toggleSidebar() {
+      sidebar?.classList.toggle('show')
+      sidebarShade?.classList.toggle('show')
     }
+
+    sidebarBtn.addEventListener('click', toggleSidebar)
+    sidebarShade.addEventListener('click', toggleSidebar)
   }
 
-  sidebarButton?.addEventListener('click', () => {
-    toggleSidebar()
-  })
+  function setupReadingProgress() {
+    const progressBar = document.getElementById('reading-progress-bar')
+    const contentEl = document.getElementById('content')
+    if (!progressBar || !contentEl || progressBar.dataset.ready === 'true') return
 
-  const progressBar = document.getElementById('reading-progress-bar')
-  const contentEl = document.getElementById('content')
-  let progressTicking = false
+    progressBar.dataset.ready = 'true'
+    let ticking = false
 
-  function updateReadingProgress() {
-    if (!progressBar || !contentEl) return
-    const scrollTop = Math.max(0, window.scrollY || document.documentElement.scrollTop)
-    const contentTop = contentEl.offsetTop
-    const contentHeight = contentEl.scrollHeight
-    const viewportHeight = window.innerHeight
-    const maxScrollable = Math.max(0, contentHeight + contentTop - viewportHeight)
-    const progress = maxScrollable === 0 ? 0 : Math.min(1, Math.max(0, scrollTop / maxScrollable))
-    progressBar.style.transform = `scaleX(${progress})`
-    progressTicking = false
+    const updateReadingProgress = () => {
+      const scrollTop = Math.max(0, window.scrollY || document.documentElement.scrollTop)
+      const maxScrollable = Math.max(
+        0,
+        contentEl.offsetTop + contentEl.scrollHeight - window.innerHeight
+      )
+      const progress = maxScrollable === 0 ? 0 : Math.min(1, Math.max(0, scrollTop / maxScrollable))
+      progressBar.style.transform = `scaleX(${progress})`
+      ticking = false
+    }
+
+    const requestProgressUpdate = () => {
+      if (ticking) return
+      ticking = true
+      requestAnimationFrame(updateReadingProgress)
+    }
+
+    document.addEventListener('scroll', requestProgressUpdate, { passive: true })
+    window.addEventListener('resize', requestProgressUpdate)
+    updateReadingProgress()
   }
 
-  document.addEventListener('scroll', () => {
-    if (progressTicking) return
-    progressTicking = true
-    requestAnimationFrame(updateReadingProgress)
+  setupSidebar()
+  setupReadingProgress()
+  document.addEventListener('astro:page-load', () => {
+    setupSidebar()
+    setupReadingProgress()
   })
-
-  window.addEventListener('resize', updateReadingProgress)
-  updateReadingProgress()
 </script>
+
 <style>
   .reading-progress {
     position: fixed;
     top: 0;
-    left: 0;
     right: 0;
-    height: 3px;
-    background: transparent;
+    left: 0;
     z-index: 50;
+    height: 3px;
+    pointer-events: none;
   }
 
   .reading-progress-bar {
-    height: 100%;
     width: 100%;
-    transform-origin: left;
+    height: 100%;
+    background: hsl(var(--primary));
+    box-shadow: 0 0 12px hsl(var(--primary) / 0.45);
     transform: scaleX(0);
-    background: linear-gradient(90deg, #6d28d9 0%, #7c3aed 35%, #a855f7 70%, #c084fc 100%);
-    box-shadow:
-      0 0 10px rgba(167, 139, 250, 0.75),
-      0 0 18px rgba(217, 70, 239, 0.55),
-      0 0 28px rgba(59, 130, 246, 0.45);
+    transform-origin: left;
     transition: transform 60ms ease-out;
   }
 
-  @media (min-width: 769px) {
+  @media (min-width: 770px) {
     #sidebar-shade {
       display: none !important;
     }
   }
+
   @media (max-width: 769px) {
-    aside.show {
+    #sidebar.show {
+      display: flex !important;
+      pointer-events: auto;
+    }
+
+    #sidebar-shade.show {
       display: block !important;
       opacity: 1;
       pointer-events: auto;
@@ -200,21 +260,10 @@ const {
         opacity: 1;
       }
     }
-    @keyframes fade-in {
-      0% {
-        opacity: 0;
-      }
-      100% {
-        opacity: 1;
-      }
-    }
-    aside {
+    #sidebar {
       display: none !important;
       pointer-events: none;
-      .animate {
-        animation: none !important;
-      } /* Ensure nested or same-element animation is killed */
-      animation: none !important; /* Override global .animate */
+      animation: none !important;
       right: 0;
       top: 0 !important;
       height: 100vh !important;
@@ -224,12 +273,9 @@ const {
       border-bottom-right-radius: 0 !important;
       padding-top: 1.5rem !important;
       padding-bottom: 1.5rem !important;
+      background-color: hsl(var(--background)) !important;
     }
-    :global(#action-buttons) {
-      right: 1rem !important;
-      left: auto !important;
-      transform: translateY(0) !important;
-    }
+
     :global(#action-buttons button) {
       pointer-events: auto !important;
     }
@@ -238,8 +284,113 @@ const {
     }
   }
   @media (max-width: 640px) {
-    aside {
+    #sidebar {
       min-width: 55vw !important;
+    }
+  }
+</style>
+
+<style is:global>
+  .article-reading-layout {
+    width: min(82rem, calc(100vw - 3rem));
+    margin-inline: 50%;
+    display: grid;
+    grid-template-columns: minmax(10rem, 1fr) minmax(0, 44rem) minmax(10rem, 1fr);
+    gap: clamp(1rem, 2.5vw, 2rem);
+    transform: translateX(-50%);
+  }
+
+  .article-reading-column {
+    grid-column: 2;
+  }
+
+  .article-left-rail {
+    position: sticky;
+    top: 8.5rem !important;
+    grid-column: 1;
+    grid-row: 1;
+    min-width: 0;
+    max-height: calc(100vh - 9rem) !important;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+
+  .article-toc-rail {
+    grid-column: 3;
+    grid-row: 1;
+    order: initial;
+    min-width: 0;
+    max-height: calc(100vh - 9rem) !important;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    position: sticky;
+    top: 8.5rem !important;
+    scrollbar-width: thin;
+  }
+
+  .article-bottom {
+    width: min(44rem, 100%);
+    margin-inline: auto;
+    display: block;
+  }
+
+  .article-bottom > :first-child {
+    width: 100%;
+  }
+
+  .article-bottom > :last-child {
+    display: none;
+  }
+
+  .single-page-layout,
+  .single-page-bottom {
+    width: 100%;
+    margin-inline: auto;
+  }
+
+  .single-page-centered {
+    max-width: 52rem;
+  }
+
+  .single-page-wide {
+    max-width: 64rem;
+  }
+
+  .single-page-column,
+  .single-page-bottom > :first-child {
+    width: 100%;
+  }
+
+  .single-page-bottom {
+    display: block;
+  }
+
+  .single-page-bottom > :last-child {
+    display: none;
+  }
+
+  @media (max-width: 1199px) and (min-width: 770px) {
+    .article-reading-layout {
+      width: 100%;
+      margin-inline: 0;
+      grid-template-columns: minmax(0, 44rem) minmax(11rem, 14rem);
+      justify-content: center;
+      transform: none;
+    }
+
+    .article-reading-column {
+      grid-column: 1;
+    }
+
+    .article-left-rail {
+      display: none;
+    }
+
+    .article-toc-rail {
+      grid-column: 2;
     }
   }
 </style>

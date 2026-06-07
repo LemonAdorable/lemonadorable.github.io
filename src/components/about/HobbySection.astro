@@ -14,11 +14,6 @@ const { class: className, title, items, ...props } = Astro.props
 >
   <div class='m-0 px-2 text-lg font-medium'>{title}</div>
   <div class='flex flex-wrap gap-2'>
-    {
-      items.map((item) => (
-        <span class='rounded-md border bg-muted px-3 py-1 text-sm'>{item}</span>
-      ))
-    }
+    {items.map((item) => <span class='rounded-md border bg-muted px-3 py-1 text-sm'>{item}</span>)}
   </div>
 </div>
-

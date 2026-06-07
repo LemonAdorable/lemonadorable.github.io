@@ -1,3 +1,6 @@
+import fs from 'node:fs'
+import path from 'node:path'
+
 /**
  * Backlinks utility - collects and manages backlinks between blog posts
  */
@@ -28,11 +31,38 @@ export interface BacklinksMap {
 interface PostLike {
   id: string
   body?: string
+  filePath?: string
   data: {
     title: string
     publishDate?: Date
     slug?: string
   }
+}
+
+/**
+ * Get content from post, reading from file if body is missing
+ */
+function getPostContent(post: PostLike): string {
+  if (post.body) return post.body
+
+  // Try to read from file if filePath is available (Astro 5+ loader)
+  if (post.filePath) {
+    try {
+      return fs.readFileSync(path.resolve(post.filePath), 'utf-8')
+    } catch (e) {
+      return ''
+    }
+  }
+
+  // Fallback for default content collection structure
+  try {
+    const blogPath = path.resolve('src/content/blog', post.id)
+    if (fs.existsSync(blogPath)) return fs.readFileSync(blogPath, 'utf-8')
+    if (fs.existsSync(blogPath + '.md')) return fs.readFileSync(blogPath + '.md', 'utf-8')
+    if (fs.existsSync(blogPath + '.mdx')) return fs.readFileSync(blogPath + '.mdx', 'utf-8')
+  } catch (e) {}
+
+  return ''
 }
 
 /**
@@ -261,7 +291,7 @@ export function getOutgoingLinks(
   posts: PostLike[],
   basePath: string = '/blog'
 ): Backlink[] {
-  const content = post.body || ''
+  const content = getPostContent(post)
   const links = extractLinksFromContent(content)
   const validPosts = new Map(posts.map((p) => [normalizeId(p.id), p]))
 

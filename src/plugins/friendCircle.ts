@@ -39,16 +39,23 @@ export class FriendCircle {
   load() {
     this.loadArticles()
     this.loadMoreBtn.addEventListener('click', () => {
+      const start = this.visibleCount
       this.visibleCount = Math.min(
         this.visibleCount + this.config.page_turning_number,
         this.allArticles.length
       )
-      this.renderArticles()
+      this.renderArticles(start)
+
+      // Scroll so the "Show More" / "End" message stays in view
+      setTimeout(() => {
+        this.controlsContainer.scrollIntoView({ behavior: 'smooth', block: 'end' })
+      }, 100)
     })
     this.collapseBtn.addEventListener('click', () => {
       this.visibleCount = Math.min(this.config.page_turning_number, this.allArticles.length)
-      this.renderArticles()
-      this.randomArticleContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+      this.renderArticles(0, true)
+      // Use block: 'start' and some offset or block: 'center' to bring it to view
+      this.root.scrollIntoView({ behavior: 'smooth', block: 'center' })
     })
     window.onclick = (event) => {
       const modal = document.getElementById('modal')
@@ -186,12 +193,14 @@ export class FriendCircle {
     `
   }
 
-  private renderArticles() {
-    this.container.innerHTML = ''
-    const articles = this.allArticles.slice(0, this.visibleCount)
-    articles.forEach((article) => this.createArticleCard(article))
+  private renderArticles(startIndex = 0, isCollapse = false) {
+    if (isCollapse || startIndex === 0) {
+      this.container.innerHTML = ''
+    }
+    const articles = this.allArticles.slice(startIndex, this.visibleCount)
+    articles.forEach((article, index) => this.createArticleCard(article, index * 0.05))
 
-    if (articles.length === 0) {
+    if (this.allArticles.length === 0) {
       this.container.innerHTML = `
         <div class="fc-empty">
           <strong>暂时没有邻站动态</strong>
@@ -208,9 +217,12 @@ export class FriendCircle {
     this.controlsContainer.hidden = this.allArticles.length === 0
   }
 
-  private createArticleCard(article: Article) {
+  private createArticleCard(article: Article, delay = 0) {
     const card = document.createElement('div')
     card.className = 'article'
+    if (delay > 0) {
+      card.style.animationDelay = `${delay}s`
+    }
     card.innerHTML = `
       <img class="article-background no-lightbox" src="${article.avatar || this.config.error_img}" alt="" aria-hidden="true" onerror="this.style.display='none'">
       <div class="article-content">
