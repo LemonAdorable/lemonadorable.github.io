@@ -61,7 +61,7 @@ function formatDate(date?: Date): string {
               </a>
               <button
                 class='outgoing-locate-btn'
-                data-target={link.url.split('/').filter(Boolean).at(-1)}
+                data-target={link.url.replace(/^\/(?:blog|docs)\//, '').replace(/\/$/, '')}
                 title='定位到引用处'
                 aria-label='定位到引用处'
               >
@@ -197,12 +197,14 @@ function formatDate(date?: Date): string {
       const target = (btn as HTMLElement).dataset.target
       if (!target) return
 
-      // Find wikilink in the article content
-      const wikilinks = document.querySelectorAll('a.wikilink')
-      for (const link of wikilinks) {
+      const contentLinks = document.querySelectorAll('#content a[href]')
+      for (const link of contentLinks) {
         const href = link.getAttribute('href') || ''
-        const linkSlug = href.split('/').filter(Boolean).at(-1)
-        if (linkSlug === target) {
+        const linkTarget = href
+          .split('#', 1)[0]
+          .replace(/^\/(?:blog|docs)\//, '')
+          .replace(/\/$/, '')
+        if (linkTarget === target || linkTarget.endsWith(`/${target}`)) {
           link.scrollIntoView({ behavior: 'smooth', block: 'center' })
           link.classList.add('wikilink-highlight')
           setTimeout(() => link.classList.remove('wikilink-highlight'), 2000)

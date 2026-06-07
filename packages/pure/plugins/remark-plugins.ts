@@ -24,5 +24,6 @@ export const remarkReadingTime: Plugin<[], Root> =
     if (data.astro?.frontmatter) {
       data.astro.frontmatter.minutesRead = readingTime.text
       data.astro.frontmatter.words = readingTime.words
+      data.astro.frontmatter.readingTime = readingTime
     }
   }

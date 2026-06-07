@@ -48,7 +48,7 @@ export const theme: ThemeUserConfig = {
   /** Configure the header of your site. */
   header: {
     menu: [
-      { title: '文章', link: '/blog' },
+      { title: '博客', link: '/blog' },
       { title: '分类', link: '/categories' },
       { title: '标签', link: '/tags' },
       { title: '时光机', link: '/archives' },
