@@ -15,6 +15,7 @@ interface Props {
   sidebarClass?: string
   mode?: 'default' | 'article' | 'centered' | 'wide'
   commentTarget?: string
+  graphTarget?: string
 }
 
 const {
@@ -26,6 +27,7 @@ const {
   sidebarClass,
   mode = 'default',
   commentTarget,
+  graphTarget,
   ...props
 } = Astro.props
 
@@ -139,6 +141,35 @@ const isSingleColumn = mode === 'centered' || mode === 'wide'
 
   <BackToTop header='content-header' content='content'>
     {
+      graphTarget && (
+        <button
+          slot='other-icons'
+          type='button'
+          aria-label='跳转到知识图谱'
+          title='知识图谱'
+          class='size-10 flex items-center justify-center rounded-full border-2 border-transparent bg-muted text-muted-foreground duration-300 hover:border-border/75 hover:text-primary sm:size-12'
+          data-graph-jump={graphTarget}
+        >
+          <svg
+            viewBox='0 0 24 24'
+            class='size-5'
+            fill='none'
+            stroke='currentColor'
+            stroke-width='1.8'
+            stroke-linecap='round'
+            stroke-linejoin='round'
+            aria-hidden='true'
+          >
+            <circle cx='6' cy='6' r='2.25' />
+            <circle cx='18' cy='7' r='2.25' />
+            <circle cx='8' cy='18' r='2.25' />
+            <circle cx='18' cy='17' r='2.25' />
+            <path d='m8 6.3 7.8.5M7.2 8l-.4 7.8m3.2 1.8 5.8-.5m1-7.9.4 5.5M8 8l8 7.2' />
+          </svg>
+        </button>
+      )
+    }
+    {
       commentTarget && (
         <button
           slot='other-icons'
@@ -239,13 +270,32 @@ const isSingleColumn = mode === 'centered' || mode === 'wide'
     })
   }
 
+  function setupGraphJump() {
+    document.querySelectorAll<HTMLButtonElement>('[data-graph-jump]').forEach((button) => {
+      if (button.dataset.ready === 'true') return
+      button.dataset.ready = 'true'
+      button.addEventListener('click', () => {
+        const target = document.querySelector(button.dataset.graphJump || '')
+        if (!target) return
+
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        target.classList.remove('graph-view-locate-highlight')
+        void (target as HTMLElement).offsetWidth
+        target.classList.add('graph-view-locate-highlight')
+        setTimeout(() => target.classList.remove('graph-view-locate-highlight'), 2200)
+      })
+    })
+  }
+
   setupSidebar()
   setupReadingProgress()
   setupCommentJump()
+  setupGraphJump()
   document.addEventListener('astro:page-load', () => {
     setupSidebar()
     setupReadingProgress()
     setupCommentJump()
+    setupGraphJump()
   })
 </script>
 
@@ -258,6 +308,29 @@ const isSingleColumn = mode === 'centered' || mode === 'wide'
     z-index: 50;
     height: 3px;
     pointer-events: none;
+  }
+
+  :global(.graph-view-locate-highlight .graph-canvas) {
+    animation: graph-view-locate 720ms ease-in-out 3;
+  }
+
+  @keyframes graph-view-locate {
+    0%,
+    100% {
+      border-color: hsl(var(--border) / 0.6);
+      box-shadow: 0 0 0 0 hsl(var(--primary) / 0);
+    }
+    50% {
+      border-color: hsl(var(--primary) / 0.72);
+      box-shadow: 0 0 0 0.28rem hsl(var(--primary) / 0.1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(.graph-view-locate-highlight .graph-canvas) {
+      animation: none;
+      border-color: hsl(var(--primary) / 0.72);
+    }
   }
 
   .reading-progress-bar {

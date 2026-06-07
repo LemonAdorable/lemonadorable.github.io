@@ -62,6 +62,7 @@ const currentPostSlug = getPostSlug(Astro.props.post)
   highlightColor={primaryColor}
   back='/blog'
   mode='article'
+  graphTarget='#blog-graph-view'
   commentTarget={!isDraft && enableComment && config.integ.giscus?.enable ? '#giscus' : undefined}
 >
   <Fragment slot='left-sidebar'>

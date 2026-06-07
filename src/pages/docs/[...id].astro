@@ -46,7 +46,7 @@ const { description, title } = post.data
 const editPath = `https://github.com/cworld1/astro-theme-pure/edit/main/${post.filePath}`
 ---
 
-<PageLayout meta={{ description, title }} back='/docs'>
+<PageLayout meta={{ description, title }} back='/docs' graphTarget='#docs-graph-view'>
   <Fragment slot='sidebar'>
     {!!headings.length && <TOC {headings} />}
     <DocsContents class='docs-toc block mt-3' />
