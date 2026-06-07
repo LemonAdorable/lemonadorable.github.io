@@ -99,12 +99,16 @@ The automation uses these files:
 - `.github/ISSUE_TEMPLATE/friend-link.yml` collects the application.
 - `.github/friend-link.config.json` defines your site information and target friend group.
 - `.github/workflows/friend-link-checker.yml` listens for new issues and author comments.
+- After approval, the checker commits the friend link and explicitly dispatches the configured Pages
+  workflow. GitHub does not trigger another workflow from a push made with the default
+  `GITHUB_TOKEN`.
 - `.github/scripts/process-friend-request.cjs` validates the site with Playwright and updates the
   JSON file.
 
 Before enabling it:
 
-1. Edit `.github/friend-link.config.json` and replace the example site information.
+1. Edit `.github/friend-link.config.json`, replace the example site information and set
+   `site.friendPage` to your own friend-links page.
 2. Change the automatic application URL in `src/pages/links/index.astro` to your repository.
 3. In GitHub, open **Settings > Actions > General > Workflow permissions** and enable
    **Read and write permissions**.

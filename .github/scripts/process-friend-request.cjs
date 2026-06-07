@@ -12,11 +12,31 @@ const root = process.env.GITHUB_WORKSPACE || process.cwd()
 const configPath = path.join(root, '.github/friend-link.config.json')
 
 const FIELD_ALIASES = {
-  name: ['网站名称', '站点名称', '名称'],
-  url: ['网站链接', '站点链接', '链接', '网址'],
-  friendPage: ['友链页面 URL', '友链页面', '友链地址'],
-  description: ['网站描述', '站点描述', '描述', '简介'],
-  avatar: ['网站头像 URL', '网站头像', '头像 URL', '头像']
+  name: ['网站名称', '站点名称', '名称', '网站名称 / Site name', 'Site name'],
+  url: ['网站链接', '站点链接', '链接', '网址', '网站链接 / Site URL', 'Site URL'],
+  friendPage: [
+    '友链页面 URL',
+    '友链页面',
+    '友链地址',
+    '友链页面 URL / Friend-links page URL',
+    'Friend-links page URL'
+  ],
+  description: [
+    '网站描述',
+    '站点描述',
+    '描述',
+    '简介',
+    '网站描述 / Site description',
+    'Site description'
+  ],
+  avatar: [
+    '网站头像 URL',
+    '网站头像',
+    '头像 URL',
+    '头像',
+    '网站头像 URL / Site avatar URL',
+    'Site avatar URL'
+  ]
 }
 
 const LABEL_COLORS = {
@@ -289,6 +309,15 @@ async function commitAndPush(request, issueNumber) {
   await execFileAsync('git', ['push'], { cwd: root })
 }
 
+async function triggerPagesDeploy(github, owner, repo, config, ref) {
+  await github.rest.actions.createWorkflowDispatch({
+    owner,
+    repo,
+    workflow_id: config.deployWorkflow || 'deploy.yml',
+    ref
+  })
+}
+
 module.exports = async ({ github, context, core }) => {
   const issue = context.payload.issue
   if (!issue) return
@@ -322,7 +351,13 @@ module.exports = async ({ github, context, core }) => {
           owner,
           repo,
           issueNumber,
-          `人工审核未通过：${reason}\n\n申请者修正后可重新打开此 Issue，再次触发技术校验。`
+          [
+            `人工审核未通过：${reason}`,
+            `Manual review rejected: ${reason}`,
+            '',
+            '申请者修正后可重新打开此 Issue，再次触发技术校验。',
+            'After fixing the issue, reopen this Issue to run validation again.'
+          ].join('\n')
         )
         await github.rest.issues.update({
           owner,
@@ -372,12 +407,13 @@ module.exports = async ({ github, context, core }) => {
         issueNumber,
         [
           '自动技术校验通过，正在等待维护者人工审核站点内容。',
+          'Automated validation passed. The site is awaiting manual review.',
           '',
-          `校验页面：${finalFriendPage}`,
+          `申请者友链页面 / Applicant friend-links page: ${finalFriendPage}`,
           '',
-          '维护者可评论：',
-          '- `/approve`：重新校验并添加友链',
-          '- `/reject 原因`：拒绝申请并说明原因'
+          '维护者可评论 / Maintainer commands:',
+          '- `/approve`：重新校验并添加友链 / Revalidate and add the friend link',
+          '- `/reject 原因`：拒绝申请并说明原因 / Reject with a reason'
         ].join('\n')
       )
       return
@@ -391,20 +427,43 @@ module.exports = async ({ github, context, core }) => {
         owner,
         repo,
         issueNumber,
-        `该站点已存在于友链列表中：${duplicate.name} (${duplicate.link})。`
+        [
+          `该站点已存在于友链列表中：${duplicate.name} (${duplicate.link})。`,
+          `This site is already in the friend-links list: ${duplicate.name} (${duplicate.link}).`,
+          '',
+          `本站友链页面 / Iris friend-links page: ${config.site.friendPage}`
+        ].join('\n')
       )
       await github.rest.issues.update({ owner, repo, issue_number: issueNumber, state: 'closed' })
       return
     }
 
     await commitAndPush(request, issueNumber)
+    const defaultBranch = context.payload.repository.default_branch
+    let deployTriggered = true
+    try {
+      await triggerPagesDeploy(github, owner, repo, config, defaultBranch)
+    } catch (error) {
+      deployTriggered = false
+      core.warning(`Friend link was committed, but Pages dispatch failed: ${error.message}`)
+    }
     await setStatusLabels(github, owner, repo, issueNumber, config, 'approved')
     await comment(
       github,
       owner,
       repo,
       issueNumber,
-      `自动校验通过，已添加友链 **${request.name}**。\n\n校验页面：${finalFriendPage}`
+      [
+        `自动校验通过，已添加友链 **${request.name}**。`,
+        `Automated validation passed and **${request.name}** has been added.`,
+        '',
+        `申请者友链页面 / Applicant friend-links page: ${finalFriendPage}`,
+        `本站友链页面 / Iris friend-links page: ${config.site.friendPage}`,
+        '',
+        deployTriggered
+          ? '已触发 GitHub Pages 构建。/ The GitHub Pages build has been triggered.'
+          : '友链已写入，但 Pages 构建触发失败，请维护者手动运行部署工作流。/ The friend link was committed, but the Pages workflow must be started manually.'
+      ].join('\n')
     )
     await github.rest.issues.update({ owner, repo, issue_number: issueNumber, state: 'closed' })
   } catch (error) {
@@ -417,14 +476,17 @@ module.exports = async ({ github, context, core }) => {
       issueNumber,
       [
         `自动校验未通过：${error.message}`,
+        `Automated validation failed: ${error.message}`,
         '',
         '请修正后由 Issue 作者回复任意内容，机器人会重新校验。',
+        'After fixing the issue, the Issue author can reply to trigger validation again.',
         '',
-        '本站友链信息：',
-        `- 名称：${config.site.name}`,
-        `- 链接：${config.site.url}`,
-        `- 头像：${config.site.avatar}`,
-        `- 描述：${config.site.description}`
+        '本站友链信息 / Iris friend-link information:',
+        `- 名称 / Name: ${config.site.name}`,
+        `- 链接 / URL: ${config.site.url}`,
+        `- 友链页面 / Friend-links page: ${config.site.friendPage}`,
+        `- 头像 / Avatar: ${config.site.avatar}`,
+        `- 描述 / Description: ${config.site.description}`
       ].join('\n')
     )
     core.setFailed(error.message)

@@ -6,10 +6,13 @@ interface Props {
 const { class: className } = Astro.props
 ---
 
-<div id="giscus" class={className}></div>
+<div id='giscus' class={className}>
+  <p class='giscus-loading'>评论正在预加载...</p>
+</div>
 
 <script>
-  // Giscus配置
+  let themeListenerReady = false
+
   const giscusConfig = {
     repo: 'LemonAdorable/lemonadorable.github.io',
     repoId: 'R_kgDOLJXF6A',
@@ -21,30 +24,27 @@ const { class: className } = Astro.props
     emitMetadata: '1',
     inputPosition: 'top',
     lang: 'zh-CN',
-    loading: 'lazy',
+    loading: 'eager',
     crossorigin: 'anonymous'
   }
 
-  // 获取当前主题
   function getTheme() {
     const isDark = document.documentElement.classList.contains('dark')
     return isDark ? 'transparent_dark' : 'light'
   }
 
-  // 更新Giscus主题
   function updateGiscusTheme() {
     const theme = getTheme()
     const iframe = document.querySelector('iframe.giscus-frame') as HTMLIFrameElement | null
     if (iframe && iframe.contentWindow) {
-      iframe.contentWindow.postMessage(
-        { giscus: { setConfig: { theme } } },
-        'https://giscus.app'
-      )
+      iframe.contentWindow.postMessage({ giscus: { setConfig: { theme } } }, 'https://giscus.app')
     }
   }
 
-  // 初始化Giscus
-  function initGiscus() {
+  function loadGiscus(container: HTMLElement) {
+    if (!container.isConnected || container.dataset.giscusLoaded === 'true') return
+    container.dataset.giscusLoaded = 'true'
+
     const script = document.createElement('script')
     script.src = 'https://giscus.app/client.js'
     script.setAttribute('data-repo', giscusConfig.repo)
@@ -62,14 +62,48 @@ const { class: className } = Astro.props
     script.setAttribute('crossorigin', giscusConfig.crossorigin)
     script.async = true
 
+    container.appendChild(script)
+  }
+
+  function setupGiscus() {
     const container = document.getElementById('giscus')
-    if (container) {
-      container.appendChild(script)
+    if (!container || container.dataset.giscusObserved === 'true') return
+    container.dataset.giscusObserved = 'true'
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return
+        observer.disconnect()
+        loadGiscus(container)
+      },
+      { rootMargin: '1800px 0px' }
+    )
+    observer.observe(container)
+
+    const idleLoad = () => {
+      observer.disconnect()
+      loadGiscus(container)
+    }
+    const idleWindow = window as Window & {
+      requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number
+    }
+    if (idleWindow.requestIdleCallback) {
+      idleWindow.requestIdleCallback(idleLoad, { timeout: 4000 })
+    } else {
+      window.setTimeout(idleLoad, 2500)
+    }
+
+    // Short pages can reach the comments before the observer's first callback.
+    if (container.getBoundingClientRect().top < window.innerHeight + 1800) {
+      observer.disconnect()
+      loadGiscus(container)
     }
   }
 
-  // 监听主题切换
   function setupThemeListener() {
+    if (themeListenerReady) return
+    themeListenerReady = true
+
     const observer = new MutationObserver(() => {
       updateGiscusTheme()
     })
@@ -79,21 +113,27 @@ const { class: className } = Astro.props
     })
   }
 
-  // 页面加载完成后初始化
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-      initGiscus()
-      setupThemeListener()
-    })
-  } else {
-    initGiscus()
-    setupThemeListener()
-  }
+  setupGiscus()
+  setupThemeListener()
+  document.addEventListener('astro:page-load', setupGiscus)
 </script>
 
 <style>
   #giscus {
+    min-height: 12rem;
     margin-top: 2rem;
   }
-</style>
 
+  .giscus-loading {
+    display: grid;
+    min-height: 12rem;
+    place-items: center;
+    margin: 0;
+    color: hsl(var(--muted-foreground));
+    font-size: 0.8rem;
+  }
+
+  #giscus:has(iframe.giscus-frame) .giscus-loading {
+    display: none;
+  }
+</style>

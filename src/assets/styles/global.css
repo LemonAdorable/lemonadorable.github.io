@@ -390,6 +390,11 @@ a.wikilink-highlight {
   box-shadow: 0 0 0 4px hsl(var(--primary) / 0.4);
 }
 
+.anchor-highlight > code,
+.wikilink-highlight > code {
+  background-color: transparent !important;
+}
+
 @keyframes anchor-pulse {
 
   0%,

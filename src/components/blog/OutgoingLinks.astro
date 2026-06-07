@@ -206,6 +206,8 @@ function formatDate(date?: Date): string {
           .replace(/\/$/, '')
         if (linkTarget === target || linkTarget.endsWith(`/${target}`)) {
           link.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          link.classList.remove('wikilink-highlight')
+          void (link as HTMLElement).offsetWidth
           link.classList.add('wikilink-highlight')
           setTimeout(() => link.classList.remove('wikilink-highlight'), 2000)
           break

@@ -23,6 +23,7 @@ const logoImage = logoImageModule ? await logoImageModule() : null
     style='transition:margin-inline 0.3s'
     href='/'
     aria-label='Brand'
+    data-astro-prefetch
   >
     {
       logoImage && (
@@ -32,6 +33,8 @@ const logoImage = logoImageModule ? await logoImageModule() : null
           alt={config.logo.alt || 'Logo'}
           class='h-8 w-8 rounded-full border border-foreground/20 transition-transform duration-600'
           style='object-fit: cover;'
+          width={64}
+          height={64}
           loading='eager'
           fetchpriority='high'
         />
@@ -53,6 +56,8 @@ const logoImage = logoImageModule ? await logoImageModule() : null
               href={item.link}
               class='w-full flex-none grow py-2 text-right font-medium transition-none hover:text-primary sm:w-fit sm:px-3'
               aria-label='Nav menu item'
+              data-astro-prefetch={item.link.startsWith('#') ? 'false' : true}
+              data-graph-open={item.link.startsWith('#knowledge-graph') ? '' : undefined}
             >
               {item.title}
             </a>

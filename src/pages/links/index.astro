@@ -528,20 +528,6 @@ const meta = {
         panels.forEach((panel) => {
           const isTarget = panel.dataset.linkPanel === category
           panel.hidden = !isTarget
-          if (isTarget) {
-            // Reset all items for re-animation
-            const items = panel.querySelectorAll('.friend-card, .timeline-event')
-            items.forEach((el) => el.classList.remove('is-visible'))
-            // Trigger reflow once for the panel or all items to ensure restart
-            void (panel as HTMLElement).offsetWidth
-            // Use a minimal timeout to let the browser process class removal
-            requestAnimationFrame(() => {
-              // Note: The IntersectionObserver will handle re-adding 'is-visible'
-              // but we need to ensure the class was actually removed.
-              // To be extra sure, we can also manually trigger the observer logic if needed
-              // but usually the intersection will re-trigger if the element stays in view.
-            })
-          }
         })
 
         if (focus) selected.focus()
@@ -591,12 +577,6 @@ const meta = {
         panels.forEach((panel) => {
           const isTarget = panel.dataset.friendPanel === section
           panel.hidden = !isTarget
-          if (isTarget) {
-            // Reset all items for re-animation
-            const items = panel.querySelectorAll('.friend-card, .timeline-event')
-            items.forEach((el) => el.classList.remove('is-visible'))
-            void (panel as HTMLElement).offsetWidth
-          }
         })
 
         if (focus) selected.focus()
