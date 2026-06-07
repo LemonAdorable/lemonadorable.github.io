@@ -42,6 +42,14 @@ const graphData = JSON.stringify({ nodes, links }).replace(/</g, '\\u003c')
               <strong>{links.length}</strong> links
             </span>
           </div>
+          <a
+            class='global-tag-graph__explore'
+            href='#knowledge-graph?scope=tags&types=tag&relations=co-tag'
+            data-graph-open
+            data-astro-prefetch='false'
+          >
+            图谱中心
+          </a>
           <button
             class='global-tag-graph__toggle'
             type='button'
@@ -167,6 +175,12 @@ const graphData = JSON.stringify({ nodes, links }).replace(/</g, '\\u003c')
       border-color 180ms ease,
       color 180ms ease,
       background 180ms ease;
+  }
+
+  .global-tag-graph__explore {
+    color: hsl(var(--primary));
+    font-size: 0.7rem;
+    white-space: nowrap;
   }
 
   .global-tag-graph__toggle:hover {

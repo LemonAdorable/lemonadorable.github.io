@@ -3,6 +3,7 @@ import { Footer, ThemeProvider } from 'astro-pure/components/basic'
 import type { SiteMeta } from 'astro-pure/types'
 import BaseHead from '@/components/BaseHead.astro'
 import CustomHeader from '@/components/CustomHeader.astro'
+import KnowledgeGraph from '@/components/graph/KnowledgeGraph.astro'
 import PageTransition from '@/components/PageTransition.astro'
 import config from '@/site-config'
 
@@ -47,6 +48,7 @@ const {
       </div>
       <Footer />
     </div>
+    <KnowledgeGraph />
 
     {/* Set highlight color */}
     <style define:vars={{ highlightColor }}>

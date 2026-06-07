@@ -56,7 +56,8 @@ const logoImage = logoImageModule ? await logoImageModule() : null
               href={item.link}
               class='w-full flex-none grow py-2 text-right font-medium transition-none hover:text-primary sm:w-fit sm:px-3'
               aria-label='Nav menu item'
-              data-astro-prefetch
+              data-astro-prefetch={item.link.startsWith('#') ? 'false' : true}
+              data-graph-open={item.link.startsWith('#knowledge-graph') ? '' : undefined}
             >
               {item.title}
             </a>

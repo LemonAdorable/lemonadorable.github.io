@@ -390,12 +390,6 @@ async function setupGraphView(root: HTMLElement) {
   const status = root.querySelector<HTMLElement>('[data-graph-status]')
   const stats = root.querySelector<HTMLElement>('[data-graph-stats]')
   const reset = root.querySelector<HTMLButtonElement>('[data-graph-reset]')
-  const globalButton = root.querySelector<HTMLButtonElement>('[data-graph-global]')
-  const dialog = root.querySelector<HTMLDialogElement>('[data-graph-dialog]')
-  const close = root.querySelector<HTMLButtonElement>('[data-graph-close]')
-  const globalCanvas = root.querySelector<HTMLElement>('[data-global-graph-canvas]')
-  const globalStats = root.querySelector<HTMLElement>('[data-global-graph-stats]')
-  const globalReset = root.querySelector<HTMLButtonElement>('[data-global-graph-reset]')
   if (!canvas) return
   initialized.add(root)
 
@@ -408,36 +402,6 @@ async function setupGraphView(root: HTMLElement) {
     status?.remove()
     if (stats) stats.textContent = `${localData.nodes.length} 节点 · ${localData.links.length} 连线`
     renderGraph(canvas, localData, { global: false, reset, currentSlug })
-
-    globalButton?.addEventListener('click', () => {
-      if (!dialog || !globalCanvas) return
-      dialog.showModal()
-      if (globalCanvas.dataset.rendered === 'true') return
-      globalCanvas.dataset.rendered = 'true'
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          if (!root.isConnected || !dialog.open) {
-            globalCanvas.dataset.rendered = 'false'
-            return
-          }
-
-          const globalData = buildGraph(index, currentSlug, true)
-          globalCanvas.querySelector('p')?.remove()
-          if (globalStats) {
-            globalStats.textContent = `${globalData.nodes.length} 个节点，${globalData.links.length} 条连接`
-          }
-          renderGraph(globalCanvas, globalData, {
-            global: true,
-            reset: globalReset,
-            currentSlug
-          })
-        })
-      })
-    })
-    close?.addEventListener('click', () => dialog?.close())
-    dialog?.addEventListener('click', (event) => {
-      if (event.target === dialog) dialog.close()
-    })
   } catch (error) {
     console.error('Failed to render graph view:', error)
     if (root.isConnected && status) status.textContent = '知识图谱暂时无法加载，请刷新重试。'
