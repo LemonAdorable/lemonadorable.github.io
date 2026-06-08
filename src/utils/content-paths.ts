@@ -17,8 +17,7 @@ function normalizePath(value: string): string {
 export function getPostSlug(post: BlogPost): string {
   if (post.data.slug) return normalizePath(post.data.slug)
 
-  const id = normalizePath(post.id).replace(/\/index$/, '')
-  return id.split('/').at(-1) ?? id
+  return normalizePath(post.id).replace(/\/index$/, '')
 }
 
 export function getPostPath(post: BlogPost): string {

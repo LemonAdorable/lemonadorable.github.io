@@ -35,38 +35,59 @@ export class FriendCircle {
   collapseBtn!: HTMLButtonElement
   endMessage!: HTMLElement
   modal!: HTMLElement
+  listenerController?: AbortController
 
   load() {
-    this.loadArticles()
-    this.loadMoreBtn.addEventListener('click', () => {
-      const start = this.visibleCount
-      this.visibleCount = Math.min(
-        this.visibleCount + this.config.page_turning_number,
-        this.allArticles.length
-      )
-      this.renderArticles(start)
+    this.listenerController?.abort()
+    this.listenerController = new AbortController()
+    const { signal } = this.listenerController
 
-      // Scroll so the "Show More" / "End" message stays in view
-      setTimeout(() => {
-        this.controlsContainer.scrollIntoView({ behavior: 'smooth', block: 'end' })
-      }, 100)
-    })
-    this.collapseBtn.addEventListener('click', () => {
-      this.visibleCount = Math.min(this.config.page_turning_number, this.allArticles.length)
-      this.renderArticles(0, true)
-      // Use block: 'start' and some offset or block: 'center' to bring it to view
-      this.root.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    })
-    window.onclick = (event) => {
-      const modal = document.getElementById('modal')
-      if (event.target === modal) {
-        this.hideModal()
-      }
-    }
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && this.modal?.classList.contains('modal-open')) {
-        this.hideModal()
-      }
+    void this.loadArticles()
+    this.loadMoreBtn.addEventListener(
+      'click',
+      () => {
+        const start = this.visibleCount
+        this.visibleCount = Math.min(
+          this.visibleCount + this.config.page_turning_number,
+          this.allArticles.length
+        )
+        this.renderArticles(start)
+
+        setTimeout(() => {
+          this.controlsContainer.scrollIntoView({ behavior: 'smooth', block: 'end' })
+        }, 100)
+      },
+      { signal }
+    )
+    this.collapseBtn.addEventListener(
+      'click',
+      () => {
+        this.visibleCount = Math.min(this.config.page_turning_number, this.allArticles.length)
+        this.renderArticles(0, true)
+        this.root.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      },
+      { signal }
+    )
+    window.addEventListener(
+      'click',
+      (event) => {
+        const modal = document.getElementById('modal')
+        if (event.target === modal) this.hideModal()
+      },
+      { signal }
+    )
+    document.addEventListener(
+      'keydown',
+      (event) => {
+        if (event.key === 'Escape' && this.modal?.classList.contains('modal-open')) {
+          this.hideModal()
+        }
+      },
+      { signal }
+    )
+    document.addEventListener('astro:before-swap', () => this.listenerController?.abort(), {
+      once: true,
+      signal
     })
   }
 
@@ -136,14 +157,14 @@ export class FriendCircle {
     return element
   }
 
-  loadArticles() {
+  async loadArticles() {
     const cacheKey = 'friend-circle-lite-cache'
     const cacheTimeKey = 'friend-circle-lite-cache-time'
     const cacheTime = localStorage.getItem(cacheTimeKey)
+    const cachedDataString = localStorage.getItem(cacheKey)
     const now = Date.now()
 
     if (cacheTime && now - Number(cacheTime) < 10 * 60 * 1000) {
-      const cachedDataString = localStorage.getItem(cacheKey)
       try {
         const cachedData = cachedDataString ? JSON.parse(cachedDataString) : null
         if (cachedData) {
@@ -156,25 +177,55 @@ export class FriendCircle {
       }
     }
 
-    fetch(`${this.config.private_api_url}all.json`)
-      .then((response) => {
-        if (!response.ok) throw new Error(`HTTP ${response.status}`)
-        return response.json()
+    const controller = new AbortController()
+    const timeout = window.setTimeout(() => controller.abort(), 8000)
+
+    try {
+      const response = await fetch(`${this.config.private_api_url}all.json`, {
+        signal: controller.signal
       })
-      .then((data) => {
-        localStorage.setItem(cacheKey, JSON.stringify(data))
-        localStorage.setItem(cacheTimeKey, now.toString())
-        this.processArticles(data)
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+      const data = (await response.json()) as ArticleData
+      localStorage.setItem(cacheKey, JSON.stringify(data))
+      localStorage.setItem(cacheTimeKey, now.toString())
+      this.processArticles(data)
+    } catch (error) {
+      try {
+        const staleData = cachedDataString ? (JSON.parse(cachedDataString) as ArticleData) : null
+        if (staleData) {
+          this.processArticles(staleData)
+          this.statsContainer.insertAdjacentHTML(
+            'afterbegin',
+            '<div class="fc-cache-notice">接口暂不可用，当前显示上次缓存。</div>'
+          )
+          return
+        }
+      } catch {
+        localStorage.removeItem(cacheKey)
+        localStorage.removeItem(cacheTimeKey)
+      }
+
+      const message =
+        error instanceof DOMException && error.name === 'AbortError'
+          ? '请求超时'
+          : error instanceof Error
+            ? error.message
+            : '请稍后重试'
+      this.container.innerHTML = `
+        <div class="fc-empty">
+          <strong>邻站动态加载失败</strong>
+          <span>${this.escapeHtml(message)}</span>
+          <button type="button" data-fc-retry>重新加载</button>
+        </div>
+      `
+      this.container.querySelector('[data-fc-retry]')?.addEventListener('click', () => {
+        this.container.innerHTML = '<div class="fc-empty"><span>正在重新加载...</span></div>'
+        void this.loadArticles()
       })
-      .catch((error) => {
-        this.container.innerHTML = `
-          <div class="fc-empty">
-            <strong>邻站动态加载失败</strong>
-            <span>${error instanceof Error ? error.message : '请稍后重试'}</span>
-          </div>
-        `
-        this.controlsContainer.hidden = true
-      })
+      this.controlsContainer.hidden = true
+    } finally {
+      window.clearTimeout(timeout)
+    }
   }
 
   processArticles({ article_data, statistical_data }: ArticleData) {

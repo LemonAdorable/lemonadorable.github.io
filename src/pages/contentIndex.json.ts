@@ -13,6 +13,7 @@ interface ContentDetails {
   slug: string
   aliases: string[]
   title: string
+  description?: string
   content: string
   tags: string[]
   categories: string[]
@@ -172,6 +173,7 @@ const GET = async (_context: AstroGlobal) => {
       aliases:
         entry.collection === 'blog' && slug !== `blog/${entry.id}` ? [`blog/${entry.id}`] : [],
       title: entry.data.title || '',
+      description: entry.data.description,
       content: textContent,
       tags: entry.data.tags || [],
       categories:

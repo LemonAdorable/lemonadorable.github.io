@@ -681,21 +681,22 @@ function setupRoot(root: HTMLElement, index: ContentIndex) {
   syncControls()
   render()
 
-  return (search: string) => {
+  return (search?: string) => {
+    if (!search) return
     state = readState(search)
     syncControls()
     render()
   }
 }
 
-const controllers = new WeakMap<HTMLElement, (search: string) => void>()
+const controllers = new WeakMap<HTMLElement, (search?: string) => void>()
 
-export async function openKnowledgeGraph(dialog: HTMLDialogElement) {
+export async function openKnowledgeGraph(dialog: HTMLDialogElement, search?: string) {
   const root = dialog.querySelector<HTMLElement>('[data-knowledge-graph]')
   if (!root) return
   const existing = controllers.get(root)
   if (existing) {
-    existing(dialog.dataset.graphParams || '')
+    existing(search)
     return
   }
   if (initialized.has(root)) return
