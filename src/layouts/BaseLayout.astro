@@ -2,6 +2,7 @@
 import { Footer, ThemeProvider } from 'astro-pure/components/basic'
 import type { SiteMeta } from 'astro-pure/types'
 import BaseHead from '@/components/BaseHead.astro'
+import CategoryBrowserOverlay from '@/components/categories/CategoryBrowserOverlay.astro'
 import CustomHeader from '@/components/CustomHeader.astro'
 import KnowledgeGraph from '@/components/graph/KnowledgeGraph.astro'
 import PageTransition from '@/components/PageTransition.astro'
@@ -43,11 +44,12 @@ const {
       class='mx-auto w-full max-w-[70rem] min-h-[100dvh] flex flex-col justify-between'
     >
       <CustomHeader />
-      <div class='flex-1 w-full'>
+      <div id='page-content' class='flex-1 w-full' data-page-content>
         <slot />
       </div>
       <Footer />
     </div>
+    <CategoryBrowserOverlay />
     <KnowledgeGraph />
 
     {/* Set highlight color */}
@@ -88,6 +90,40 @@ const {
           padding-right: calc(2.5rem + env(safe-area-inset-right));
         }
       }
+
+      :global([data-page-content].is-page-entering) {
+        animation: page-content-enter 160ms ease-out both;
+      }
+
+      @keyframes page-content-enter {
+        from {
+          opacity: 0;
+          transform: translateY(4px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        :global([data-page-content].is-page-entering) {
+          animation: none;
+        }
+      }
     </style>
+
+    <script>
+      function animatePageContent() {
+        const content = document.querySelector<HTMLElement>('[data-page-content]')
+        if (!content) return
+        content.classList.remove('is-page-entering')
+        void content.offsetWidth
+        content.classList.add('is-page-entering')
+      }
+
+      animatePageContent()
+      document.addEventListener('astro:page-load', animatePageContent)
+    </script>
   </body>
 </html>

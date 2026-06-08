@@ -197,21 +197,32 @@ const meta = {
           <h2 id='neighbor-feed'>邻站动态</h2>
         </header>
 
-        <div id='friend-circle-lite-root' class='not-prose relative'>Loading...</div>
+        <div id='friend-circle-lite-root' class='not-prose relative'>
+          <div class='friend-feed-loading' role='status'>正在获取邻站动态...</div>
+        </div>
         <script>
           import '@/assets/styles/fc.css'
 
           import { FriendCircle } from '@/plugins/friendCircle'
 
-          const fc = new FriendCircle()
-          fc.init({
-            private_api_url:
-              import.meta.env.PUBLIC_FRIEND_CIRCLE_API_URL ??
-              'https://lemonadorable.github.io/friend-circle-lite/',
-            page_turning_number: 12,
-            error_img: '/favicon/favicon.gif'
-          })
-          fc.load()
+          function setupFriendCircle() {
+            const root = document.getElementById('friend-circle-lite-root')
+            if (!root || root.dataset.initialized === 'true') return
+            root.dataset.initialized = 'true'
+
+            const fc = new FriendCircle()
+            fc.init({
+              private_api_url:
+                import.meta.env.PUBLIC_FRIEND_CIRCLE_API_URL ??
+                'https://lemonadorable.github.io/friend-circle-lite/',
+              page_turning_number: 12,
+              error_img: '/favicon/favicon.gif'
+            })
+            fc.load()
+          }
+
+          setupFriendCircle()
+          document.addEventListener('astro:page-load', setupFriendCircle)
         </script>
       </section>
     </div>
@@ -276,6 +287,14 @@ const meta = {
     background:
       radial-gradient(circle at 0% 0%, hsl(var(--primary) / 0.12), transparent 28%),
       linear-gradient(145deg, hsl(var(--accent) / 0.48), hsl(var(--muted) / 0.36));
+  }
+
+  .friend-feed-loading {
+    display: grid;
+    min-height: 12rem;
+    place-items: center;
+    color: hsl(var(--muted-foreground));
+    font-size: 0.8rem;
   }
 
   .links-panel__header {
@@ -528,6 +547,11 @@ const meta = {
         panels.forEach((panel) => {
           const isTarget = panel.dataset.linkPanel === category
           panel.hidden = !isTarget
+          if (isTarget) {
+            panel.dispatchEvent(
+              new CustomEvent('friend-panel-shown', { bubbles: true, detail: panel })
+            )
+          }
         })
 
         if (focus) selected.focus()
@@ -577,6 +601,11 @@ const meta = {
         panels.forEach((panel) => {
           const isTarget = panel.dataset.friendPanel === section
           panel.hidden = !isTarget
+          if (isTarget) {
+            panel.dispatchEvent(
+              new CustomEvent('friend-panel-shown', { bubbles: true, detail: panel })
+            )
+          }
         })
 
         if (focus) selected.focus()

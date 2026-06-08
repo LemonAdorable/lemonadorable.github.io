@@ -119,9 +119,13 @@ function registerEscapeHandler(outsideContainer: HTMLElement | null, cb: () => v
   }
 
   function esc(e: KeyboardEvent) {
-    if (!e.key.startsWith('Esc')) return
-    e.preventDefault()
-    cb()
+    const isInput = document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA'
+    if (e.key === 'Escape' || (e.key === 'q' && !isInput)) {
+      e.preventDefault()
+      // Blur active element to remove navigation focus artifacts
+      ;(document.activeElement as HTMLElement)?.blur()
+      cb()
+    }
   }
 
   outsideContainer?.addEventListener('click', click)

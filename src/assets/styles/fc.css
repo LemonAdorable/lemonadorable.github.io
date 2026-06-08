@@ -8,6 +8,19 @@
   background: hsl(var(--background));
   transition: background-color 0.2s;
 }
+.fc-cache-notice {
+  color: hsl(var(--muted-foreground));
+  font-size: 0.72rem;
+  text-align: center;
+}
+.fc-empty button {
+  padding: 0.45rem 0.7rem;
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.65rem;
+  color: hsl(var(--primary));
+  background: hsl(var(--background));
+  cursor: pointer;
+}
 #random-article:hover {
   background: hsl(var(--muted));
 }

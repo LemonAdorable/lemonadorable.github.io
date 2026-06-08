@@ -17,6 +17,7 @@ const logoImage = logoImageModule ? await logoImageModule() : null
 
 <header-component
   class='group sticky top-4 z-50 max-md:z-30 mb-12 flex items-center justify-between rounded-xl border border-transparent max-sm:py-1 sm:rounded-2xl'
+  transition:persist='site-header'
 >
   <a
     class='z-30 flex items-center gap-2 text-xl font-medium group-[.not-top]:ms-2 sm:group-[.not-top]:ms-3'
@@ -58,6 +59,12 @@ const logoImage = logoImageModule ? await logoImageModule() : null
               aria-label='Nav menu item'
               data-astro-prefetch={item.link.startsWith('#') ? 'false' : true}
               data-graph-open={item.link.startsWith('#knowledge-graph') ? '' : undefined}
+              data-category-open={item.link.startsWith('#category-browser') ? '' : undefined}
+              title={
+                item.link.startsWith('#category-browser')
+                  ? '打开分类文件管理器（Alt+C）'
+                  : undefined
+              }
             >
               {item.title}
             </a>
@@ -100,28 +107,50 @@ const logoImage = logoImageModule ? await logoImageModule() : null
   import { setTheme, showToast } from 'astro-pure/utils'
 
   class HeaderComponent extends HTMLElement {
+    private controller?: AbortController
+
     connectedCallback() {
+      this.controller?.abort()
+      this.controller = new AbortController()
+      const { signal } = this.controller
+
       // Header
       let preScrollY = window.scrollY
       this.classList.toggle('not-top', preScrollY > 20)
-      window.addEventListener('scroll', () => {
-        this.classList.toggle('not-top', window.scrollY > 20)
-        this.dataset.show = (window.scrollY < 350 || window.scrollY < preScrollY).toString()
-        preScrollY = window.scrollY
-      })
+      window.addEventListener(
+        'scroll',
+        () => {
+          this.classList.toggle('not-top', window.scrollY > 20)
+          this.dataset.show = (window.scrollY < 350 || window.scrollY < preScrollY).toString()
+          preScrollY = window.scrollY
+        },
+        { passive: true, signal }
+      )
 
       // Dark Mode
       const darkModeBtn = this.querySelector('#toggleDarkMode') as HTMLElement
-      darkModeBtn.addEventListener('click', () => {
-        const newTheme = setTheme(undefined, true)
-        darkModeBtn.dataset.theme = newTheme
-        showToast({ message: `Set theme to ${newTheme}` })
-      })
+      darkModeBtn.addEventListener(
+        'click',
+        () => {
+          const newTheme = setTheme(undefined, true)
+          darkModeBtn.dataset.theme = newTheme
+          showToast({ message: `Set theme to ${newTheme}` })
+        },
+        { signal }
+      )
 
       // Menu
-      this.querySelector('#toggleMenu')?.addEventListener('click', () => {
-        this.classList.toggle('expanded')
-      })
+      this.querySelector('#toggleMenu')?.addEventListener(
+        'click',
+        () => {
+          this.classList.toggle('expanded')
+        },
+        { signal }
+      )
+    }
+
+    disconnectedCallback() {
+      this.controller?.abort()
     }
   }
 
