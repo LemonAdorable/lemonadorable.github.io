@@ -44,7 +44,7 @@ const getAvatarSrc = (friend: Friend) =>
 ---
 
 {title && <h2 id={friendList.id_name}>{title}</h2>}
-<div class='grid gap-4 sm:grid-cols-2' {...props}>
+<div class='grid gap-4 sm:grid-cols-2 lg:grid-cols-3' {...props}>
   {
     friendList.link_list.length > 0 ? (
       shuffle(friendList.link_list).map((frd: Friend, index) => {

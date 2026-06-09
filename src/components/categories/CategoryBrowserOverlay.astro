@@ -21,11 +21,11 @@ import { Icon } from 'astro-pure/user'
     <header class='browser-window-header'>
       <div class='window-title'>
         <Icon name='package' class='window-icon' />
-        <strong>分类文件管理器</strong>
+        <strong>文件管理器</strong>
         <span class='window-path' data-category-window-path>/</span>
       </div>
       <div class='category-browser-actions'>
-        <button type='button' aria-label='关闭分类文件管理器' data-category-browser-close>
+        <button type='button' aria-label='关闭文件管理器' data-category-browser-close>
           ×
         </button>
       </div>
@@ -91,11 +91,47 @@ import { Icon } from 'astro-pure/user'
     background: transparent;
     overflow: visible;
     outline: none;
+    opacity: 0;
+    translate: 0 12px;
+    scale: 0.98;
+    transition:
+      opacity 200ms ease,
+      translate 200ms ease,
+      scale 200ms ease,
+      overlay 200ms ease allow-discrete,
+      display 200ms ease allow-discrete;
+  }
+
+  .category-browser-overlay[open] {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+  }
+
+  @starting-style {
+    .category-browser-overlay[open] {
+      opacity: 0;
+      translate: 0 12px;
+      scale: 0.98;
+    }
   }
 
   .category-browser-overlay::backdrop {
-    background: hsl(var(--background) / 0.72);
-    backdrop-filter: blur(8px);
+    background: hsl(var(--foreground) / 0.18);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    transition:
+      opacity 200ms ease,
+      backdrop-filter 200ms ease,
+      overlay 200ms ease allow-discrete,
+      display 200ms ease allow-discrete;
+  }
+
+  @starting-style {
+    .category-browser-overlay[open]::backdrop {
+      opacity: 0;
+      backdrop-filter: blur(0);
+    }
   }
 
   .miller-browser {
@@ -106,8 +142,12 @@ import { Icon } from 'astro-pure/user'
     overflow: hidden;
     border: 1px solid hsl(var(--border));
     border-radius: 1.35rem;
-    background: hsl(var(--background) / 0.78);
-    box-shadow: 0 1.25rem 3rem hsl(var(--foreground) / 0.05);
+    background: hsl(var(--background) / 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow:
+      0 14px 50px rgba(27, 33, 48, 0.08),
+      0 10px 30px rgba(27, 33, 48, 0.1);
   }
 
   .browser-window-header {
@@ -363,7 +403,7 @@ import { Icon } from 'astro-pure/user'
   .browser-preview {
     background:
       radial-gradient(circle at 100% 0%, hsl(var(--primary) / 0.09), transparent 40%),
-      hsl(var(--background));
+      hsl(var(--muted) / 0.2);
     overflow-y: auto;
     scrollbar-width: thin;
   }

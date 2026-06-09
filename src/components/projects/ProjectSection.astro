@@ -46,10 +46,10 @@ const projectIconSet: Record<string, IconsType> = {
         }
 
         return (
-          <div class='relative overflow-hidden rounded-xl border'>
+          <div class='group relative overflow-hidden rounded-3xl border border-border/40 bg-background/40 backdrop-blur-md shadow-sm transition-all duration-500 hover:-translate-y-1 hover:border-transparent hover:shadow-[0_10px_30px_-10px_var(--primary)]'>
             {imagePath && (
               <Image
-                class='absolute end-0 z-0 m-0 h-full w-1/2 object-cover opacity-40'
+                class='absolute end-0 z-0 m-0 h-full w-1/2 object-cover opacity-30 transition-all duration-500 group-hover:scale-105 group-hover:opacity-50'
                 src={images[imagePath]()}
                 alt={project.name}
                 loading='lazy'
