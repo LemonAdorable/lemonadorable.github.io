@@ -386,14 +386,15 @@ if (!images[imagePath])
       })
     })
 
-    // Detect scroll position for fade effect
-    // Keep button always clickable, only adjust opacity for visual feedback
+    // Auto-scroll-to-top when user scrolls up in the transition zone
+    let prevScrollY = window.scrollY
+    let isAutoScrolling = false
+
     const handleScroll = () => {
       const scrollTop = window.pageYOffset || document.documentElement.scrollTop
       const heroHeight = profileHero.offsetHeight
 
       // Always keep button clickable, only adjust opacity for visual feedback
-      // Fade out when scrolled past hero section, but remain clickable
       if (scrollTop > heroHeight * 0.7) {
         scrollIndicator.style.opacity = '0.3'
         profileHero.classList.add('scrolled')
@@ -401,6 +402,17 @@ if (!images[imagePath])
         scrollIndicator.style.opacity = '1'
         profileHero.classList.remove('scrolled')
       }
+
+      // Auto-scroll-to-top: when user scrolls up while in the zone
+      // between 10% and 70% of hero height, snap back to top
+      if (!isAutoScrolling && scrollTop < prevScrollY && scrollTop > 0 && scrollTop < heroHeight * 0.7) {
+        isAutoScrolling = true
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+        // Reset flag after animation completes
+        setTimeout(() => { isAutoScrolling = false }, 600)
+      }
+
+      prevScrollY = scrollTop
 
       // Always ensure button is clickable
       scrollIndicator.style.pointerEvents = 'auto'

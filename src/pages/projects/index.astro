@@ -195,7 +195,7 @@ const sponsorsData = [
         </div>
       </div>
       {/* Layer 04: GPG Verification */}
-      <div class='sticky-card top-[10.5rem] z-[4] !mb-0'>
+      <div class='sticky-card top-[10.5rem] z-[4]'>
         <div class='w-full rounded-[3rem] bg-foreground text-background p-12 md:p-24 flex flex-col justify-center items-center text-center relative overflow-hidden shadow-2xl'>
           <div class='absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-64 bg-primary/20 blur-[120px] pointer-events-none'></div>
           
@@ -221,6 +221,9 @@ const sponsorsData = [
           </a>
         </div>
       </div>
+
+      {/* Spacer to allow last sticky card to fully scroll into view */}
+      <div class='h-[50vh] pointer-events-none' aria-hidden='true'></div>
 
     </div>
 

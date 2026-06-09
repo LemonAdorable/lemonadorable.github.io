@@ -216,9 +216,15 @@ const currentPostSlug = getPostSlug(Astro.props.post)
     const locateTarget = new URLSearchParams(window.location.search).get('locate')
     if (locateTarget) {
       setTimeout(() => {
-        const target = Array.from(document.querySelectorAll('a.wikilink')).find(
-          (link) => link.getAttribute('href')?.split('/').filter(Boolean).at(-1) === locateTarget
-        )
+        // locateTarget may be a full slug like 'flash/redminote5nethunter'
+        // but wikilink hrefs may be just '/blog/redminote5nethunter' (no subdirectory)
+        // So compare the last path segment of both for matching
+        const locateFilename = locateTarget.split('/').filter(Boolean).at(-1)
+        const target = Array.from(document.querySelectorAll('a.wikilink')).find((link) => {
+          const href = link.getAttribute('href') || ''
+          const hrefFilename = href.split('/').filter(Boolean).at(-1)
+          return hrefFilename === locateFilename
+        })
         if (target) {
           scrollToAndHighlight(target, 'wikilink-highlight')
           window.history.replaceState({}, '', window.location.pathname + window.location.hash)

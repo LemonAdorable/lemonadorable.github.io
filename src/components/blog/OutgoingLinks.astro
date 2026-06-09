@@ -191,28 +191,41 @@ function formatDate(date?: Date): string {
 
 <script>
   // Handle locate button clicks for outgoing links
-  document.querySelectorAll('.outgoing-locate-btn').forEach((btn) => {
-    btn.addEventListener('click', (e) => {
-      e.preventDefault()
-      const target = (btn as HTMLElement).dataset.target
-      if (!target) return
+  function setupOutgoingLocate() {
+    document.querySelectorAll('.outgoing-locate-btn').forEach((btn) => {
+      // Only attach once
+      if ((btn as HTMLElement).dataset.locateReady === 'true') return
+      ;(btn as HTMLElement).dataset.locateReady = 'true'
 
-      const contentLinks = document.querySelectorAll('#content a[href]')
-      for (const link of contentLinks) {
-        const href = link.getAttribute('href') || ''
-        const linkTarget = href
-          .split('#', 1)[0]
-          .replace(/^\/(?:blog|docs)\//, '')
-          .replace(/\/$/, '')
-        if (linkTarget === target || linkTarget.endsWith(`/${target}`)) {
-          link.scrollIntoView({ behavior: 'smooth', block: 'center' })
-          link.classList.remove('wikilink-highlight')
-          void (link as HTMLElement).offsetWidth
-          link.classList.add('wikilink-highlight')
-          setTimeout(() => link.classList.remove('wikilink-highlight'), 2000)
-          break
+      btn.addEventListener('click', (e) => {
+        e.preventDefault()
+        const target = (btn as HTMLElement).dataset.target
+        if (!target) return
+
+        // target may be like 'flash/redminote5nethunter' but wikilink href is '/blog/redminote5nethunter'
+        const targetFilename = target.split('/').filter(Boolean).at(-1)
+
+        const contentLinks = document.querySelectorAll('#content a[href]')
+        for (const link of contentLinks) {
+          const href = link.getAttribute('href') || ''
+          const linkTarget = href
+            .split('#', 1)[0]
+            .replace(/^\/(?:blog|docs)\//, '')
+            .replace(/\/$/, '')
+          const linkFilename = linkTarget.split('/').filter(Boolean).at(-1)
+          if (linkTarget === target || linkFilename === targetFilename) {
+            link.scrollIntoView({ behavior: 'smooth', block: 'center' })
+            link.classList.remove('wikilink-highlight')
+            void (link as HTMLElement).offsetWidth
+            link.classList.add('wikilink-highlight')
+            setTimeout(() => link.classList.remove('wikilink-highlight'), 2000)
+            break
+          }
         }
-      }
+      })
     })
-  })
+  }
+
+  setupOutgoingLocate()
+  document.addEventListener('astro:page-load', setupOutgoingLocate)
 </script>
