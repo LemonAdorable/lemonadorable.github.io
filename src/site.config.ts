@@ -49,9 +49,8 @@ export const theme: ThemeUserConfig = {
   header: {
     menu: [
       { title: '博客', link: '/blog' },
-      { title: '分类', link: '#category-browser' },
+      { title: '分类', link: '/categories' },
       { title: '标签', link: '/tags' },
-      { title: '图谱', link: '#knowledge-graph' },
       { title: '时光机', link: '/archives' },
       { title: '项目', link: '/projects' },
       { title: '文档', link: '/docs' },

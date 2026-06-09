@@ -1,12 +1,12 @@
 /* [Animation] */
 @keyframes fade-in-up {
   0% {
-    transform: translateY(2rem);
+    translate: 0 2rem;
     opacity: 0;
   }
 
   100% {
-    transform: translateY(0);
+    translate: none;
     opacity: 1;
   }
 }
@@ -15,38 +15,36 @@
 @keyframes pageEnter {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    translate: 0 20px;
   }
 
   to {
     opacity: 1;
-    transform: translateY(0);
+    translate: none;
   }
 }
 
 @keyframes homePageEnter {
   from {
     opacity: 0;
-    transform: scale(0.98) translateY(30px);
+    scale: 0.98;
+    translate: 0 30px;
   }
 
   to {
     opacity: 1;
-    transform: scale(1) translateY(0);
+    scale: none;
+    translate: none;
   }
 }
 
 .animate {
-  opacity: 0;
-  animation: 300ms fade-in-up;
-  animation-fill-mode: forwards;
+  animation: 300ms fade-in-up backwards;
 }
 
 @media (prefers-reduced-motion) {
   .animate {
-    opacity: 0;
-    animation: 100ms fade-in-up;
-    animation-fill-mode: forwards;
+    animation: 100ms fade-in-up backwards;
   }
 }
 

@@ -58,13 +58,6 @@ const logoImage = logoImageModule ? await logoImageModule() : null
               class='w-full flex-none grow py-2 text-right font-medium transition-none hover:text-primary sm:w-fit sm:px-3'
               aria-label='Nav menu item'
               data-astro-prefetch={item.link.startsWith('#') ? 'false' : true}
-              data-graph-open={item.link.startsWith('#knowledge-graph') ? '' : undefined}
-              data-category-open={item.link.startsWith('#category-browser') ? '' : undefined}
-              title={
-                item.link.startsWith('#category-browser')
-                  ? '打开分类文件管理器（Alt+C）'
-                  : undefined
-              }
             >
               {item.title}
             </a>
@@ -76,6 +69,29 @@ const logoImage = logoImageModule ? await logoImageModule() : null
     {/* buttons */}
     <div class='z-30 flex gap-x-4 group-[.not-top]:gap-x-2' style='transition:gap 0.3s'>
       <Search />
+      <button
+        aria-label='标签云'
+        data-tagcloud-trigger
+        class='flex h-8 w-8 items-center justify-center rounded text-foreground transition-colors hover:bg-muted sm:group-[.not-top]:rounded-xl'
+      >
+        <Icon class='size-5' name='hashtag' />
+      </button>
+      <button
+        aria-label='文件管理器'
+        title='文件管理器'
+        data-category-open
+        class='flex h-8 w-8 items-center justify-center rounded text-foreground transition-colors hover:bg-muted sm:group-[.not-top]:rounded-xl'
+      >
+        <Icon class='size-5' name='package' />
+      </button>
+      <button
+        aria-label='知识图谱'
+        title='知识图谱'
+        data-graph-open
+        class='flex h-8 w-8 items-center justify-center rounded text-foreground transition-colors hover:bg-muted sm:group-[.not-top]:rounded-xl'
+      >
+        <Icon class='size-5' name='earth' />
+      </button>
       <button
         id='toggleDarkMode'
         class='group/dark box-content size-5 rounded-md border p-1.5 transition-colors hover:bg-border sm:group-[.not-top]:rounded-xl'

@@ -1027,10 +1027,18 @@ const initialize = () => {
         event.preventDefault()
         if (searchMode) {
           searchMode = false
-          renderContents()
+          renderContents(true)
         } else if (currentPath) {
           const parent = currentPath.split('/').slice(0, -1).join('/')
           enterFolder(parent)
+          // Ensure focus is restored after DOM update
+          requestAnimationFrame(() => {
+            if (visibleItems.length > 0) {
+              selectIndex(Math.min(selectedIndex, visibleItems.length - 1))
+            } else {
+              dialog.focus()
+            }
+          })
         }
       }
     },
