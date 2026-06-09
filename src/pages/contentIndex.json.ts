@@ -168,10 +168,18 @@ const GET = async (_context: AstroGlobal) => {
       return target ? getPostPath(target) : link
     })
 
+    const idWithoutExt = entry.id.replace(/\.(md|mdx)$/, '')
+    const bareFilename = idWithoutExt.split('/').pop()
+    const aliases = []
+    if (entry.collection === 'blog') {
+      if (slug !== `blog/${entry.id}`) aliases.push(`blog/${entry.id}`)
+      if (slug !== `blog/${idWithoutExt}`) aliases.push(`blog/${idWithoutExt}`)
+      if (bareFilename && slug !== `blog/${bareFilename}`) aliases.push(`blog/${bareFilename}`)
+    }
+
     contentIndex[slug] = {
       slug,
-      aliases:
-        entry.collection === 'blog' && slug !== `blog/${entry.id}` ? [`blog/${entry.id}`] : [],
+      aliases,
       title: entry.data.title || '',
       description: entry.data.description,
       content: textContent,

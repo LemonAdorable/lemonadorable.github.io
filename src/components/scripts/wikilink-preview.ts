@@ -103,7 +103,7 @@ async function fetchContent(slug: string): Promise<Element[]> {
       normalizeRelativeURLs(html, targetUrl)
       // Get main content area
       const mainContent =
-        html.querySelector('#content, article .prose, article, main article, main') || html.body
+        html.querySelector('article, #content, .prose, main') || html.body
 
       // Remove TOC and sidebar elements
       const elementsToRemove = mainContent.querySelectorAll(
@@ -117,6 +117,7 @@ async function fetchContent(slug: string): Promise<Element[]> {
         // Skip TOC, sidebar, and other navigation elements
         if (
           child.id === 'content-header' ||
+          child.id === 'sidebar' ||
           child.classList.contains('toc') ||
           child.classList.contains('sidebar') ||
           child.tagName === 'ASIDE' ||
@@ -205,9 +206,18 @@ async function createPreviewContent(slug: string): Promise<HTMLElement> {
 
     // Update title from fetched content if not found in index
     if (articleTitle === '加载中...') {
-      const titleElement = contents.find((el) => el.tagName === 'H1')
-      if (titleElement) {
-        articleTitle = titleElement.textContent || '未找到标题'
+      // Find H1 anywhere in the contents
+      let foundTitle = ''
+      for (const el of contents) {
+        const h1 = el.tagName === 'H1' ? el : el.querySelector('h1')
+        if (h1) {
+          foundTitle = h1.textContent || ''
+          break
+        }
+      }
+
+      if (foundTitle) {
+        articleTitle = foundTitle
         title.textContent = articleTitle
       }
     }
