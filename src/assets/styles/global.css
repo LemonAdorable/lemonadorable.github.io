@@ -90,11 +90,17 @@ span.katex-display {
   padding: 1rem 0;
   display: flex;
   justify-content: center;
+  background: transparent !important;
 }
 
 .mermaid svg {
   max-width: 100% !important;
   height: auto !important;
+  background-color: transparent !important;
+}
+
+.dark .mermaid svg {
+  background-color: transparent !important;
 }
 
 /* [Shiki basic] */

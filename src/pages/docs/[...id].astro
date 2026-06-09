@@ -46,10 +46,13 @@ const { description, title } = post.data
 const editPath = `https://github.com/cworld1/astro-theme-pure/edit/main/${post.filePath}`
 ---
 
-<PageLayout meta={{ description, title }} back='/docs' graphTarget='#docs-graph-view'>
+<PageLayout meta={{ description, title }} back='/docs' graphTarget='#docs-graph-view' mode='article'>
+  <Fragment slot='left-sidebar'>
+    <DocsContents class='docs-toc block mt-3' />
+  </Fragment>
+  
   <Fragment slot='sidebar'>
     {!!headings.length && <TOC {headings} />}
-    <DocsContents class='docs-toc block mt-3' />
   </Fragment>
 
   <Fragment slot='header'>
@@ -159,7 +162,7 @@ const editPath = `https://github.com/cworld1/astro-theme-pure/edit/main/${post.f
       const target = Array.from(document.querySelectorAll('#content a[href]')).find((link) => {
         const href = link.getAttribute('href')?.split('#', 1)[0] ?? ''
         const documentId = href.replace(/^\/docs\//, '').replace(/\/$/, '')
-        return documentId === locateTarget
+        return documentId === locateTarget || documentId.split('/').at(-1) === locateTarget
       })
       if (target) {
         highlightTarget(target, 'wikilink-highlight')
@@ -172,33 +175,3 @@ const editPath = `https://github.com/cworld1/astro-theme-pure/edit/main/${post.f
   document.addEventListener('astro:page-load', initDocsNavigation)
   window.addEventListener('hashchange', highlightCurrentHash)
 </script>
-
-<style>
-  @media (min-width: 1300px) {
-    :global(main),
-    :global(.bottom) {
-      transform: translateX(7.9rem);
-    }
-    :global(#sidebar) {
-      overflow: inherit;
-    }
-    :global(toc-heading) {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-    }
-    :global(toc-heading > ul) {
-      overflow-y: scroll;
-    }
-
-    :global(.docs-toc) {
-      position: fixed;
-      top: 0;
-      left: -64rem;
-      margin-top: 0;
-      max-height: calc(100vh - 7rem);
-      overflow-y: auto;
-      padding-right: 1rem !important;
-    }
-  }
-</style>

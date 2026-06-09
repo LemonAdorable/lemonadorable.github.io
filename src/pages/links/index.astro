@@ -197,7 +197,7 @@ const meta = {
           <h2 id='neighbor-feed'>邻站动态</h2>
         </header>
 
-        <div id='friend-circle-lite-root' class='not-prose relative'>
+        <div id='friend-circle-lite-root' class='not-prose relative opacity-0 transition-opacity duration-300'>
           <div class='friend-feed-loading' role='status'>正在获取邻站动态...</div>
         </div>
         <script>
@@ -219,6 +219,11 @@ const meta = {
               error_img: '/favicon/favicon.gif'
             })
             fc.load()
+            
+            // Show root after a short delay to ensure styles are applied
+            setTimeout(() => {
+              root.classList.remove('opacity-0')
+            }, 100)
           }
 
           setupFriendCircle()

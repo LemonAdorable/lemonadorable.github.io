@@ -94,22 +94,31 @@ import './styles/search.css'
       const button = search.querySelector<HTMLButtonElement>('.search-button')
       if (!button) return
 
-      let loadPromise: Promise<void> | undefined
+      let loadPromise: Promise<typeof import('./scripts/search.ts')> | undefined
       const loadSearch = () => {
-        loadPromise ??= import('./scripts/search.ts').then(({ initSearch }) => initSearch())
+        loadPromise ??= import('./scripts/search.ts').then(async (mod) => {
+          await mod.initSearch()
+          return mod
+        })
         return loadPromise
       }
 
-      button.addEventListener('pointerenter', loadSearch, { once: true })
-      button.addEventListener('focus', loadSearch, { once: true })
+      button.addEventListener('pointerenter', () => loadSearch(), { once: true })
+      button.addEventListener('focus', () => loadSearch(), { once: true })
       button.addEventListener(
         'click',
         async (event) => {
           if (search.dataset.searchReady === 'true') return
           event.preventDefault()
           event.stopImmediatePropagation()
-          await loadSearch()
-          button.click()
+          try {
+            await loadSearch()
+            // After search is initialized, trigger click again
+            // searchReady should now be 'true', so this handler will return early
+            button.click()
+          } catch (err) {
+            console.error('Failed to load search:', err)
+          }
         },
         { capture: true }
       )

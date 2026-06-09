@@ -63,6 +63,21 @@ export async function getStaticPaths() {
       })
     }
 
+    // Add a redirect from the bare filename to support wikilinks that don't include the category path
+    const bareFilename = post.id.split('/').at(-1)
+    if (bareFilename && bareFilename !== canonicalSlug && bareFilename !== post.id) {
+      paths.push({
+        params: { id: bareFilename },
+        props: {
+          post,
+          posts,
+          backlinks,
+          outgoingLinks,
+          redirectTo: `/blog/${canonicalSlug}`
+        }
+      })
+    }
+
     return paths
   })
 }
@@ -78,7 +93,9 @@ type Props = {
 const { post, posts, backlinks, outgoingLinks, redirectTo } = Astro.props
 
 if (redirectTo) {
-  return Astro.redirect(redirectTo, 301)
+  const targetUrl = new URL(redirectTo, Astro.url)
+  targetUrl.search = Astro.url.search
+  return Astro.redirect(targetUrl.pathname + targetUrl.search, 301)
 }
 
 const { Content, headings, remarkPluginFrontmatter } = await render(post)

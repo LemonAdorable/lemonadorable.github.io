@@ -1031,14 +1031,20 @@ const initialize = () => {
         } else if (currentPath) {
           const parent = currentPath.split('/').slice(0, -1).join('/')
           enterFolder(parent)
-          // Ensure focus is restored after DOM update
+          // enterFolder calls renderContents(true) which handles focus.
+          // Double-check focus is on a content row after DOM settles.
           requestAnimationFrame(() => {
-            if (visibleItems.length > 0) {
-              selectIndex(Math.min(selectedIndex, visibleItems.length - 1))
+            const rows = [...contentsList.querySelectorAll<HTMLElement>('.browser-row')]
+            const focusedRow = rows[Math.min(selectedIndex, rows.length - 1)]
+            if (focusedRow) {
+              focusedRow.focus({ preventScroll: false })
             } else {
               dialog.focus()
             }
           })
+        } else {
+          // At root level, keep focus on dialog
+          dialog.focus()
         }
       }
     },

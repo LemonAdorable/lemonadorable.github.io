@@ -2,6 +2,9 @@
 
 English | [简体中文](./README-zh-CN.md)
 
+> [!CAUTION]
+> This project is undergoing frequent changes, and automatic merging may overwrite your local customizations. When pulling updates, please do not use `git pull` directly. Instead, use `git fetch` + `git merge --no-commit` to manually review and control the merge results.
+
 <div align="center">
   <img src="./logo.png" alt="Astro Theme Iris Logo" width="200">
 </div>

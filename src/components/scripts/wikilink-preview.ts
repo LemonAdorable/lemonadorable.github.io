@@ -87,10 +87,23 @@ async function fetchContent(slug: string): Promise<Element[]> {
         throw new Error(`Could not fetch ${targetUrl}`)
       }
       const html = p.parseFromString(contents ?? '', 'text/html')
+
+      // Astro static redirects generate HTML with a meta refresh tag.
+      // fetch() doesn't follow these, so we need to handle them manually.
+      const metaRefresh = html.querySelector('meta[http-equiv="refresh"]')
+      if (metaRefresh) {
+        const contentAttr = metaRefresh.getAttribute('content')
+        const match = contentAttr?.match(/url=([^;]*)/i)
+        if (match && match[1]) {
+          const redirectUrl = match[1].replace(/^['"]|['"]$/g, '').trim()
+          return fetchContent(redirectUrl)
+        }
+      }
+
       normalizeRelativeURLs(html, targetUrl)
       // Get main content area
       const mainContent =
-        html.querySelector('#content, article .prose, article, main article, main') || html.body
+        html.querySelector('article, #content, .prose, main') || html.body
 
       // Remove TOC and sidebar elements
       const elementsToRemove = mainContent.querySelectorAll(
@@ -104,6 +117,7 @@ async function fetchContent(slug: string): Promise<Element[]> {
         // Skip TOC, sidebar, and other navigation elements
         if (
           child.id === 'content-header' ||
+          child.id === 'sidebar' ||
           child.classList.contains('toc') ||
           child.classList.contains('sidebar') ||
           child.tagName === 'ASIDE' ||
@@ -192,9 +206,18 @@ async function createPreviewContent(slug: string): Promise<HTMLElement> {
 
     // Update title from fetched content if not found in index
     if (articleTitle === '加载中...') {
-      const titleElement = contents.find((el) => el.tagName === 'H1')
-      if (titleElement) {
-        articleTitle = titleElement.textContent || '未找到标题'
+      // Find H1 anywhere in the contents
+      let foundTitle = ''
+      for (const el of contents) {
+        const h1 = el.tagName === 'H1' ? el : el.querySelector('h1')
+        if (h1) {
+          foundTitle = h1.textContent || ''
+          break
+        }
+      }
+
+      if (foundTitle) {
+        articleTitle = foundTitle
         title.textContent = articleTitle
       }
     }
@@ -315,52 +338,52 @@ function setupTippyForLink(link: HTMLAnchorElement, parentSlug: string | null = 
     },
     getReferenceClientRect: parentSlug
       ? () => {
-          // Position relative to parent preview
-          const parentInstance = tippyInstances.get(parentSlug)
-          if (parentInstance && parentInstance.instance.popper) {
-            const parentRect = parentInstance.instance.popper.getBoundingClientRect()
-            const previewOffset = 20
+        // Position relative to parent preview
+        const parentInstance = tippyInstances.get(parentSlug)
+        if (parentInstance && parentInstance.instance.popper) {
+          const parentRect = parentInstance.instance.popper.getBoundingClientRect()
+          const previewOffset = 20
 
-            // Try to position to the right of parent
-            const viewportWidth = window.innerWidth
-            const viewportHeight = window.innerHeight
-            const containerWidth = 550
-            const containerHeight = 500
+          // Try to position to the right of parent
+          const viewportWidth = window.innerWidth
+          const viewportHeight = window.innerHeight
+          const containerWidth = 550
+          const containerHeight = 500
 
-            let left = parentRect.right + previewOffset
-            let top = parentRect.top
+          let left = parentRect.right + previewOffset
+          let top = parentRect.top
 
-            // Adjust if goes off screen
-            if (left + containerWidth > viewportWidth - 10) {
-              // Try left side
-              if (parentRect.left - containerWidth - previewOffset > 10) {
-                left = parentRect.left - containerWidth - previewOffset
-              } else {
-                // Overlap with offset
-                left = parentRect.left + previewOffset
-                top = parentRect.top + previewOffset
-              }
+          // Adjust if goes off screen
+          if (left + containerWidth > viewportWidth - 10) {
+            // Try left side
+            if (parentRect.left - containerWidth - previewOffset > 10) {
+              left = parentRect.left - containerWidth - previewOffset
+            } else {
+              // Overlap with offset
+              left = parentRect.left + previewOffset
+              top = parentRect.top + previewOffset
             }
-
-            if (top + containerHeight > viewportHeight - 10) {
-              top = Math.max(10, viewportHeight - containerHeight - 10)
-            }
-
-            return {
-              width: 0,
-              height: 0,
-              top,
-              left,
-              right: left,
-              bottom: top,
-              x: left,
-              y: top,
-              toJSON: () => ({})
-            } as DOMRect
           }
-          // Fallback to link position
-          return link.getBoundingClientRect()
+
+          if (top + containerHeight > viewportHeight - 10) {
+            top = Math.max(10, viewportHeight - containerHeight - 10)
+          }
+
+          return {
+            width: 0,
+            height: 0,
+            top,
+            left,
+            right: left,
+            bottom: top,
+            x: left,
+            y: top,
+            toJSON: () => ({})
+          } as DOMRect
         }
+        // Fallback to link position
+        return link.getBoundingClientRect()
+      }
       : undefined
   })
 
@@ -450,7 +473,15 @@ function hidePreviewsFrom(slug: string) {
   })
 }
 
+// Track cleanup state for re-initialization
+let cleanupController: AbortController | null = null
+let activeObserver: MutationObserver | null = null
+
 function setupWikilinkPreviews() {
+  // Create new abort controller for this session's event listeners
+  cleanupController = new AbortController()
+  const { signal } = cleanupController
+
   // Track mouse position and current preview
   let lastMouseX = 0
   let lastMouseY = 0
@@ -507,7 +538,7 @@ function setupWikilinkPreviews() {
         }, 500)
       }
     }
-  })
+  }, { signal })
 
   // Setup tippy for existing wikilinks
   const wikilinks = document.querySelectorAll('a.wikilink')
@@ -527,11 +558,11 @@ function setupWikilinkPreviews() {
         hideTimeout = null
       }
     },
-    { passive: true }
+    { passive: true, signal }
   )
 
   // Use MutationObserver to handle dynamically added wikilinks
-  const observer = new MutationObserver((mutations) => {
+  activeObserver = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       mutation.addedNodes.forEach((node) => {
         if (node.nodeType === Node.ELEMENT_NODE) {
@@ -551,7 +582,7 @@ function setupWikilinkPreviews() {
     })
   })
 
-  observer.observe(document.body, {
+  activeObserver.observe(document.body, {
     childList: true,
     subtree: true
   })
@@ -559,6 +590,26 @@ function setupWikilinkPreviews() {
 
 // Initialize wikilink previews
 export function initWikilinkPreviews() {
+  // Cleanup previous session
+  // 1. Abort old event listeners
+  if (cleanupController) {
+    cleanupController.abort()
+    cleanupController = null
+  }
+  // 2. Disconnect old MutationObserver
+  if (activeObserver) {
+    activeObserver.disconnect()
+    activeObserver = null
+  }
+  // 3. Destroy all tippy instances
+  for (const [, previewInstance] of tippyInstances) {
+    previewInstance.instance.destroy()
+    for (const child of previewInstance.childInstances) {
+      child.destroy()
+    }
+  }
+  tippyInstances.clear()
+
   // Wait for DOM to be ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
@@ -575,4 +626,8 @@ export function initWikilinkPreviews() {
 // Auto-initialize when module loads
 if (typeof window !== 'undefined') {
   initWikilinkPreviews()
+  // Re-initialize on Astro page transitions
+  document.addEventListener('astro:page-load', () => {
+    initWikilinkPreviews()
+  })
 }

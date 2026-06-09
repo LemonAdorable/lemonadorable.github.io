@@ -102,8 +102,7 @@ function normalizePath(path: string): string {
 function getCanonicalSlug(post: PostLike): string {
   if (post.data.slug) return normalizeId(post.data.slug)
 
-  const id = normalizeId(post.id)
-  return id.split('/').at(-1) ?? id
+  return normalizeId(post.id)
 }
 
 /**
