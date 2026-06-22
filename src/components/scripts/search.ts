@@ -281,10 +281,6 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
   container.style.visibility = 'hidden'
   container.style.opacity = '0'
 
-  // Move container to body to make it independent from header
-  // This prevents it from being affected by header transformations
-  let containerMovedToBody = false
-
   const searchButton = searchElement.querySelector('.search-button') as HTMLButtonElement
   if (!searchButton) return
 
@@ -594,11 +590,10 @@ async function setupSearch(searchElement: Element, _currentSlug: string, data: C
 
   function showSearch(searchTypeNew: SearchType) {
     searchType = searchTypeNew
-    // Show container first
-    // Move container to body if not already moved (to make it independent from header)
-    if (!containerMovedToBody && container.parentElement !== document.body) {
+    // Keep the modal outside the persisted header. Astro view transitions replace
+    // the body, so reattach it if a previous navigation detached the node.
+    if (container.parentElement !== document.body) {
       document.body.appendChild(container)
-      containerMovedToBody = true
     }
 
     // Use requestAnimationFrame to ensure visibility applies smoothly

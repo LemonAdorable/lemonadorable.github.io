@@ -229,16 +229,56 @@ const logoImage = logoImageModule ? await logoImageModule() : null
 
   /* header menu */
   @media (max-width: 640px) {
+    header-component > a[aria-label='Brand'] {
+      min-width: 2rem;
+      flex-shrink: 0;
+    }
+
+    header-component > a[aria-label='Brand'] span {
+      display: none;
+    }
+
+    header-component > div > .z-30 {
+      gap: 0.5rem;
+    }
+  }
+
+  @media (max-width: 900px) {
     #headerExpandContent {
+      position: absolute;
+      inset-inline: 0;
+      top: 3rem;
       grid-template-rows: 0fr;
+      opacity: 0;
+      pointer-events: none;
       transition:
         opacity 0.3s,
         padding 0.3s,
         border-color 0.15s,
         grid-template-rows 0.3s;
     }
+
+    #headerExpandContent > div {
+      flex-direction: column;
+    }
+
+    #headerExpandContent a {
+      width: 100%;
+      padding: 0.5rem 0;
+      text-align: right;
+    }
+
     .expanded #headerExpandContent {
       grid-template-rows: 1fr;
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .expanded.not-top #headerExpandContent,
+    header-component:not(.not-top).expanded #headerExpandContent {
+      border-color: hsl(var(--border) / var(--un-border-opacity, 1));
+      border-radius: 0.75rem;
+      padding: 0.5rem 1rem;
+      background-color: hsl(var(--background) / var(--un-bg-opacity, 1));
     }
     .expanded.not-top #headerExpandContent {
       box-shadow:
@@ -268,6 +308,10 @@ const logoImage = logoImageModule ? await logoImageModule() : null
       opacity: 1;
       background-color: hsl(var(--muted) / var(--un-bg-opacity, 1));
       border-bottom-color: hsl(var(--border) / var(--un-border-opacity, 1));
+    }
+
+    #toggleMenu {
+      display: grid !important;
     }
   }
 

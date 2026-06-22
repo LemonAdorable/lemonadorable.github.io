@@ -404,8 +404,10 @@ import { Icon } from 'astro-pure/user'
     background:
       radial-gradient(circle at 100% 0%, hsl(var(--primary) / 0.09), transparent 40%),
       hsl(var(--muted) / 0.2);
+    padding-inline: clamp(1rem, 2vw, 1.5rem);
     overflow-y: auto;
     scrollbar-width: thin;
+    scrollbar-gutter: stable;
   }
 
   :global(.category-browser .help-panel h2) {
