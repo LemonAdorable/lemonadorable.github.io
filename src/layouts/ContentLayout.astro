@@ -508,4 +508,25 @@ const isSingleColumn = mode === 'centered' || mode === 'wide'
       grid-column: 2;
     }
   }
+
+  @media (max-width: 769px) {
+    .article-reading-layout {
+      width: 100%;
+      margin-inline: 0;
+      display: block;
+      transform: none;
+    }
+
+    .article-reading-column {
+      width: 100%;
+    }
+
+    .article-left-rail {
+      display: none;
+    }
+
+    .article-bottom {
+      width: 100%;
+    }
+  }
 </style>

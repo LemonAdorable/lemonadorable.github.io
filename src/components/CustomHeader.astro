@@ -229,6 +229,19 @@ const logoImage = logoImageModule ? await logoImageModule() : null
 
   /* header menu */
   @media (max-width: 640px) {
+    header-component > a[aria-label='Brand'] {
+      min-width: 2rem;
+      flex-shrink: 0;
+    }
+
+    header-component > a[aria-label='Brand'] span {
+      display: none;
+    }
+
+    header-component > div > .z-30 {
+      gap: 0.5rem;
+    }
+
     #headerExpandContent {
       grid-template-rows: 0fr;
       transition:
