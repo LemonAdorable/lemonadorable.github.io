@@ -41,6 +41,7 @@ const getAvatarSrc = (friend: Friend) =>
   (config.integ?.links?.cacheAvatar ?? false)
     ? (friend.avatar_cache?.path ?? friend.avatar)
     : friend.avatar
+const fallbackAvatar = '/favicon/favicon.gif'
 ---
 
 {title && <h2 id={friendList.id_name}>{title}</h2>}
@@ -63,6 +64,8 @@ const getAvatarSrc = (friend: Friend) =>
                     <img
                       class='friend-avatar my-0 bg-card transition-transform duration-600'
                       src={avatarSrc}
+                      data-friend-avatar
+                      data-fallback-avatar={fallbackAvatar}
                       height={80}
                       width={80}
                       alt='avatar'
@@ -121,6 +124,8 @@ const getAvatarSrc = (friend: Friend) =>
                 <img
                   class='absolute -start-2 top-0 z-0 my-0 h-full w-2/3 bg-white object-cover opacity-15'
                   src={avatarSrc}
+                  data-friend-avatar
+                  data-fallback-avatar={fallbackAvatar}
                   height={80}
                   width={80}
                   alt='avatar bg'
@@ -256,6 +261,17 @@ const getAvatarSrc = (friend: Friend) =>
         },
         { signal }
       )
+    })
+
+    const handleAvatarError = (event: Event) => {
+      const avatar = event.currentTarget as HTMLImageElement
+      const fallback = avatar.dataset.fallbackAvatar
+      if (!fallback || avatar.src.endsWith(fallback)) return
+      avatar.src = fallback
+    }
+
+    document.querySelectorAll<HTMLImageElement>('[data-friend-avatar]').forEach((htmlAvatar) => {
+      htmlAvatar.addEventListener('error', handleAvatarError, { signal })
     })
 
     document.querySelectorAll<HTMLElement>('.friend-avatar').forEach((htmlAvatar) => {
