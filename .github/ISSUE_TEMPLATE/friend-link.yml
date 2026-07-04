@@ -48,7 +48,7 @@ body:
     id: site-avatar
     attributes:
       label: 网站头像 URL / Site avatar URL
-      description: 建议使用正方形图片，并确保允许外链访问。 Use a square image that allows hotlinking.
+      description: 建议使用正方形图片，并确保允许第三方页面直接加载；机器人会检测头像可访问性。 Use a square image that can be loaded by third-party pages; the bot will validate avatar accessibility.
       placeholder: https://example.com/avatar.png
     validations:
       required: true

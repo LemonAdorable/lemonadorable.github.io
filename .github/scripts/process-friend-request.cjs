@@ -203,6 +203,82 @@ async function validateFriendPage(pageUrl, site) {
   }
 }
 
+async function validateAvatarUrl(avatarUrl, site) {
+  await assertPublicUrl(avatarUrl)
+
+  const siteOrigin = new URL(site.friendPage || site.url)
+  const checkUrl = new URL('/__friend-link-avatar-check__', siteOrigin)
+  const browser = await chromium.launch({ headless: true })
+  const context = await browser.newContext({
+    userAgent: 'IrisFriendLinkChecker/1.0',
+    ignoreHTTPSErrors: false
+  })
+  const page = await context.newPage()
+
+  await page.route('**/*', async (route) => {
+    const request = route.request()
+    if (request.url() === checkUrl.toString()) {
+      await route.fulfill({
+        contentType: 'text/html; charset=utf-8',
+        body: `<!doctype html><img id="avatar" src="${avatarUrl.replace(/"/g, '&quot;')}">`
+      })
+      return
+    }
+
+    try {
+      await assertPublicUrl(request.url())
+      await route.continue()
+    } catch {
+      await route.abort('blockedbyclient')
+    }
+  })
+
+  try {
+    await page.goto(checkUrl.toString(), {
+      waitUntil: 'domcontentloaded',
+      timeout: 20_000
+    })
+
+    const loaded = await page.evaluate(
+      () =>
+        new Promise((resolve) => {
+          const image = document.getElementById('avatar')
+          if (!(image instanceof HTMLImageElement)) {
+            resolve(false)
+            return
+          }
+          if (image.complete) {
+            resolve(image.naturalWidth > 0 && image.naturalHeight > 0)
+            return
+          }
+          const timer = window.setTimeout(() => resolve(false), 10_000)
+          image.addEventListener(
+            'load',
+            () => {
+              window.clearTimeout(timer)
+              resolve(image.naturalWidth > 0 && image.naturalHeight > 0)
+            },
+            { once: true }
+          )
+          image.addEventListener(
+            'error',
+            () => {
+              window.clearTimeout(timer)
+              resolve(false)
+            },
+            { once: true }
+          )
+        })
+    )
+
+    if (!loaded) {
+      throw new Error('头像地址无法作为第三方页面图片加载，可能存在防盗链或访问限制')
+    }
+  } finally {
+    await browser.close()
+  }
+}
+
 async function ensureLabel(github, owner, repo, name, color) {
   try {
     await github.rest.issues.getLabel({ owner, repo, name })
@@ -329,6 +405,7 @@ module.exports = async ({ github, context, core }) => {
   const commentBody = context.payload.comment?.body?.trim() || ''
   const commenter = context.payload.comment?.user?.login || ''
   const command = commentBody.match(/^\/(approve|reject)\b(?:\s+([\s\S]*))?/i)
+  const issueLabels = new Set((issue.labels || []).map((label) => label.name || label))
 
   if (!request.name || !request.url || !request.friendPage) {
     core.info('Issue does not match the friend-link form; skipping.')
@@ -371,6 +448,9 @@ module.exports = async ({ github, context, core }) => {
     } else if (commenter !== issue.user.login) {
       core.info('Only the issue author can trigger revalidation without a review command.')
       return
+    } else if (!issueLabels.has(config.labels.needsUpdate)) {
+      core.info('Issue author comments only trigger revalidation while needs-update is set.')
+      return
     }
   }
 
@@ -394,7 +474,7 @@ module.exports = async ({ github, context, core }) => {
     }
 
     await assertPublicUrl(request.url)
-    await assertPublicUrl(request.avatar)
+    await validateAvatarUrl(request.avatar, config.site)
     const finalFriendPage = await validateFriendPage(request.friendPage, config.site)
     const isApproval = command?.[1]?.toLowerCase() === 'approve'
 
