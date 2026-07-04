@@ -121,6 +121,13 @@
           "link": "https://ddbx.org/",
           "avatar": "https://cdn.ddbx.org/12.png",
           "issue_id": 26
+        },
+        {
+          "name": "云灿の随笔小站",
+          "intro": "浮云一别后，流水十年间",
+          "link": "https://blog.yuncan.xyz/",
+          "avatar": "https://yuncan.xyz/images/icon/favicon.ico",
+          "issue_id": 25
         }
       ]
     },
