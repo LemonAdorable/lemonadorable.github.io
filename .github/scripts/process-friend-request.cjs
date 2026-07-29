@@ -48,6 +48,21 @@ const LABEL_COLORS = {
   approved: '0e8a16'
 }
 
+class FriendLinkError extends Error {
+  constructor({ messageZh, messageEn, suggestionZh, suggestionEn }) {
+    super(messageZh)
+    this.name = 'FriendLinkError'
+    this.messageZh = messageZh
+    this.messageEn = messageEn
+    this.suggestionZh = suggestionZh
+    this.suggestionEn = suggestionEn
+  }
+}
+
+function fail(details) {
+  throw new FriendLinkError(details)
+}
+
 function parseIssueBody(body) {
   const sections = new Map()
   const pattern = /^###\s+(.+?)\s*\n+([\s\S]*?)(?=^###\s+|\s*$)/gm
@@ -128,15 +143,37 @@ async function assertPublicUrl(value) {
   const url = new URL(value)
   const hostname = url.hostname.toLowerCase()
   if (hostname === 'localhost' || hostname.endsWith('.localhost')) {
-    throw new Error('不允许使用 localhost 地址')
+    fail({
+      messageZh: `地址 ${value} 使用了 localhost`,
+      messageEn: `The URL ${value} uses localhost`,
+      suggestionZh: '请填写公网可访问的 HTTP(S) 地址，不要使用 localhost。',
+      suggestionEn: 'Please use a publicly accessible HTTP(S) URL instead of localhost.'
+    })
   }
 
-  const addresses = net.isIP(hostname)
-    ? [{ address: hostname }]
-    : await dns.lookup(hostname, { all: true, verbatim: true })
+  let addresses
+  try {
+    addresses = net.isIP(hostname)
+      ? [{ address: hostname }]
+      : await dns.lookup(hostname, { all: true, verbatim: true })
+  } catch {
+    fail({
+      messageZh: `地址 ${value} 的域名解析失败`,
+      messageEn: `DNS lookup failed for ${value}`,
+      suggestionZh: '请确认域名已经正确解析，且 GitHub Actions 所在网络可以访问。',
+      suggestionEn:
+        'Please make sure the domain resolves correctly and is reachable from GitHub Actions.'
+    })
+  }
 
   if (!addresses.length || addresses.some(({ address }) => isPrivateIp(address))) {
-    throw new Error('地址解析到了私网、环回或保留 IP')
+    fail({
+      messageZh: `地址 ${value} 解析到了私网、环回或保留 IP`,
+      messageEn: `The URL ${value} resolves to a private, loopback, or reserved IP`,
+      suggestionZh: '请填写公网域名，或检查域名解析是否误指向了内网/保留地址。',
+      suggestionEn:
+        'Please use a public domain, or check whether the DNS record points to a private or reserved address.'
+    })
   }
 }
 
@@ -169,9 +206,31 @@ async function validateFriendPage(pageUrl, site) {
     })
     await page.waitForTimeout(2_000)
 
-    if (blockedNavigation) throw new Error(`页面跳转到了不允许访问的地址：${blockedNavigation}`)
-    if (!response) throw new Error('页面没有返回有效响应')
-    if (response.status() >= 400) throw new Error(`页面返回 HTTP ${response.status()}`)
+    if (blockedNavigation) {
+      fail({
+        messageZh: `友链页面跳转到了不允许访问的地址：${blockedNavigation}`,
+        messageEn: `The friend-links page redirects to a blocked URL: ${blockedNavigation}`,
+        suggestionZh: '请避免跳转到 localhost、内网地址或保留 IP。',
+        suggestionEn: 'Please avoid redirects to localhost, private networks, or reserved IPs.'
+      })
+    }
+    if (!response) {
+      fail({
+        messageZh: '友链页面没有返回有效响应',
+        messageEn: 'The friend-links page did not return a valid response',
+        suggestionZh: '请确认友链页面可以直接公开访问。',
+        suggestionEn: 'Please make sure the friend-links page is publicly accessible.'
+      })
+    }
+    if (response.status() >= 400) {
+      fail({
+        messageZh: `友链页面返回 HTTP ${response.status()}`,
+        messageEn: `The friend-links page returned HTTP ${response.status()}`,
+        suggestionZh: '请确认友链页面地址正确，且无需登录、验证码或特殊请求头。',
+        suggestionEn:
+          'Please make sure the page URL is correct and does not require login, CAPTCHA, or special request headers.'
+      })
+    }
 
     const finalUrl = page.url()
     await assertPublicUrl(finalUrl)
@@ -195,10 +254,33 @@ async function validateFriendPage(pageUrl, site) {
     })
 
     if (!hasBacklink) {
-      throw new Error(`页面中没有找到指向 ${site.url} 的链接`)
+      fail({
+        messageZh: `友链页面中没有找到指向 ${site.url} 的链接`,
+        messageEn: `No backlink to ${site.url} was found on the friend-links page`,
+        suggestionZh: '请先在你的友链页面添加本站链接，并确保链接 href 指向本站首页。',
+        suggestionEn:
+          'Please add this site to your friend-links page first, and make sure the link href points to this site homepage.'
+      })
     }
 
     return finalUrl
+  } catch (error) {
+    if (error instanceof FriendLinkError) throw error
+    if (error.name === 'TimeoutError' || /Timeout \d+ms exceeded/.test(error.message)) {
+      fail({
+        messageZh: `友链页面 ${pageUrl} 加载超时`,
+        messageEn: `The friend-links page ${pageUrl} timed out while loading`,
+        suggestionZh: `请优化页面加载速度，或确认 GitHub Actions 能在 ${PAGE_NAVIGATION_TIMEOUT_MS / 1000} 秒内打开该页面。`,
+        suggestionEn: `Please optimize the page loading speed, or make sure GitHub Actions can open it within ${PAGE_NAVIGATION_TIMEOUT_MS / 1000} seconds.`
+      })
+    }
+    fail({
+      messageZh: `友链页面无法完成校验：${error.message}`,
+      messageEn: `The friend-links page could not be validated: ${error.message}`,
+      suggestionZh: '请确认友链页面可以被普通浏览器直接打开，并且没有防爬、地区限制或证书错误。',
+      suggestionEn:
+        'Please make sure the page opens directly in a normal browser and has no anti-bot rules, regional restrictions, or certificate errors.'
+    })
   } finally {
     await browser.close()
   }
@@ -273,8 +355,23 @@ async function validateAvatarUrl(avatarUrl, site) {
     )
 
     if (!loaded) {
-      throw new Error('头像地址无法作为第三方页面图片加载，可能存在防盗链或访问限制')
+      fail({
+        messageZh: '头像地址无法作为第三方页面图片加载',
+        messageEn: 'The avatar URL could not be loaded as a third-party image',
+        suggestionZh: '请换成可公开直连的图片地址，避免防盗链、登录限制或仅网页预览地址。',
+        suggestionEn:
+          'Please use a direct, public image URL without hotlink protection, login restrictions, or page-preview-only URLs.'
+      })
     }
+  } catch (error) {
+    if (error instanceof FriendLinkError) throw error
+    fail({
+      messageZh: `头像地址无法完成校验：${error.message}`,
+      messageEn: `The avatar URL could not be validated: ${error.message}`,
+      suggestionZh: '请确认头像 URL 是可公开访问的图片资源，并允许第三方页面直接加载。',
+      suggestionEn:
+        'Please make sure the avatar URL is a publicly accessible image resource and allows third-party page loading.'
+    })
   } finally {
     await browser.close()
   }
@@ -465,14 +562,27 @@ module.exports = async ({ github, context, core }) => {
       ['网站头像 URL', request.avatar]
     ]) {
       const normalized = normalizeHttpUrl(value)
-      if (!normalized) throw new Error(`${label}不是有效的 HTTP(S) 地址`)
+      if (!normalized) {
+        fail({
+          messageZh: `${label}不是有效的 HTTP(S) 地址`,
+          messageEn: `${label} is not a valid HTTP(S) URL`,
+          suggestionZh: '请填写完整的 http:// 或 https:// URL。',
+          suggestionEn: 'Please enter a complete http:// or https:// URL.'
+        })
+      }
       if (label === '网站链接') request.url = normalized
       if (label === '友链页面 URL') request.friendPage = normalized
       if (label === '网站头像 URL') request.avatar = normalized
     }
 
     if (request.name.length > 80 || request.description.length > 200) {
-      throw new Error('网站名称或描述过长')
+      fail({
+        messageZh: '网站名称或描述过长',
+        messageEn: 'The site name or description is too long',
+        suggestionZh: '请将网站名称控制在 80 字以内，描述控制在 200 字以内。',
+        suggestionEn:
+          'Please keep the site name within 80 characters and the description within 200 characters.'
+      })
     }
 
     await assertPublicUrl(request.url)
@@ -562,6 +672,11 @@ module.exports = async ({ github, context, core }) => {
     await github.rest.issues.update({ owner, repo, issue_number: issueNumber, state: 'closed' })
   } catch (error) {
     core.warning(error)
+    const isFriendLinkError = error instanceof FriendLinkError
+    const messageZh = isFriendLinkError ? error.messageZh : error.message
+    const messageEn = isFriendLinkError ? error.messageEn : error.message
+    const suggestionZh = isFriendLinkError ? error.suggestionZh : ''
+    const suggestionEn = isFriendLinkError ? error.suggestionEn : ''
     await setStatusLabels(github, owner, repo, issueNumber, config, 'needsUpdate')
     await comment(
       github,
@@ -569,8 +684,11 @@ module.exports = async ({ github, context, core }) => {
       repo,
       issueNumber,
       [
-        `自动校验未通过：${error.message}`,
-        `Automated validation failed: ${error.message}`,
+        `自动校验未通过：${messageZh}`,
+        `Automated validation failed: ${messageEn}`,
+        ...(suggestionZh && suggestionEn
+          ? ['', `建议处理：${suggestionZh}`, `Suggested fix: ${suggestionEn}`]
+          : []),
         '',
         '请修正后由 Issue 作者回复任意内容，机器人会重新校验。',
         'After fixing the issue, the Issue author can reply to trigger validation again.',
