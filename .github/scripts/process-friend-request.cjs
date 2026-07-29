@@ -10,6 +10,7 @@ const { chromium } = require('playwright')
 const execFileAsync = promisify(execFile)
 const root = process.env.GITHUB_WORKSPACE || process.cwd()
 const configPath = path.join(root, '.github/friend-link.config.json')
+const PAGE_NAVIGATION_TIMEOUT_MS = 60_000
 
 const FIELD_ALIASES = {
   name: ['网站名称', '站点名称', '名称', '网站名称 / Site name', 'Site name'],
@@ -164,7 +165,7 @@ async function validateFriendPage(pageUrl, site) {
   try {
     const response = await page.goto(pageUrl, {
       waitUntil: 'domcontentloaded',
-      timeout: 20_000
+      timeout: PAGE_NAVIGATION_TIMEOUT_MS
     })
     await page.waitForTimeout(2_000)
 
@@ -236,7 +237,7 @@ async function validateAvatarUrl(avatarUrl, site) {
   try {
     await page.goto(checkUrl.toString(), {
       waitUntil: 'domcontentloaded',
-      timeout: 20_000
+      timeout: PAGE_NAVIGATION_TIMEOUT_MS
     })
 
     const loaded = await page.evaluate(
@@ -404,7 +405,8 @@ module.exports = async ({ github, context, core }) => {
   const request = parseIssueBody(issue.body || '')
   const commentBody = context.payload.comment?.body?.trim() || ''
   const commenter = context.payload.comment?.user?.login || ''
-  const command = commentBody.match(/^\/(approve|reject)\b(?:\s+([\s\S]*))?/i)
+  const command = commentBody.match(/^\/(approve|force-approve|reject)\b(?:\s+([\s\S]*))?/i)
+  const reviewCommand = command?.[1]?.toLowerCase() || ''
   const issueLabels = new Set((issue.labels || []).map((label) => label.name || label))
 
   if (!request.name || !request.url || !request.friendPage) {
@@ -420,7 +422,7 @@ module.exports = async ({ github, context, core }) => {
         return
       }
 
-      if (command[1].toLowerCase() === 'reject') {
+      if (reviewCommand === 'reject') {
         const reason = command[2]?.trim() || '未提供具体原因'
         await setStatusLabels(github, owner, repo, issueNumber, config, 'needsUpdate')
         await comment(
@@ -474,11 +476,18 @@ module.exports = async ({ github, context, core }) => {
     }
 
     await assertPublicUrl(request.url)
-    await validateAvatarUrl(request.avatar, config.site)
-    const finalFriendPage = await validateFriendPage(request.friendPage, config.site)
-    const isApproval = command?.[1]?.toLowerCase() === 'approve'
+    const isApproval = reviewCommand === 'approve'
+    const isForceApproval = reviewCommand === 'force-approve'
+    let finalFriendPage = request.friendPage
 
-    if (!isApproval) {
+    if (!isForceApproval) {
+      await validateAvatarUrl(request.avatar, config.site)
+      finalFriendPage = await validateFriendPage(request.friendPage, config.site)
+    } else {
+      core.warning(`Friend link #${issueNumber} is being force-approved by ${commenter}.`)
+    }
+
+    if (!isApproval && !isForceApproval) {
       await setStatusLabels(github, owner, repo, issueNumber, config, 'review')
       await comment(
         github,
@@ -493,6 +502,7 @@ module.exports = async ({ github, context, core }) => {
           '',
           '维护者可评论 / Maintainer commands:',
           '- `/approve`：重新校验并添加友链 / Revalidate and add the friend link',
+          '- `/force-approve`：跳过联网校验并强制添加友链 / Skip network validation and add the friend link',
           '- `/reject 原因`：拒绝申请并说明原因 / Reject with a reason'
         ].join('\n')
       )
@@ -534,8 +544,12 @@ module.exports = async ({ github, context, core }) => {
       repo,
       issueNumber,
       [
-        `自动校验通过，已添加友链 **${request.name}**。`,
-        `Automated validation passed and **${request.name}** has been added.`,
+        isForceApproval
+          ? `维护者已强制通过，已添加友链 **${request.name}**。`
+          : `自动校验通过，已添加友链 **${request.name}**。`,
+        isForceApproval
+          ? `A maintainer force-approved and added **${request.name}**.`
+          : `Automated validation passed and **${request.name}** has been added.`,
         '',
         `申请者友链页面 / Applicant friend-links page: ${finalFriendPage}`,
         `本站友链页面 / Iris friend-links page: ${config.site.friendPage}`,
