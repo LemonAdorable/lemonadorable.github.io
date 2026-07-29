@@ -11,6 +11,8 @@ const execFileAsync = promisify(execFile)
 const root = process.env.GITHUB_WORKSPACE || process.cwd()
 const configPath = path.join(root, '.github/friend-link.config.json')
 const PAGE_NAVIGATION_TIMEOUT_MS = 60_000
+const BRANCH_HEAD_WAIT_TIMEOUT_MS = 60_000
+const BRANCH_HEAD_WAIT_INTERVAL_MS = 2_000
 
 const FIELD_ALIASES = {
   name: ['网站名称', '站点名称', '名称', '网站名称 / Site name', 'Site name'],
@@ -480,7 +482,9 @@ async function commitAndPush(request, issueNumber) {
       cwd: root
     }
   )
+  const { stdout } = await execFileAsync('git', ['rev-parse', 'HEAD'], { cwd: root })
   await execFileAsync('git', ['push'], { cwd: root })
+  return stdout.trim()
 }
 
 async function triggerPagesDeploy(github, owner, repo, config, ref) {
@@ -490,6 +494,27 @@ async function triggerPagesDeploy(github, owner, repo, config, ref) {
     workflow_id: config.deployWorkflow || 'deploy.yml',
     ref
   })
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+async function waitForBranchHead(github, owner, repo, branch, expectedSha) {
+  const deadline = Date.now() + BRANCH_HEAD_WAIT_TIMEOUT_MS
+
+  while (Date.now() < deadline) {
+    const { data } = await github.rest.repos.getBranch({
+      owner,
+      repo,
+      branch
+    })
+
+    if (data.commit.sha === expectedSha) return true
+    await sleep(BRANCH_HEAD_WAIT_INTERVAL_MS)
+  }
+
+  return false
 }
 
 module.exports = async ({ github, context, core }) => {
@@ -638,10 +663,16 @@ module.exports = async ({ github, context, core }) => {
       return
     }
 
-    await commitAndPush(request, issueNumber)
+    const pushedSha = await commitAndPush(request, issueNumber)
     const defaultBranch = context.payload.repository.default_branch
     let deployTriggered = true
     try {
+      const branchReady = await waitForBranchHead(github, owner, repo, defaultBranch, pushedSha)
+      if (!branchReady) {
+        core.warning(
+          `Default branch ${defaultBranch} did not resolve to ${pushedSha} before dispatch timeout.`
+        )
+      }
       await triggerPagesDeploy(github, owner, repo, config, defaultBranch)
     } catch (error) {
       deployTriggered = false
