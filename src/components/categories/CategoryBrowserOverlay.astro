@@ -163,10 +163,13 @@ import { Icon } from 'astro-pure/user'
     display: flex;
     align-items: center;
     gap: 0.65rem;
+    min-width: 0;
     font-size: 0.9rem;
   }
 
   .window-path {
+    min-width: 0;
+    overflow: hidden;
     margin-left: 0.25rem;
     padding: 0.15rem 0.5rem;
     border-radius: 0.5rem;
@@ -174,6 +177,8 @@ import { Icon } from 'astro-pure/user'
     background: hsl(var(--muted) / 0.4);
     font-size: 0.75rem;
     font-family: var(--font-mono);
+    text-overflow: ellipsis;
+    white-space: nowrap;
     opacity: 0.8;
   }
 
@@ -262,7 +267,9 @@ import { Icon } from 'astro-pure/user'
   .hints-list {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 1.25rem;
+    min-width: 0;
   }
 
   :global(.category-browser .hints-list span) {
@@ -285,6 +292,7 @@ import { Icon } from 'astro-pure/user'
     display: flex;
     flex-direction: column;
     min-width: 0;
+    min-height: 0;
     overflow: hidden;
   }
 
@@ -751,7 +759,7 @@ import { Icon } from 'astro-pure/user'
   @media (max-width: 900px) {
     .category-browser-overlay {
       width: calc(100vw - 1rem);
-      max-height: calc(100vh - 1rem);
+      height: calc(100dvh - 1rem);
     }
 
     .category-browser-actions span {
@@ -760,17 +768,35 @@ import { Icon } from 'astro-pure/user'
 
     .browser-columns {
       grid-template-columns: minmax(9rem, 0.7fr) minmax(14rem, 1fr);
+      grid-template-rows: minmax(0, 1fr) minmax(13rem, 0.7fr);
     }
 
     .browser-preview {
       grid-column: 1 / -1;
-      min-height: 22rem;
+      min-height: 0;
       border-top: 1px solid hsl(var(--border));
       border-left: 0 !important;
+    }
+
+    .browser-footer {
+      padding-block: 0.5rem;
+    }
+
+    .footer-hints {
+      align-items: flex-start;
+    }
+
+    .hints-list {
+      row-gap: 0.45rem;
+      column-gap: 0.85rem;
     }
   }
 
   @media (max-width: 640px) {
+    .category-browser-overlay {
+      height: calc(100dvh - 1rem);
+    }
+
     .browser-columns {
       display: block;
       overflow-y: auto;
