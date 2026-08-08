@@ -142,6 +142,13 @@
           "link": "https://rainzt.cn/",
           "avatar": "https://rainzt.cn/zzty.png",
           "issue_id": 32
+        },
+        {
+          "name": "Brandon's Blog",
+          "intro": "Brandon的个人小站",
+          "link": "https://blog.oopss.top/",
+          "avatar": "https://cdn.oopss.top/icon.jpg",
+          "issue_id": 33
         }
       ]
     },
